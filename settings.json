@@ -1,0 +1,61 @@
+{
+    "OneCallAPI": {
+        "API_KEY": "5bf34700a4b4c39182ad26f1abf1890d",
+        "LATITUDE": 50.934,
+        "LONGITUDE": 7.294
+    },
+    "Loadmanagement": {
+        "LOADMANAGEMENT": true
+    },
+    "EVCC": {
+        "EVCC_API_BASE_URL": "http://192.168.178.28:7070"
+    },
+    "Loadpoints": [
+        {
+            "LOADPOINT_ID": 0,
+            "CHARGER_ENERGY": 7200,
+            "MINIMUM_CHARGE_POWER": 1380,
+            "default": true
+        },
+        {
+            "LOADPOINT_ID": 1,
+            "CHARGER_ENERGY": 11000,
+            "MINIMUM_CHARGE_POWER": 2000
+        }
+    ],
+    "Cars": [
+        {
+            "CAR_NAME": "Opel",
+            "BATTERY_CAPACITY": 50000,
+            "BATTERY_YEAR": 2021,
+            "DEGRADATION": 0.02,
+            "CONSUMPTION": 16000,
+            "BUFFER_DISTANCE": 20,
+            "default": true
+        },
+        {
+            "CAR_NAME": "VW",
+            "BATTERY_CAPACITY": 77000,
+            "BATTERY_YEAR": 2020,
+            "DEGRADATION": 0.015,
+            "CONSUMPTION": 18000,
+            "BUFFER_DISTANCE": 20
+        }
+    ],
+    "House": {
+        "ENERGY_CERTIFICATE": 7000,
+        "HEATED_AREA": 222,
+        "INDOOR_TEMPERATURE": 21,
+        "BASE_LOAD": 400,
+        "MAXIMUM_PV": 7200,
+        "SUMMER_THRESHOLD": 16
+    },
+    "EnergyAPIs": {
+        "SOLCAST_API_URL": "https://api.solcast.com.au/rooftop_sites/cfd2-137d-2164-9340/forecasts?format=json&api_key=tzQI1cc2BbsvohK8W7hfuHGoPDzzQMXi&hours=24",
+        "TIBBER_API_URL": "https://api.tibber.com/v1-beta/gql",
+        "TIBBER_HEADERS": {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer 5n3THamg76PhUjvpg8EdjaxN8dUXNTx4lW7w3b_UZOY"
+        }
+    }
+}

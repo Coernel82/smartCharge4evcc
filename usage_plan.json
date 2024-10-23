@@ -1,0 +1,48 @@
+{
+    "Opel": {
+        "recurring": [
+            {
+                "departure": "Monday",
+                "departure_time": "08:00",
+                "distance": 30,
+                "return": "Monday",
+                "return_time": "12:00"
+            },
+            {
+                "departure": "Wednesday",
+                "departure_time": "09:00",
+                "distance": 25,
+                "return": "Wednesday",
+                "return_time": "13:00"
+            }
+        ],
+        "non_recurring": [
+            {
+                "departure_date": "2024-11-05",
+                "departure_time": "10:00",
+                "distance": 120,
+                "return_date": "2024-11-06",
+                "return_time": "16:00"
+            }
+        ]
+    },
+    "VW": {
+        "recurring": [
+            {
+                "departure": "Wednesday",
+                "departure_time": "12:05",
+                "distance": 60,
+                "return": "Wednesday",
+                "return_time": "17:00"
+            },
+            {
+                "departure": "Tuesday",
+                "departure_time": "12:59",
+                "distance": 12,
+                "return": "Tuesday",
+                "return_time": "12:05"
+            }
+        ],
+        "non_recurring": []
+    }
+}
