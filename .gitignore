@@ -2,7 +2,7 @@
 __pycache__/
 
 # Ignoriere das Verzeichnis dont publish
-dont publish/
+dontpublish/
 
 # Ignoriere die settings.json Datei
 backend/data/settings.json
