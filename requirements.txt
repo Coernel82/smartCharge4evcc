@@ -1,6 +1,0 @@
-flask
-paho-mqtt
-influxdb-client
-numpy
-pandas
-requests
