@@ -1,0 +1,16 @@
+{
+    "assignments": [
+        {
+            "LOADPOINT_ID": 0,
+            "CAR_NAME": "Opel"
+        },
+        {
+            "LOADPOINT_ID": 1,
+            "CAR_NAME": "VW"
+        },
+        {
+            "LOADPOINT_ID": 2,
+            "CAR_NAME": null
+        }
+    ]
+}

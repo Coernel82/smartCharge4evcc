@@ -1,0 +1,19 @@
+# Ignoriere den __pycache__ Ordner
+__pycache__/
+
+# Ignoriere das Verzeichnis dont publish
+dontpublish/
+
+# Ignoriere die settings.json Datei
+backend/data/settings.json
+
+cache/
+*cache*
+
+# Ignoriere die Datei Zugangsdaten.py
+Zugangsdaten.py
+
+
+SmartCharge.code-workspace
+settings.json
+Abhängigkeit Temperatur und realie Reichweite.ods
