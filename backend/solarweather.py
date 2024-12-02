@@ -40,6 +40,14 @@ def get_solar_forecast(SOLCAST_API_URL):
     cache_file = os.path.join(CACHE_DIR, "solar_forecast_cache.json")
     current_time = datetime.datetime.now().astimezone()  # Verwende lokale Zeit mit Zeitzoneninfo
 
+    if not os.path.exists(cache_file):
+        # Create cache directory if it does not exist
+        if not os.path.exists(CACHE_DIR):
+            os.makedirs(CACHE_DIR)
+        # Create an empty cache file if it does not exist
+        with open(cache_file, "w") as f:
+            json.dump({"timestamp": current_time.isoformat()}, f)
+
     # Check if cache exists and is still valid (within 6 hours)
     if os.path.exists(cache_file):
         with open(cache_file, "r") as f:
@@ -104,6 +112,14 @@ def get_weather_forecast():
 
     cache_file = os.path.join(CACHE_DIR, "weather_forecast_cache.json")
     current_time = datetime.datetime.now().astimezone() 
+
+    if not os.path.exists(cache_file):
+        # Create cache directory if it does not exist
+        if not os.path.exists(CACHE_DIR):
+            os.makedirs(CACHE_DIR)
+        # Create an empty cache file if it does not exist
+        with open(cache_file, "w") as f:
+            json.dump({"timestamp": current_time.isoformat(), "forecast": [], "sunrise": None, "sunset": None}, f)
 
     # Überprüfen, ob der Cache existiert und noch gültig ist (innerhalb von 12 Stunden)
     if os.path.exists(cache_file):

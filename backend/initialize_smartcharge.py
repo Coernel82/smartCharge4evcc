@@ -237,10 +237,27 @@ def get_baseload():
     Returns:
         baseload (type): The baseload data, either from the cache or newly fetched.
     """
+    baseload_serializable = []
+
     script_dir = os.path.dirname(os.path.abspath(__file__))
     cache_file = os.path.join(script_dir, 'cache', 'baseload_cache.json')
 
     # Check if cache file exists
+    if not os.path.exists(cache_file):
+        # Create cache directory if it doesn't exist
+        cache_dir = os.path.dirname(cache_file)
+        os.makedirs(cache_dir, exist_ok=True)
+
+        # Create an empty cache file with the current timestamp
+        baseload = get_baseload_from_influxdb()
+        baseload_serializable = baseload.to_dict(orient='records')
+        cache_data = {
+            'timestamp': datetime.datetime.now().isoformat(),
+            'baseload': []
+        }
+        with open(cache_file, 'w', encoding='utf-8') as f:
+            json.dump(cache_data, f, ensure_ascii=False, indent=4)
+
     if os.path.exists(cache_file):
         with open(cache_file, 'r') as f:
             cache_data = json.load(f)
@@ -266,6 +283,7 @@ def get_baseload():
             }
             with open(cache_file, 'w', encoding='utf-8') as f:
                 json.dump(cache_data, f, ensure_ascii=False, indent=4)
+
 
     logging.debug(f"{GREY}Fetched new baseload data and updated cache{RESET}")
     return baseload_serializable
