@@ -94,7 +94,7 @@ pip install -r requirements.txt
 
 ### 4. Configure Settings
 
-- Update the `settings_example.json` file in the `data` directory with your specific configuration and copy it to create the real settings `mv settings_example.json settings.json`
+- Update the `settings_example.json` file in the `backend/data` directory with your specific configuration and copy it to create the real settings `mv settings_example.json settings.json`
 
 ---
 
