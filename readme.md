@@ -134,11 +134,11 @@ This will create your bashfile without opening nano or any other editor.
 Run `crontab -e` and add the following line to schedule the script hourly:
 
 ```bash
-0 * * * * /home/evcc/smartCharge4evcc/backend/run_smartcharge.sh >> /home/evcc/SmartCharge/smartcharge.log 2>&1
+0 * * * * /home/evcc/smartCharge4evcc/run_smartcharge.sh >> /home/evcc/SmartCharge4evcc/smartcharge.log 2>&1
 ```
 
 This runs the script at the top of every hour and logs output to `smartcharge.log`.
-Delete ``>> /home/evcc/smartCharge/smartcharge.log 2>&1`` if you don't need the log any more.
+Delete ``>> /home/evcc/smartCharge4evcc/smartcharge.log 2>&1`` if you don't need the log any more.
 
 ---
 
