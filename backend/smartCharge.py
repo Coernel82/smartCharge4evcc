@@ -7,7 +7,7 @@
 
 
 
-
+# TODO: read comment from the trips and ammend it to the log "Energy calculations for {car_name}. Trip: {comment}"
 # TODO: for days without (<=2% of maximum possible yield) sunshine is it possible to compare calculated and real heating energy and apply another correction factor
 # TODO: optional: add MQTT temperature source (via external script and cache)
 # TODO. add multiple sources for energy prices (Awattar, Fraunhofer)

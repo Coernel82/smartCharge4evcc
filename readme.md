@@ -146,26 +146,45 @@ Delete ``>> /home/evcc/smartCharge4evcc/smartcharge.log 2>&1`` if you don't need
 
 SmartCharge intelligently schedules your EV charging by considering several factors:
 
-1. ** Get many pieces of information from APIs** 💻
-2. ** Process the energy balance:** ⚖
-   1. Calculate the energy consumption of your house in hourly increments
-   2. Calculate remaining energy for everything else but your "normal" energy consumption in your house - excluding loadpoints and heating - in hourly increments
-   3. 
+1. Get many pieces of information from APIs 💻
+   1. energy forcast from Solcast
+   2. weather forcast from Openweather
+   3. settings from evcc
+2. Calculate the energy consumption of your house in hourly increments
+   1. using the value of the energy certificate of the house the energy consumption is calculated: ``x kWh /  ΔK / m² / year``. Break it down to an hour ``/365/24``
+   2. apply a correction factor: heating energy comes for free through your windows when the sun is shining. I estimate the energy by a correction factor: Normalize the prognosed yield of the pv by dividing through the kWP value of your pv. So the incoming radiation through the windows is somehow proportional to your PV yield. In another function the real energy used for heating and the calculated are compared and the correction factor gets adapted to make this prognosis more precise. For this I write the real and the calculated values to InfluxDB
+3. Substract baseload and heating energy:
+   1. the baseload also comes from InfluxDB after it has run for some weeks. It is calculated over 4 weeks per day of the weeks and in hourly increments. So for every hour ``(Monday1 + Monday2 + Monday3 + Monday4) / 4 = baseload``
+   2. we have a value containing the remaining energy per hour
+4. Calculate energy needed for ev
+   1. we have trip data in a json for recurring and non recurring trips.
+   2. (delete old non recurring trips takes place somewhere in the program as well)
+   3. we have a total degradated battery capacity which we calculate by age
+      1. TODO: change this to degradation by mileage (we can get this from evcc, lesser config, more precise)
+   4. get weather data for departure and return
+   5. calculate energy consumption for return and departure trip and take into consideration departure and return temperature (complicated gauss formula derived from a graph - link to graph in source code)
+5. "load" energy to the ev with the remaining pv energy (i.e. reserve this for the vehicle)
+6. Calculate loading plan for ev
+   1. the energy which can not be loaded till departure by solar energy has to be charged at cheapest cost:
+      1. calculate the charging time at the loadpoint for this amount of energy ``amount / speed = time``
+      2. filter energy prices from ``now till departure``
+      3. sort energy prices from ``low to high``
+      4. iterate through them till ``time (in hours) = number of iteration``. Return the price at that hour and post it to evcc
+7. Store remaining energy in home battery (= reserve it)
+8. Now we have a thorough energy profile which also has energy deficits for the home battery but also might have grid feedin (what we cannot do anything about as we have used the energy to the maximum possible)
+9.  Calculate charging costs of home battery
+    1. consider efficiency: ``charging cost =  charing costs * (1/efficiency)``
+    2. consider wear and tear: break down purchase price to Wh for battery and inverter:
+    ``charging cost = charging cost + wear and tear``
+10. Charge battery when charging and using charged energy is still cheaper then grid energy
+    1.  for every hour compare: how much energy is needed?
+    2.  is charging beforehand (with losses, see above) cheaper:
+    3.  sum up the energy need for all the times where charging beforehand is cheaper
+    4.  calculate charging time ``amount / speed = time``
+    5.  iterate as above with the loading plan for the ev
+    6.  set cheapest price via evcc api
+    7.  this can charge a bit more than needed as evcc does not support a "stop soc"
 
-3. **Weather Forecasting** ⛅
-    - Retrieves weather data to predict temperature and adjust charging accordingly as the car uses different amounts of energy when it is warm or cold. Also heating of your home is influenced.
-4. **Solar Production Forecast** 🌤️
-    - Uses Solcast API to get solar generation forecasts.
-5. **Electricity Prices** 💹
-    - Fetches current and future electricity prices from the TIBBER API (TODO: or other sources.)
-6. **Home Battery Status** 🔋
-    - Monitors home battery capacity and state of charge to optimize energy usage. Charges as much as needed but as little as possible to be able to use the battery when energy is more expansive than using it from the battery. Takes degradation and additional charging costs due to wear and efficiency into consideration.
-7. **Vehicle Usage Plan** 🚘
-    - Considers your vehicle's upcoming trips from `usage_plan.json` to ensure it's charged when needed.
-8. **Energy Consumption Data** 📊
-    - Reads energy consumption patterns to predict baseload and peak times.
-
-By combining these data points, SmartCharge determines the most cost-effective and energy-efficient charging schedule for your EVs.
 
 ### Components Breakdown
 
