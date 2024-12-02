@@ -124,6 +124,13 @@ def get_weather_forecast():
                 if isinstance(sunset, str):
                     sunset = datetime.datetime.fromisoformat(sunset)
                 return forecast, sunrise, sunset
+    else:
+        # Create cache directory if it does not exist
+        if not os.path.exists(CACHE_DIR):
+            os.makedirs(CACHE_DIR)
+        # Create an empty cache file if it does not exist
+        with open(cache_file, "w") as f:
+            json.dump({"timestamp": current_time.isoformat(), "forecast": [], "sunrise": None, "sunset": None}, f)
 
     logging.debug(f"{CYAN}Abrufen der Wettervorhersage von OpenWeatherMap{RESET}")
     # Abrufen der Wettervorhersage

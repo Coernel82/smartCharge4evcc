@@ -146,17 +146,23 @@ Delete ``>> /home/evcc/smartCharge4evcc/smartcharge.log 2>&1`` if you don't need
 
 SmartCharge intelligently schedules your EV charging by considering several factors:
 
-1. **Weather Forecasting** ⛅
+1. ** Get many pieces of information from APIs** 💻
+2. ** Process the energy balance:** ⚖
+   1. Calculate the energy consumption of your house in hourly increments
+   2. Calculate remaining energy for everything else but your "normal" energy consumption in your house - excluding loadpoints and heating - in hourly increments
+   3. 
+
+3. **Weather Forecasting** ⛅
     - Retrieves weather data to predict temperature and adjust charging accordingly as the car uses different amounts of energy when it is warm or cold. Also heating of your home is influenced.
-2. **Solar Production Forecast** 🌤️
+4. **Solar Production Forecast** 🌤️
     - Uses Solcast API to get solar generation forecasts.
-3. **Electricity Prices** 💹
+5. **Electricity Prices** 💹
     - Fetches current and future electricity prices from the TIBBER API (TODO: or other sources.)
-4. **Home Battery Status** 🔋
+6. **Home Battery Status** 🔋
     - Monitors home battery capacity and state of charge to optimize energy usage. Charges as much as needed but as little as possible to be able to use the battery when energy is more expansive than using it from the battery. Takes degradation and additional charging costs due to wear and efficiency into consideration.
-5. **Vehicle Usage Plan** 🚘
+7. **Vehicle Usage Plan** 🚘
     - Considers your vehicle's upcoming trips from `usage_plan.json` to ensure it's charged when needed.
-6. **Energy Consumption Data** 📊
+8. **Energy Consumption Data** 📊
     - Reads energy consumption patterns to predict baseload and peak times.
 
 By combining these data points, SmartCharge determines the most cost-effective and energy-efficient charging schedule for your EVs.
