@@ -4,3 +4,4 @@ influxdb-client
 numpy
 pandas
 requests
+scipy
