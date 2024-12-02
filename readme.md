@@ -73,7 +73,7 @@ Follow these steps to set up SmartCharge on your system:
 git clone https://github.com/Coernel82/smartCharge4evcc.git
 cd smartCharge4evcc 
 ```
-
+*To update to new versions:* ``git pull origin main``
 
 ### 2. Set Up a Virtual Environment on Debian based Systems (Raspberry Pi!)
 
