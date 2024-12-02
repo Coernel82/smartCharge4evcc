@@ -189,7 +189,7 @@ def get_baseload_from_influxdb():
     flux_query_baseload = f"""
     from(bucket: "{INFLUX_BUCKET}")
         |> range(start: {start_time}, stop: today())
-        |> filter(fn: (r) => r["SmartCharge"] == "homePower")
+        |> filter(fn: (r) => r["_measurement"] == "homePower")
         |> aggregateWindow(every: 1h, fn: integral, createEmpty: false)
         |> map(fn: (r) => ({{_value: r._value / 3600000.0, _time: r._time}}))
         |> yield(name: "integral")
