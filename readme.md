@@ -122,7 +122,7 @@ Note: You may run it every 10 minutes or so - you are welcome to test it and ope
 cat <<EOF > run_smartcharge.sh
 #!/bin/bash
 source /home/evcc/venv/bin/activate
-python /home/evcc/smartCharge4evcc/smartCharge.py
+python /home/evcc/smartCharge4evcc/backend/smartCharge.py
 deactivate
 EOF
 chmod +x run_smartcharge.sh
@@ -134,11 +134,11 @@ This will create your bashfile without opening nano or any other editor.
 Run `crontab -e` and add the following line to schedule the script hourly:
 
 ```bash
-0 * * * * /path/to/smartCharge4evcc/run_smartcharge.sh >> /path/to/SmartCharge/smartcharge.log 2>&1
+0 * * * * /home/evcc/smartCharge4evcc/backend/run_smartcharge.sh >> /home/evcc/SmartCharge/smartcharge.log 2>&1
 ```
 
 This runs the script at the top of every hour and logs output to `smartcharge.log`.
-Delete ``>> /path/to/smartCharge/smartcharge.log 2>&1`` if you don't need the log any more.
+Delete ``>> /home/evcc/smartCharge/smartcharge.log 2>&1`` if you don't need the log any more.
 
 ---
 
