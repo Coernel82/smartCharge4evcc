@@ -121,8 +121,9 @@ Note: You may run it every 10 minutes or so - you are welcome to test it and ope
 ```bash
 cat <<EOF > run_smartcharge.sh
 #!/bin/bash
-source /path/to/smartCharge4evcc/venv/bin/activate
-python /path/to/smartCharge4evcc/smartCharge.py
+source /home/evcc/venv/bin/activate
+python /home/evcc/smartCharge4evcc/smartCharge.py
+deactivate
 EOF
 chmod +x run_smartcharge.sh
 ```
