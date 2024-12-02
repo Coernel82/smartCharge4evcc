@@ -70,8 +70,8 @@ Follow these steps to set up SmartCharge on your system:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Coernel/SmartCharge4evcc.git  
-cd SmartChargeForEVCC
+git clone https://github.com/Coernel82/smartCharge4evcc.git
+cd smartCharge4evcc 
 ```
 
 

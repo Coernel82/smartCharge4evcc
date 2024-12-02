@@ -295,7 +295,7 @@ def github_check_new_version(current_version):
     Checks for a new version of the script on GitHub.
     """
     # Get the latest release from the GitHub API
-    github_api_url = "https://api.github.com/repos/Coernel/smartCharge4evcc/releases/latest"
+    github_api_url = "https://api.github.com/repos/Coernel82/smartCharge4evcc/releases/latest"
     try:
         response = requests.get(github_api_url)
         response.raise_for_status()
