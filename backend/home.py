@@ -347,6 +347,7 @@ def calculate_hourly_house_energy_consumption(solar_forecast, weather_forecast):
     # correction_factor_summer = (climate_energy_corrected - climate_energy_nominal - baseload) * (MAXIMUM_PV / pv_estimate)
     return hourly_climate_energy
 
+# BUG: baseload successfully from Influx but then no cachefile is created and therefore no matches
 def get_baseload_for_time(time, baseload_data):
     # logging.debug(f"{GREY}Searching for BASE_LOAD entry matching time {time}{RESET}")
     #logging.debug(f"{GREY}Baseload data: {baseload_data}{RESET}")
@@ -411,6 +412,7 @@ def get_home_batteries_capacities():
     """
     Calculates the usable and total capacity for each battery.
     """
+    batteryEnergy = None
     cache_folder = 'cache'
     cache_file = os.path.join(cache_folder, 'usable_capacity_cache.json')
 
