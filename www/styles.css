@@ -1,4 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+:root {
+    --bs-primary-bg-subtle: #cfe2ff;
+    --primary: #333;
+}
+
+
+
+.container {
+ 
+    margin-top: 15px;
+ 
+}
 
 /* Apply Montserrat Bold to Headings */
 h1, h2, h3, h4, h5, h6 {
@@ -25,7 +37,7 @@ section {
 }
 
 h2 {
-    color: #333;
+    color: var(--primary);
 }
 
 #non-recurring-list, #weekly-list {
@@ -155,17 +167,7 @@ h2 {
     background: #f0f0f0;
 }
 
-/* Load Now Button */
-#load-now-btn {
-    position: relative;
-    background: #0fde41;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 2rem;
-    cursor: pointer;
-    margin: 20px;
-}
+
 
 #load-now-btn:hover .submenu,
 #car-menu:hover {
@@ -264,4 +266,39 @@ h2 {
         bottom: 20px;
         right: 20px;
     }
+}
+
+/* Bootstrap modifications */
+.alert {
+    border-radius: 2rem;
+}
+
+.alert-primary {
+    --bs-alert-color: var(--bs-primary-bg-subtle);
+    --bs-alert-bg: var(--primary);
+}
+
+/* setup page */
+.infotext {
+    font-size: 0.8em;
+    font-weight: bold;
+    margin-bottom: .8em;
+}
+
+.settings-h3 {
+    font-weight: lighter;
+    font-size: 90%;
+    color: blue;
+}
+
+#open-settings-btn {
+    width: 60px;
+    height: 60px;
+    font-size: 36px;
+    text-align: center;
+    line-height: 60px;
+    cursor: pointer;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
 }

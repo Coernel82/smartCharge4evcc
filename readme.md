@@ -16,6 +16,11 @@
 
 ---
 
+![](assets/add-recurring.png)
+![](assets/datepicker.png)
+![](assets/web-ui.png)
+![](assets/settings.png)
+
 
 # SmartCharge 🚗⚡
 
@@ -50,6 +55,7 @@ There is a lot to do:
 - **Weather Integration**: Adjust charging plans based on weather conditions. ☔
 - **Electricity Price Optimization**: Schedule charging during off-peak hours to save on electricity costs. 💰
 - **evcc Integration**: Seamlessly integrate with [evcc (Electric Vehicle Charge Controller) GitHub Link ](https://github.com/evcc-io/evcc) / [Non GitHub link](https://www.evcc.io)
+- **Webserver**: Edit trips using the web interface
 
 ---
 
@@ -62,10 +68,14 @@ There is a lot to do:
 - A Solcast account with your photovoltaic (PV) system set up. You can create an account and set up your PV system [here](https://www.solcast.com/free-rooftop-solar-forecasting).
 - An OpenWeather account to retrieve weather data. You can create an account and get your API key [here](https://home.openweathermap.org/users/sign_up).
 - a contract with tibber and your [acces token] (https://developer.tibber.com/settings/accesstoken), alternatively: integrate another source for energy prices such as Fraunhofer or Awattar - see - [Contributing](#contributing)
+- a fake loadpoint and charger to be able to lock the home battery with a "quick and dirty" trick: https://github.com/evcc-io/evcc/wiki/aaa-Lifehacks#entladung-eines-steuerbaren-hausspeicher-preisgesteuert-oder-manuell-sperren
 
 ## 🛠️ Installation
 If these instructions say ``sudo`` do so. If not, do not!
 Follow these steps to set up SmartCharge on your system:
+
+### 0. Installing pip and git
+You may not be able to use ``git`` and ``pip``. If you encounter this problem: `sudo apt-get install -y git pip`
 
 ### 1. Clone the Repository
 
@@ -80,11 +90,15 @@ cd smartCharge4evcc
 It's recommended to use a Python virtual environment to manage dependencies:
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+sudo apt update
+sudo apt install python3-venv
+python3 -m venv myenv
+source myenv/bin/activate
 ```
+You may replace `myenv` to your liking.
 
 To deactivate / leave the virtual environment simply use ``deactivate``
+Don't do that now!
 
 ### 3. Install Dependencies
 
@@ -94,7 +108,13 @@ pip install -r requirements.txt
 
 ### 4. Configure Settings
 
-- Update the `settings_example.json` file in the `backend/data` directory with your specific configuration and copy it to create the real settings `mv settings_example.json settings.json`
+- `mv settings_example.json settings.json`
+- edit the settings via Webserver `<your-ip>:5000` **after** your webserver is running
+
+### 5. Running the Webserver
+The webserver is a Flask-Server which should only be run in your private network as it is not safe to open it to the internet. The server is included in /www/server.py
+
+Create a bash
 
 ---
 
@@ -105,40 +125,117 @@ pip install -r requirements.txt
 Activate your virtual environment and run the `smartCharge.py` script:
 
 ```bash
-source venv/bin/activate 
+source myenv/bin/activate 
 python smartCharge.py
 ```
 
-### Running SmartCharge *Hourly* with Cron - this is what you need to do!
+### Running SmartCharge as a Systemd Service
 
-To run SmartCharge automatically every hour (you must run it every hour, not every 30 minutes, not every two hours), you can use a cron job. We'll create a bash script to ensure the virtual environment is activated when the script runs.
+To keep SmartCharge running continuously, restart it automatically if it crashes, and start it on boot, you can set it up as a systemd service. The script loops itself. Every ten minutes the SoC of the home battery is checked, every hour the calculations are done.
 
-Note: You may run it every 10 minutes or so - you are welcome to test it and open an issue. There might be finder resolutions for weather and other data available. However at the moment running more often than once an hour only might be making sense in case of cheap home battery charging to prevent charging more than needed.
+#### 1. Create a Systemd Service File for the main program and the server
 
-#### 1. Create a Bash Script and make it executable
+Create a new service file to run SmartCharge and its server in the virtual environment:
+`nano run_smartcharge.sh`
 
-
+and past this:
 ```bash
-cat <<EOF > run_smartcharge.sh
 #!/bin/bash
-source /home/evcc/venv/bin/activate
-python /home/evcc/smartCharge4evcc/backend/smartCharge.py
+
+# switching to the working directory
+cd /home/evcc-admin/smartCharge4evcc
+
+# Aktivieren der virtuellen Umgebung
+source /home/evcc-admin/myenv/bin/activate
+
+# run both scripts simultaniously by using the &-sign
+python /home/evcc-admin/smartcharge/smartCharge4evcc.py &
+python /home/evcc-admin/smartCharge4evcc/www/server.py &
+
+# wait till the scripts finish (they never should)
+wait
+
+# Deaktivieren der virtuellen Umgebung
 deactivate
-EOF
-chmod +x run_smartcharge.sh
 ```
-This will create your bashfile without opening nano or any other editor.
 
-#### 2. Edit Crontab
+Make it executable: `chmod +x /home/evcc/run_smartcharge.sh`
 
-Run `crontab -e` and add the following line to schedule the script hourly:
+Then make this a system service:
 
 ```bash
-0 * * * * /home/evcc/smartCharge4evcc/run_smartcharge.sh >> /home/evcc/SmartCharge4evcc/smartcharge.log 2>&1
+sudo nano /etc/systemd/system/smartcharge.service
 ```
 
-This runs the script at the top of every hour and logs output to `smartcharge.log`.
-Delete ``>> /home/evcc/smartCharge4evcc/smartcharge.log 2>&1`` if you don't need the log any more.
+Paste the following content into the file:
+
+```ini
+[Unit]
+Description=SmartCharge Service
+After=network.target
+
+[Service]
+User=evcc-admin
+WorkingDirectory=/home/evcc-admin/smartCharge4evcc
+ExecStart=/home/evcc-admin/run_smartcharge.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+
+*Note:* Replace `/home/evcc-admin/smartCharge4evcc` and `evcc-admin` with your actual installation path and username if they are different.
+
+#### 2. Reload Systemd and Enable the Service
+
+Reload systemd to recognize the new service:
+
+```bash
+sudo systemctl daemon-reload
+```
+
+Enable the service to start on boot:
+
+```bash
+sudo systemctl enable smartcharge.service
+```
+
+#### 3. Start the Service
+
+Start the SmartCharge service:
+
+```bash
+sudo systemctl start smartcharge.service
+
+```
+
+#### 4. Verify the Service Status
+
+Check the status of the service to ensure it's running:
+
+```bash
+sudo systemctl status smartcharge.service
+```
+```
+
+You should see that the service is active and running.
+
+#### 5. View Service Logs
+
+To view the logs for the SmartCharge service, use:
+
+```bash
+sudo journalctl -u smartcharge.service
+```
+
+#### Notes
+
+- The `Restart=always` option ensures that the service restarts automatically if it stops or crashes.
+- The `RestartSec=5` option sets a 5-second delay before the service restarts.
+- Ensure that your Python virtual environment and paths are correctly specified in the `ExecStart` directive.
+
 
 ---
 
@@ -159,8 +256,7 @@ SmartCharge intelligently schedules your EV charging by considering several fact
 4. Calculate energy needed for ev
    1. we have trip data in a json for recurring and non recurring trips.
    2. (delete old non recurring trips takes place somewhere in the program as well)
-   3. we have a total degradated battery capacity which we calculate by age
-      1. TODO: change this to degradation by mileage (we can get this from evcc, lesser config, more precise)
+   3. we have a total degradated battery capacity which we calculate by mileage
    4. get weather data for departure and return
    5. calculate energy consumption for return and departure trip and take into consideration departure and return temperature (complicated gauss formula derived from a graph - link to graph in source code)
 5. "load" energy to the ev with the remaining pv energy (i.e. reserve this for the vehicle)
@@ -186,7 +282,7 @@ SmartCharge intelligently schedules your EV charging by considering several fact
     7.  this can charge a bit more than needed as evcc does not support a "stop soc"
 
 
-### Components Breakdown
+### Components breakdown
 
 - **utils.py**: Helper functions for calculations and data handling.
 - **initialize_smartcharge.py**: Loads settings and initializes the application.
@@ -197,7 +293,7 @@ SmartCharge intelligently schedules your EV charging by considering several fact
 - **evcc.py**: Interfaces with the EVCC API to set charging parameters.
 - **settings.json**: Configuration file containing API keys and user settings.
 - **usage_plan.json**: User-defined schedule for vehicle usage.
-
+- **www**: the webserver directory
 ---
 
 ## 🤝 Contributing

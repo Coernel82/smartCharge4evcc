@@ -79,6 +79,7 @@ def ensure_datetime_with_timezone(time_value):
 
 
 
+# BUG: does not write (done: changed to own bucket)
 def write_corrected_energy_consumption(hourly_climate_energy):
     """
     Writes the corrected hourly energy consumption data to InfluxDB.
@@ -94,14 +95,14 @@ def write_corrected_energy_consumption(hourly_climate_energy):
     Raises:
         InfluxDBError: If there is an error writing to the InfluxDB.
     """
-    # Initialize InfluxDB client
     client = InfluxDBClient(
+        # Initialize InfluxDB client
         url=settings['InfluxDB']['INFLUX_BASE_URL'],
         token=settings['InfluxDB']['INFLUX_ACCESS_TOKEN'],
         org=settings['InfluxDB']['INFLUX_ORGANIZATION']
     )
     write_api = client.write_api(write_options=SYNCHRONOUS)
-    
+  
     # Write the corrected energy consumption data to InfluxDB   
     for entry in hourly_climate_energy:
         timestamp = entry['time']
@@ -112,7 +113,7 @@ def write_corrected_energy_consumption(hourly_climate_energy):
         for key, value in entry.items():
             if key == 'time':
                 continue  # 'time' is used as timestamp
-            elif key == 'maximum_pv':
+            elif key == 'maximumPv':
                 point = point.field(key, int(value))
             elif key == 'pv_estimate':
                 point = point.field(key, int(value))
@@ -121,12 +122,15 @@ def write_corrected_energy_consumption(hourly_climate_energy):
             else:
                 point = point.tag(key, value)
         
-        write_api.write(
-            bucket=settings['InfluxDB']['INFLUX_BUCKET'],
-            org=settings['InfluxDB']['INFLUX_ORGANIZATION'],
-            record=point
-        )
-        # logging.debug(f"{GREY}Corrected energy consumption data {entry} at {timestamp} written to InfluxDB.{RESET}")
+        try:
+            write_api.write(
+                bucket='smartCharge4evcc',
+                org=settings['InfluxDB']['INFLUX_ORGANIZATION'],
+                record=point
+            )
+            logging.debug(f"{GREY}Corrected energy consumption data {entry} at {timestamp} written to InfluxDB.{RESET}")
+        except Exception as e:
+            logging.error(f"{RED}Failed to write data to InfluxDB: {e}{RESET}")
 
 def query_influx_real_energy_readings():
     INFLUX_BASE_URL = settings['InfluxDB']['INFLUX_BASE_URL']
@@ -154,7 +158,7 @@ def query_influx_real_energy_readings():
         |> filter(fn: (r) => r["_field"] == "value")
         |> filter(fn: (r) => r["_measurement"] == "chargePower")
         |> aggregateWindow(every: 1d, fn: integral, createEmpty: false)
-        |> map(fn: (r) => ({{_value: r._value / 3600000.0, _time: r._time, loadpoint: r.loadpoint, _field: r._field, _measurement: r._measurement}}))
+        |> map(fn: (r) => ({{_value: r._value / 3600000.0, _time: r._time, loadpoint: r.loadpoint, _field: r._field, _measurement: r._measurement, pv_estimate: r.pv_estimate}}))
         |> yield(name: "integral")
     """
      # Query InfluxDB
@@ -171,7 +175,6 @@ def query_influx_calculated_energy_readings():
 
     INFLUX_BASE_URL = settings['InfluxDB']['INFLUX_BASE_URL']
     INFLUX_ORGANIZATION = settings['InfluxDB']['INFLUX_ORGANIZATION']
-    INFLUX_BUCKET = settings['InfluxDB']['INFLUX_BUCKET']
     INFLUX_ACCESS_TOKEN = settings['InfluxDB']['INFLUX_ACCESS_TOKEN']
     INFLUX_LOADPOINT = settings['InfluxDB']['INFLUX_LOADPOINT']
     TIMESPAN_WEEKS = settings['InfluxDB']['TIMESPAN_WEEKS']
@@ -193,9 +196,9 @@ def query_influx_calculated_energy_readings():
     # / 3600000.0 to convert from Wh to kWh
 
     flux_query_calculated = f"""
-    from(bucket: "{INFLUX_BUCKET}")
+    from(bucket: "smartCharge4evcc")
         |> range(start: {start_time}, stop: today())
-        |> filter(fn: (r) => r["SmartCharge"] == "correctedEnergy")
+        |> filter(fn: (r) => r["SmartCharge"] == "calculatedEnergy")
         |> aggregateWindow(every: 1d, fn: integral, createEmpty: false)
         |> yield(name: "integral")
     """
@@ -242,7 +245,7 @@ def update_correction_factor():
     for entry in result_calculated:
         total_climate_energy_nominal += entry.get('climate_energy_nominal', 0)
         total_baseload += entry.get('baseload', 0)
-        total_MAXIMUM_PV += entry.get('MAXIMUM_PV', 0)
+        total_MAXIMUM_PV += entry.get('maximumPv', 0)
         total_pv_estimate += entry.get('pv_estimate', 0)
         count += 1
 
@@ -651,7 +654,7 @@ def calculate_hourly_energy_surplus(hourly_climate_energy, solar_forecast):
 
     return hourly_energy_surplus
 
-def get_usable_charging_energy_surplus(usable_energy, departure_time, ev_energy_gap, load_car=True):
+def get_usable_charging_energy_surplus(usable_energy, departure_time, ev_energy_gap, evcc_state, loadpoint_id, load_car=True):
     """
     Extract and sum up all energy values from usable_energy higher than 700 Watt during the timespan 
     from now till departure_time until the sum is higher or equal to ev_energy_gap.
@@ -689,11 +692,18 @@ def get_usable_charging_energy_surplus(usable_energy, departure_time, ev_energy_
             if load_car:
                 # Minimum charging power for EV is roughly 1.4 kW - so we assume that 700 Watt can mean that there was enough energy available for charging
                 if pv_estimate > 700:
-                    # FIXME: usable_energy needs to be a list of dictionaries with keys 'time' and 'pv_estimate'
-                    # FIXME: limit charging energy to maximum loadpoint energy
-                    usable_charging_energy_surplus += pv_estimate
+                    # Get maximum loadpoint energy from EVCC API
+                    maximum_loadpoint_energy = evcc_state['loadpoints'][loadpoint_id]['chargePower']
+                    if pv_estimate > maximum_loadpoint_energy:
+                        pv_estimate_usable = maximum_loadpoint_energy
+                        pv_estimate -= maximum_loadpoint_energy
+                    else:
+                        pv_estimate_usable = pv_estimate
+                        pv_estimate = 0
+                    usable_charging_energy_surplus += pv_estimate_usable
+                    usable_charging_energy_surplus += pv_estimate_usable
                     # logging.debug(f"{GREY}usable charging energy surplus: Added {pv_estimate} Wh to the surplus{RESET}")
-                    entry['pv_estimate'] = 0  # Set the used energy to 0
+                    entry['pv_estimate'] = pv_estimate  # the rest
 
                     if usable_charging_energy_surplus >= ev_energy_gap:
                         break
@@ -746,7 +756,7 @@ def get_season():
 
 
     flux_query_temperatures = f'''
-    from(bucket: "{INFLUX_BUCKET}")
+    from(bucket: "smartCharge4evcc")
         |> range(start: -30d)
         |> filter(fn: (r) => r["SmartCharge"] == "correctedEnergy")
         |> filter(fn: (r) => r._field == "outdoor_temp")
@@ -793,3 +803,110 @@ def get_season():
         season = 'interim'
 
     return season
+
+def cache_upper_price_limit(price_limit):
+    """
+    Cache the upper price limit to a file.
+
+    This function writes the given price limit to a file located at
+    '/cache/batteryGridChargeLimit.txt'. If the file does not exist,
+    it creates an empty file first before writing the price limit.
+
+    Args:
+        price_limit (float): The upper price limit to be cached.
+    """
+    file_path = '/cache/batteryGridChargeLimit.txt'
+    if not os.path.exists(file_path):
+        with open(file_path, 'w') as f:
+            pass  # Create an empty file
+    with open(file_path, 'w') as f:
+        f.write(str(price_limit))
+
+
+def cache_current_maximum_soc_allowed(home_battery_energy_forecast):
+    """
+    Caches the current maximum state of charge (SOC) allowed for the home battery.
+    This function retrieves the maximum SOC for the current hour from the provided
+    home battery energy forecast and writes it to a file. If no forecast is found
+    for the current hour, an error is logged.
+    Args:
+        home_battery_energy_forecast (list): A list of dictionaries containing
+            the energy forecast for the home battery. Each dictionary should have
+            the keys 'time' and 'energy'.
+    Raises:
+        None
+    Returns:
+        None
+    """
+    maximum_soc_for_this_hour = home_battery_energy_forecast['maximum_soc']
+    current_time = datetime.datetime.now().astimezone()
+    current_hour = current_time.replace(minute=0, second=0, microsecond=0)
+    
+    maximum_soc_for_this_hour = None
+    for forecast in home_battery_energy_forecast:
+        forecast_time = ensure_datetime_with_timezone(forecast['time'])
+        if forecast_time == current_hour:
+            maximum_soc_for_this_hour = forecast['energy']
+            break
+
+    if maximum_soc_for_this_hour is None:
+        logging.error(f"{RED}No maximum SOC found for the current hour.{RESET}")
+        return
+    
+    file_path = '/data/maximum_soc_allowed.txt'
+    if not os.path.exists(file_path):
+        with open(file_path, 'w') as f:
+            pass  # Create an empty file
+    with open(file_path, 'w') as f:
+        f.write(str(maximum_soc_for_this_hour))
+     
+def cache_home_battery_charging_cost_per_kWh(home_battery_charging_cost_per_kWh):
+    """
+    Cache the home battery charging cost per kWh to a file.
+
+    This function writes the provided home battery charging cost per kWh to a file
+    located at '/data/chargingCostsHomeBattery.txt'. If the file does not exist, 
+    it creates an empty file before writing the cost.
+
+    Args:
+        home_battery_charging_cost_per_kWh (float): The cost of charging the home battery per kWh.
+    """
+    file_path = '/data/chargingCostsHomeBattery.txt'
+    if not os.path.exists(file_path):
+        with open(file_path, 'w') as f:
+            pass  # Create an empty file    
+    with open(file_path, 'w') as f: 
+        f.write(str(home_battery_charging_cost_per_kWh))
+    
+def get_current_electricity_price(electricity_prices):
+    """
+    Get the current electricity price from a list of electricity prices.
+
+    This function retrieves the electricity price for the current hour from the provided
+    list of electricity prices. If no price is found for the current hour, an error is logged.
+
+    Args:
+        electricity_prices (list): A list of dictionaries containing the electricity prices.
+            Each dictionary should have the keys 'startsAt' and 'total'.
+
+    Raises:
+        None
+
+    Returns:
+        float: The current electricity price.
+    """
+    current_time = datetime.datetime.now().astimezone()
+    current_hour = current_time.replace(minute=0, second=0, microsecond=0)
+    
+    current_price = None
+    for price in electricity_prices:
+        price_time = ensure_datetime_with_timezone(price['startsAt'])
+        if price_time == current_hour:
+            current_price = price['total']
+            break
+
+    if current_price is None:
+        logging.error(f"{RED}No electricity price found for the current hour.{RESET}")
+        return None
+
+    return current_price

@@ -76,7 +76,8 @@ def read_usage_plan():
         return usage_plan
 
 # Funktion zum Einlesen der Zuordnung von Autos zu Ladepunkten
-def load_assignments():
+# TODO: delete if program working - redundant
+def load_assignments_redundant():
     """
     Loads loadpoint assignments from a JSON file.
 
@@ -116,53 +117,45 @@ def get_home_battery_data_from_json():
     return battery_data
 
     
-def get_home_battery_data_from_api():
+def get_home_battery_data_from_api(evcc_state):
     """
-    Retrieves the state of charge (SoC) and current energy of home batteries from the API.
+    Retrieves the state of charge (SoC) and capacity of home batteries from the API.
 
     Returns:
-        list: A list of dictionaries containing battery SoC, energy, and calculated capacity.
+        list: A list of dictionaries containing battery SoC, capacity.
     """
-    evcc_api_base_url = settings['EVCC']['EVCC_API_BASE_URL']
     home_batteries = settings['Home']['HomeBatteries'].keys()
-    try:
-        response = requests.get(f"{evcc_api_base_url}/api/state")
-        response.raise_for_status()
-        data = response.json()
-        
-        battery_data = []
-        batteries_info = data['result']['battery']
-        
-        for battery_index, battery_id in enumerate(home_batteries):
-            battery_info = batteries_info[battery_index]
-            battery_soc = battery_info['soc']
-            battery_energy = battery_info['energy']
-            battery_data.append({
-                'battery_id': battery_id,
-                'battery_soc': battery_soc,
-                'battery_energy': battery_energy
-            })
-        logging.debug(f"{GREY}Home battery API data: {battery_data}{RESET}")
-        return battery_data
-    except Exception as e:
-        logging.error(f"Failed to retrieve home battery data from API: {e}")
-        return []
+    if not home_batteries:
+        logging.warning(f"{RED}No home batteries defined in settings.json{RESET}")
+        return [{'battery_id': 0, 'battery_soc': 0, 'battery_capacity': 0}]
+    
+    battery_data = []
+    batteries_info = evcc_state['result']['battery']
+    # if batteries_info is empty, return 'battery_id': 0, 'battery_soc': 0 'battery_capacity': 0
+    if not batteries_info:
+        logging.warning(f"{RED}No home batteries defined in settings.json{RESET}")
+        return [{'battery_id': 0, 'battery_soc': 0, 'battery_capacity': 0}]
+    
+    for battery_index, battery_id in enumerate(home_batteries):
+        battery_info = batteries_info[battery_index]
+        battery_soc = battery_info['soc']
+        battery_capacity = battery_info['capacity']
+        battery_data.append({
+            'battery_id': battery_id,
+            'battery_soc': battery_soc,
+            'battery_capacity': battery_capacity
+        })
+    logging.debug(f"{GREY}Home battery API data: {battery_data}{RESET}")
+    return battery_data
+    
 
-def get_loadpoint_id_for_car(car_name):
-    evcc_api_base_url = settings['EVCC']['EVCC_API_BASE_URL']
-    try:
-        response = requests.get(f"{evcc_api_base_url}/api/state")
-        response.raise_for_status()
-        data = response.json()
-        loadpoints = data['result']['loadpoints']
-        for loadpoint in loadpoints:
-            if loadpoint.get('vehicleName') == car_name:
-                for loadpoint in loadpoints:
-                    if loadpoint.get('vehicleName') == car_name:
-                       return loadpoints.index(loadpoint)
-    except Exception as e:
-        logging.error(f"Failed to retrieve loadpoint ID for car {car_name}: {e}")
-        return None
+def get_loadpoint_id_for_car(car_name, evcc_state):
+    loadpoints = evcc_state['result']['loadpoints']
+    for loadpoint in loadpoints:
+        if loadpoint.get('vehicleName') == car_name:
+            for loadpoint in loadpoints:
+                if loadpoint.get('vehicleName') == car_name:
+                    return loadpoints.index(loadpoint)
     
 def get_baseload_from_influxdb():
     INFLUX_BASE_URL = settings['InfluxDB']['INFLUX_BASE_URL']
@@ -303,6 +296,7 @@ def delete_deprecated_trips():
     current_date = datetime.datetime.now().date()
     usage_plan = [trip for trip in usage_plan if isinstance(trip, dict)]  # Ensure each trip is a dictionary
     for trip in usage_plan:
+        # FIXME: does this need to be changed to departure_date?
         trip_date = datetime.datetime.strptime(trip.get('date', ''), '%Y-%m-%d').date()
         if trip_date < current_date:
             usage_plan.remove(trip)
@@ -344,3 +338,23 @@ def get_evcc_state():
         logging.error(f"Failed to retrieve EVCC state: {e}")
         return {}
 
+def create_influxdb_bucket():
+    INFLUX_BASE_URL = settings['InfluxDB']['INFLUX_BASE_URL']
+    INFLUX_ORGANIZATION = settings['InfluxDB']['INFLUX_ORGANIZATION']
+    INFLUX_ACCESS_TOKEN = settings['InfluxDB']['INFLUX_ACCESS_TOKEN']
+    
+    # Initialize InfluxDB client
+    client = InfluxDBClient(
+        url=INFLUX_BASE_URL,
+        token=INFLUX_ACCESS_TOKEN,
+        org=INFLUX_ORGANIZATION
+    )
+    # check if the bucket smartCharge4evcc exists - if not create it
+    bucket_api = client.buckets_api()
+    existing_buckets = [b.name for b in bucket_api.find_buckets().buckets]
+    if "smartCharge4evcc" not in existing_buckets:
+        bucket_api.create_bucket(
+            bucket_name="smartCharge4evcc",
+            description="Bucket for corrected energy consumption data",
+            org=settings['InfluxDB']['INFLUX_ORGANIZATION']
+        )

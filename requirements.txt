@@ -6,3 +6,5 @@ pandas
 requests
 scipy
 scikit-learn
+# for the webserver
+flask_cors

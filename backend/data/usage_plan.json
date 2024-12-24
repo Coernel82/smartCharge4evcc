@@ -2,50 +2,84 @@
     "Opel": {
         "recurring": [
             {
-                "description": "to work - optional",
-                "departure": "Sunday",
-                "departure_time": "13:30",
-                "distance": 290,
-                "return": "Sunday",
-                "return_time": "15:00"
-            },
-            {
-                "departure": "Tuesday",
+                "description": "another day",
+                "departure_date": "Tuesday",
                 "departure_time": "16:00",
                 "distance": 25,
-                "return": "Tuesday",
-                "return_time": "17:00"
+                "return_date": "Tuesday",
+                "return_time": "17:00",
+                "id": "2"
             }
         ],
         "non_recurring": [
             {
-                "description": "This is an example for a non-recurring trip far in the future - otherwise it will be delted automatically", 
-                "departure": "2055-10-15",
-                "departure_time": "09:00",
-                "return": "2055-10-17",
-                "return_time": "18:00",
-                "distance": 199
+                "description": "html",
+                "departure_date": "2024-12-04",
+                "departure_time": "02:05",
+                "return_date": "2024-12-11",
+                "return_time": "14:10",
+                "distance": 22,
+                "id": "5"
+            },
+            {
+                "departure_date": "2024-12-16",
+                "departure_time": "22:22",
+                "return_date": "2024-12-26",
+                "return_time": "15:15",
+                "distance": 33,
+                "description": "Nice trip.",
+                "id": "nrt-754c327a-9cc7-4786-bdde-40c8dcf3e747"
+            },
+            {
+                "departure_date": "2024-12-16",
+                "departure_time": "22:22",
+                "return_date": "2024-12-26",
+                "return_time": "15:15",
+                "distance": 33,
+                "description": "Nice trip.",
+                "id": "nrt-754c327a-9cc7-478-bdde-40c8dcf3e747"
+            },
+            {
+                "departure_date": "2024-12-20",
+                "departure_time": "13:23",
+                "return_date": "2024-12-25",
+                "return_time": "22:00",
+                "distance": "55",
+                "description": "ttttt",
+                "id": "nrt-96ecda5c-ba3f-460b-9767-a65700e0c31e"
+            },
+            {
+                "departure_date": "2024-12-03",
+                "departure_time": "13:00",
+                "return_date": "2024-12-24",
+                "return_time": "23:00",
+                "distance": "555",
+                "description": "north pole",
+                "id": "nrt-b4cabfb4-ba7f-4c6c-b648-a4a365df334d"
             }
         ]
     },
     "VW": {
         "recurring": [
             {
-                "departure": "Monday",
+                "description": "To Space",
+                "departure_date": "Monday",
                 "departure_time": "12:05",
                 "distance": 60,
-                "return": "Monday",
-                "return_time": "17:00"
+                "return_date": "Monday",
+                "return_time": "17:00",
+                "id": "6"
             },
             {
-                "departure": "Tuesday",
+                "description": "To the moon",
+                "departure_date": "Tuesday",
                 "departure_time": "12:59",
                 "distance": 12,
-                "return": "Tuesday",
-                "return_time": "12:05"
+                "return_date": "Tuesday",
+                "return_time": "12:05",
+                "id": "7"
             }
         ],
         "non_recurring": []
-
     }
 }

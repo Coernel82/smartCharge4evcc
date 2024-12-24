@@ -27,6 +27,7 @@ EVCC_API_BASE_URL = initialize_smartcharge.settings['EVCC']['EVCC_API_BASE_URL']
 def get_evcc_state():
     logging.debug(f"{GREEN}Retrieving EVCC state from {EVCC_API_BASE_URL}/api/state{RESET}")
     try:
+        # we must query the api in this case as we need fresh data every 4 minutes
         response = requests.get(f"{EVCC_API_BASE_URL}/api/state")
         response.raise_for_status()  # Check for HTTP errors
         evcc_state = response.json()
@@ -37,42 +38,8 @@ def get_evcc_state():
         # stop the whole program if the EVCC state cannot be retrieved as this is vital
         raise SystemExit
 
-# Function to send the calculated state of charge to EVCC
-def set_evcc_soc(car_name, target_soc, time_windows):
-    current_time = datetime.datetime.now().astimezone()
-    in_time_window = False
-    for window in time_windows:
-        window_start = window['startsAt']
-        # Ensure window_start is datetime object
-        if isinstance(window_start, str):
-            window_start = datetime.datetime.fromisoformat(window_start)
-        price_end = window_start + datetime.timedelta(hours=1)
-        window_start = window_start.astimezone()
-        price_end = price_end.astimezone()
-        if window_start <= current_time < price_end:
-            in_time_window = True
-            break
-    if in_time_window:
-        logging.debug(f"{CYAN}Within cheapest time window. Setting target SoC to {target_soc:.2f}%{RESET}")
-        # Bevor wir den minSoC setzen, lesen wir den aktuellen Wert und cachen ihn
-        get_evcc_minsoc(car_name)
-        # Send target SoC to EVCC
-        EVCC_API_BASE_URL = initialize_smartcharge.settings['EVCC']['EVCC_API_BASE_URL']
-        url = f"{EVCC_API_BASE_URL}/api/vehicles/{car_name}/minsoc/{int(target_soc)}"
-        try:
-            response = requests.post(url)
-            if response.status_code == 200:
-                logging.debug(f"{GREEN}Successfully set target SoC to {target_soc:.2f}%{RESET}")
-            else:
-                logging.error(f"{RED}Failed to set target SoC. Response code: {response.status_code}{RESET}")
-        except Exception as e:
-            logging.error(f"{RED}Error setting target SoC: {e}{RESET}")
-    else:
-        logging.debug(f"{CYAN}Not within cheapest time window. Not setting target SoC.{RESET}")
-
-
-def get_evcc_minsoc(car_name):
-    logging.debug(f"{GREEN}Retrieving EVCC minSoC for {car_name} from {EVCC_API_BASE_URL}/api/state{RESET}")
+def get_evcc_minsoc(car_name, evcc_state):
+    logging.debug(f"{GREEN}Retrieving EVCC minSoC for {car_name} from evcc_state")
     cache_file = "evcc_minsoc_cache.json"
     lock_file = "evcc_minsoc_cache.lock"
     
@@ -81,46 +48,38 @@ def get_evcc_minsoc(car_name):
         logging.debug(f"{YELLOW}Lockfile {lock_file} exists. Not overwriting minSoC cache.{RESET}")
         return None
 
-    try:
-        # API-Request an EVCC
-        response = requests.get(f"{EVCC_API_BASE_URL}/api/state")
-        response.raise_for_status()  # Prüfe auf HTTP-Fehler
-        evcc_state = response.json()
-        # logging.debug(f"{GREY}Response from EVCC API: {evcc_state}{RESET}")
 
-        # Suche nach dem Fahrzeug mit dem Namen car_name in der API-Antwort
-        vehicles = evcc_state.get('result', {}).get('vehicles', {})
-        logging.debug(f"{GREEN}Vehicles retrieved: {vehicles}{RESET}")
 
-        # Überprüfe, ob car_name in vehicles vorhanden ist
-        if car_name in vehicles:
-            vehicle = vehicles[car_name]
-            min_soc = vehicle.get('minSoc')
-            logging.debug(f"{GREEN}Retrieved minSoC value for {car_name}: {min_soc}{RESET}")
+    # Suche nach dem Fahrzeug mit dem Namen car_name in der API-Antwort
+    vehicles = evcc_state.get('result', {}).get('vehicles', {})
+    logging.debug(f"{GREEN}Vehicles retrieved: {vehicles}{RESET}")
 
-            if min_soc is not None:
-                logging.debug(f"{GREEN}Caching vehicle minSoC: {min_soc}{RESET}")
-                try:
-                    with open(cache_file, "w") as f:
-                        json.dump({"min_soc": min_soc}, f)
-                    logging.debug(f"{GREEN}minSoC successfully cached in {cache_file}{RESET}")
-                    # Lockfile erstellen
-                    with open(lock_file, 'w') as f:
-                        f.write('locked')
-                    logging.debug(f"{GREEN}Created lockfile {lock_file}{RESET}")
-                except Exception as file_error:
-                    logging.error(f"{RED}Error writing to cache file: {file_error}{RESET}")
-                return min_soc
-            else:
-                logging.error(f"{RED}The minSoC could not be found for vehicle {car_name}{RESET}")
-                return None
+    # Überprüfe, ob car_name in vehicles vorhanden ist
+    if car_name in vehicles:
+        vehicle = vehicles[car_name]
+        min_soc = vehicle.get('minSoc')
+        logging.debug(f"{GREEN}Retrieved minSoC value for {car_name}: {min_soc}{RESET}")
+
+        if min_soc is not None:
+            logging.debug(f"{GREEN}Caching vehicle minSoC: {min_soc}{RESET}")
+            try:
+                with open(cache_file, "w") as f:
+                    json.dump({"min_soc": min_soc}, f)
+                logging.debug(f"{GREEN}minSoC successfully cached in {cache_file}{RESET}")
+                # Lockfile erstellen
+                with open(lock_file, 'w') as f:
+                    f.write('locked')
+                logging.debug(f"{GREEN}Created lockfile {lock_file}{RESET}")
+            except Exception as file_error:
+                logging.error(f"{RED}Error writing to cache file: {file_error}{RESET}")
+            return min_soc
         else:
-            logging.error(f"{RED}No vehicle with the name {car_name} found in the API response{RESET}")
+            logging.error(f"{RED}The minSoC could not be found for vehicle {car_name}{RESET}")
             return None
-
-    except requests.RequestException as e:
-        logging.error(f"{RED}Error retrieving the EVCC minSoC: {e}{RESET}")
+    else:
+        logging.error(f"{RED}No vehicle with the name {car_name} found in the API response{RESET}")
         return None
+
 
 def set_upper_price_limit(upper_limit_price_battery):
     """
@@ -137,3 +96,47 @@ def set_upper_price_limit(upper_limit_price_battery):
             logging.error(f"{RED}Failed to set upper price limit: {e}{RESET}")
     else:
         logging.warning("Upper limit price is None. Cannot set the price limit.")
+
+def lock_battery(fake_loadpoint_id, lock):
+    """
+    Locks the battery to prevent charging. This is done by a trick: There is no direct locking option in evcc, however
+    setting a loadpoint to quick charge ("now") will lock the home battery. For this you just need to
+    """
+    if lock == True:
+        post_url_dischargecontrol = f"{EVCC_API_BASE_URL}/api/batterydischargecontrol/true" 
+        post_url_chargemode = f"{EVCC_API_BASE_URL}/api/loadpoints/{fake_loadpoint_id}/mode/now"
+        logging.debug(f"{GREY}Locking battery via URL: {post_url_dischargecontrol}{RESET}")
+    else:
+        post_url_dischargecontrol = f"{EVCC_API_BASE_URL}/api/batterydischargecontrol/false" 
+        post_url_chargemode = f"{EVCC_API_BASE_URL}/api/loadpoints/{fake_loadpoint_id}/mode/off"
+        logging.debug(f"{GREY}Unlocking battery via URL: {post_url_chargemode}{RESET}")
+
+    
+    try:
+        response = requests.post(post_url_chargemode)
+        response.raise_for_status()
+        logging.info(f"{GREEN}Successfully locked battery{RESET}")
+    except Exception as e:
+        logging.error(f"{RED}Failed to lock battery. Refer to the readme - this is likely due to not having set up a fake loadpoint: {e}{RESET}")
+    
+    try:
+        response = requests.post(post_url_dischargecontrol)
+        response.raise_for_status()
+        logging.debug(f"Successfully activated battery discharge control")
+    except Exception as e:
+        logging.error(f"{RED}Failed to activate battery discharge control: {e}{RESET}")
+
+
+def set_dischargecontrol(is_active):
+    if is_active == True:
+        is_active = "true"
+    else:
+        is_active = "false"
+    post_url = f"{EVCC_API_BASE_URL}/api/batterydischargecontrol/{is_active}"
+    logging.debug(f"{GREY}Setting discharge control via URL: {post_url}{RESET}")
+    try:
+        response = requests.post(post_url)
+        response.raise_for_status()
+        logging.info(f"{GREEN}Successfully set discharge control: {False}{RESET}")
+    except Exception as e:
+        logging.error(f"{RED}Failed to set discharge control: {e}{RESET}")

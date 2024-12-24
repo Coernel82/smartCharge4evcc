@@ -1,111 +1,220 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
+
 <head>
     <meta charset="UTF-8">
     <title>Trip Planner</title>
-    <link rel="stylesheet" href="styles.css">
-    <!-- Flatpickr CSS and JS (for calendar picker) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- CSS und Bootstrap-->
+    <link rel="stylesheet" href="../static/bootstrap.min.css">
+
+
+    <!-- JQuery -->
+    <script src="../static/jquery-3.7.1.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="../static/bootstrap.min.js"></script>
+
+    <!-- Einbindung von Flatpickr CSS und JS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
-    <!-- ClockPicker CSS and JS (for analogue clock picker) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/clockpicker/dist/jquery-clockpicker.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/clockpicker/dist/jquery-clockpicker.min.js"></script>
+    <!-- Einbindung von ClockPicker CSS und JS -->
+    <link rel="stylesheet" href="../static/bootstrap-clockpicker.min.css">
+    <script src="../static/bootstrap-clockpicker.min.js"></script>
+
+    <!-- my scripts to create the website-->
+    <script src="../static/script.js" defer></script>
+    <link rel="stylesheet" href="../static/styles.css"> <!-- load this after bootstrap to overwrite bootstrap-->
+
+    <link rel="icon" href="favicon.ico" />
+    
+
 
 </head>
-<body>
-    <!-- Load Now Button -->
-    <div id="load-now-btn">
-        Load Now
-        <div id="load-now-menu">
-            <!-- Cars will be dynamically populated here -->
-        </div>
-    </div>
+<body class="container-fluid">
+  <!--TODO: integrate external sources (newest version!)-->
+  <!--TODO: style the document afterwards-->
+
+<div class="container">
+        <!-- edit trip form -->
+    <!-- TODO: make bootstrap modal-->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol fill="currentColor" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+        </symbol>
+        <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+        </symbol>
+        <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+        </symbol>
+    </svg>
+    <div class="alert alert-warning alert-dissmissible fade show" role="alert" id="edit-trip-form" style="display: none;">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:"><use xlink:href="#exclamation-triangle-fill"/></svg>
     
-    <!-- Sections -->
-    <section id="non-recurring-trips">
-        <h2>Non-recurring Trips</h2>
-        <div id="non-recurring-list"></div>
-    </section>
-    <section id="weekly-trips">
-        <h2>Weekly Trips</h2>
-        <div id="weekly-list"></div>
-    </section>
-    
-    <!-- Plus Button -->
-    <div id="add-trip-btn">+</div>
-    <div id="add-trip-menu">
-        <button id="add-non-recurring">Non-recurring Trip</button>
-        <button id="add-weekly">Weekly Trip</button>
+        Editing is not supported yet. You are welcome to open <a href="https://github.com/Coernel82/smartCharge4evcc/tree/main/www">a pull request on GitHub.</a>
+        For now create a new trip and delete the old one or edit usage_plan.json in /backend/data From my part editing is not planned as it will be rarely used by myself. Also after closing this alert the edit icons seem not react any more unless you reload as the alert will be removed completely (normal bootstrap behavior!).
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
     <!-- Non-recurring Trip Popup -->
     <div id="non-recurring-trip-popup" class="modal">
-        <div class="modal-content">
-            <span class="close" id="close-popup">&times;</span>
-            <h2>Add Non-recurring Trip</h2>
-            <form id="non-recurring-trip-form">
-                <!-- Departure Date Picker -->
-                <label for="departure-date">Departure Date:</label>
-                <input type="text" id="departure-date" class="flatpickr" placeholder="Select date">
-
-                <!-- Departure Time Picker -->
-                <label for="departure-time">Departure Time:</label>
-                <input type="text" id="departure-time" class="clockpicker" placeholder="Select time">
-
-                <!-- Return Date Picker -->
-                <label for="return-date">Return Date:</label>
-                <input type="text" id="return-date" class="flatpickr" placeholder="Select return date">
-
-                <!-- Return Time Picker -->
-                <label for="return-time">Return Time:</label>
-                <input type="text" id="return-time" class="clockpicker" placeholder="Select return time">
-
-                <!-- Distance -->
-                <label for="distance">Distance (km):</label>
-                <input type="number" id="distance" placeholder="Enter distance">
-
-                <!-- Submit Button -->
-                <button type="submit">Add Trip</button>
-            </form>
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Add Non-recurring Trip</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="non-recurring-trip-form">
+                        <div class="mb-3">
+                        
+                            <!-- Car Brand Dropdown -->
+                            <label for="brand-select" class="form-label">Car Brand:</label>
+                            <select id="brand-select" class="form-control">
+                                <!-- Options will be dynamically populated here -->
+                            
+                            </select>
+                        
+                        
+                            <!-- Departure Date Picker -->
+                            <label for="departure-date" class="form-label">Departure Date:</label>
+                            <input type="text" id="departure-date" class="form-control flatpickr" placeholder="Select date">
+                        
+                            <!-- Departure Time Picker -->
+                            <label for="departure-time" class="form-label">Departure Time:</label>
+                            <input type="text" id="departure-time" class="form-control clockpicker" placeholder="Select time">
+                        
+                            <!-- Return Date Picker -->
+                            <label for="return-date" class="form-label">Return Date:</label>
+                            <input type="text" id="return-date" class="form-control flatpickr" placeholder="Select return date">
+                        
+                            <!-- Return Time Picker -->
+                            <label for="return-time" class="form-label">Return Time:</label>
+                            <input type="text" id="return-time" class="form-control clockpicker" placeholder="Select return time">
+                        
+                            <!-- Distance -->
+                            <label for="distance" class="form-label">Distance (km):</label>
+                            <input type="number" id="distance" class="form-control" placeholder="Enter distance">
+                        
+                            <!-- Comment -->
+                            <label for="comment" class="form-label">Comment:</label>
+                            <input type="text" id="comment" name="comment" class="form-control">
+                        
+                            <!-- Submit Button -->
+                            <!--<button type="submit">Add Trip</button>-->
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">Add trip</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
     <!-- Recurring Trip Popup -->
-    <div id="recurring-trip-popup" class="modal">
-        <div class="modal-content">
-            <span class="close" id="close-recurring-popup">&times;</span>
-            <h2>Add Recurring Trip</h2>
-            <form id="recurring-trip-form">
-                <!-- Weekday Dropdown -->
-                <label for="weekday">Select Weekday:</label>
-                <select id="weekday">
-                    <option value="Monday">Monday</option>
-                    <option value="Tuesday">Tuesday</option>
-                    <option value="Wednesday">Wednesday</option>
-                    <option value="Thursday">Thursday</option>
-                    <option value="Friday">Friday</option>
-                    <option value="Saturday">Saturday</option>
-                    <option value="Sunday">Sunday</option>
-                </select>
+    <div id="recurring-trip-popup" class="modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Recurring Trip</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-recurring-popup"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="recurring-trip-form">
+                        <div class="mb-3">
+                            <!-- Weekday Dropdown -->
+                            <label for="weekday" class="form-label">Select Weekday:</label>
+                            <select id="weekday" class="form-control">
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+                        </div>
 
-                <!-- Departure Time Picker -->
-                <label for="recurring-departure-time">Departure Time:</label>
-                <input type="text" id="recurring-departure-time" class="clockpicker" placeholder="Select time">
+                        <div class="mb-3">
+                            <!-- Car Brand Dropdown -->
+                            <label for="brand-select-recurring" class="form-label">Car Brand:</label>
+                            <select id="brand-select-recurring" class="form-control">
+                                <!-- Options will be dynamically populated here -->
+                            </select>
+                        </div>
 
-                <!-- Return Time Picker -->
-                <label for="recurring-return-time">Return Time:</label>
-                <input type="text" id="recurring-return-time" class="clockpicker" placeholder="Select return time">
+                        <div class="mb-3">
+                            <!-- Departure Time Picker -->
+                            <label for="recurring-departure-time" class="form-label">Departure Time:</label>
+                            <input type="text" id="recurring-departure-time" class="form-control clockpicker" placeholder="Select time">
+                        </div>
 
-                <!-- Distance -->
-                <label for="recurring-distance">Distance (km):</label>
-                <input type="number" id="recurring-distance" placeholder="Enter distance">
+                        <div class="mb-3">
+                            <!-- Return Time Picker -->
+                            <label for="recurring-return-time" class="form-label">Return Time:</label>
+                            <input type="text" id="recurring-return-time" class="form-control clockpicker" placeholder="Select return time">
+                        </div>
 
-                <!-- Submit Button -->
-                <button type="submit">Add Recurring Trip</button>
-            </form>
+                        <div class="mb-3">
+                            <!-- Distance -->
+                            <label for="recurring-distance" class="form-label">Distance (km):</label>
+                            <input type="number" id="recurring-distance" class="form-control" placeholder="Enter distance">
+                        </div>
+
+                        <div class="mb-3">
+                            <!-- Description -->
+                            <label for="recurring-description" class="form-label">Comment:</label>
+                            <input type="text" id="recurring-description" name="description" class="form-control">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="document.getElementById('recurring-trip-form').submit();">Add Recurring Trip</button>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Container für die Fahrten -->
+    <div id="trips-container">
+        <!-- Dynamische Inhalte werden hier eingefügt -->
+    </div>
+
+ 
+</div> <!-- container -->
+
+<div class="bg-light fixed-bottom border-top">
+    <div class="row text-center">
+        <div class="col py-2 border-end" id="open-settings-btn">
+            <!-- Open Settings -->
+            <a href="settings.html">
+                <div> <!-- this makes the whole area clickable -->
+                <svg height="5em" style="fill: var(--secondary-color);"  version="1.1" viewBox="0 0 135.76 148.93" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="translate(-36.72 -74.937)"stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m83.981 75.483-2.8525 22.192c-2.2178 0.65085-4.3431 1.5151-6.3336 2.6045l-17.826-13.519-8.5826 8.5826 13.651 17.677c-1.096 1.9968-1.9587 4.132-2.6128 6.3582l-22.159 3.0427v12.13l22.142 2.8443c0.65302 2.2361 1.5225 4.3778 2.621 6.3831l-13.486 17.785 8.5826 8.5826 17.636-13.626c2.0082 1.1026 4.151 1.9821 6.3913 2.6376l3.0427 22.109h12.138l2.8361-22.118c2.2406-0.6568 4.3831-1.5334 6.3913-2.6376l17.777 13.477 8.5826-8.5826-13.626-17.653c1.0945-2.0022 1.9622-4.1428 2.6128-6.3749l22.142-3.0427v-12.138l-22.159-2.8443c-0.6546-2.2219-1.5345-4.3487-2.6293-6.3418l13.51-17.818-8.5826-8.5826-17.694 13.659c-1.9905-1.088-4.1156-1.9467-6.3336-2.5962l-3.0509-22.192h-12.13zm22.937 52.893c0 9.252-7.5089 16.761-16.761 16.761-9.252 0-16.761-7.5089-16.761-16.761 0-9.252 7.5089-16.761 16.761-16.761 9.252 0 16.761 7.5089 16.761 16.761z" stroke-width="1.0914"/>
+                    <path d="m131.71 156.94-0.57348 14.128c-1.3603 0.53185-2.6506 1.193-3.8437 1.9884l-11.967-7.5285-4.9301 5.8755 9.5673 10.377c-0.57996 1.3174-1.0055 2.7091-1.2946 4.1466l-13.782 3.1359 0.66805 7.6358 14.096 0.57103c0.53426 1.3717 1.1996 2.6721 2.0016 3.8739l-7.51 11.939 5.8755 4.9301 10.352-9.5494c1.325 0.58355 2.7224 1.0192 4.1688 1.3084l3.1332 13.751 7.6411-0.66851 0.56719-14.08c1.3743-0.53687 2.6749-1.2068 3.8782-2.0124l11.933 7.5052 4.9301-5.8755-9.5504-10.362c0.57874-1.3208 1.0071-2.716 1.2937-4.1571l13.772-3.135-0.66851-7.6411-14.106-0.57013c-0.53447-1.3627-1.2055-2.6533-2.0045-3.8476l7.5237-11.961-5.8755-4.9301-10.387 9.5735c-1.313-0.57533-2.6982-0.99882-4.1301-1.2856l-3.143-13.803-7.6358 0.66805zm17.353 32.034c0.50955 5.8242-3.8039 10.965-9.6281 11.474-5.8242 0.50956-10.965-3.8039-11.474-9.6281-0.50955-5.8243 3.8039-10.965 9.6281-11.474s10.965 3.8039 11.474 9.6281z" stroke-width=".68977"/>
+                    </g>
+                </svg>
+                </div>
+            </a>
+        </div>
+        <div class="col py-2 border-end" id="add-weekly">
+            <svg height="5em"  style="fill: var(--secondary-color);"   viewBox="0 0 16 16"  xmlns="http://www.w3.org/2000/svg">
+                <path d="M11 5.466V4H5a4 4 0 0 0-3.584 5.777.5.5 0 1 1-.896.446A5 5 0 0 1 5 3h6V1.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384l-2.36 1.966a.25.25 0 0 1-.41-.192m3.81.086a.5.5 0 0 1 .67.225A5 5 0 0 1 11 13H5v1.466a.25.25 0 0 1-.41.192l-2.36-1.966a.25.25 0 0 1 0-.384l2.36-1.966a.25.25 0 0 1 .41.192V12h6a4 4 0 0 0 3.585-5.777.5.5 0 0 1 .225-.67Z"/>
+              </svg>
+        </div>
+        <div class="col py-2" id="add-non-recurring">
+                <svg xmlns="http://www.w3.org/2000/svg" height="5em"  style="fill: var(--secondary-color);"  viewBox="0 0 16 16">
+                    <path d="M11 4v1.466a.25.25 0 0 0 .41.192l2.36-1.966a.25.25 0 0 0 0-.384l-2.36-1.966a.25.25 0 0 0-.41.192V3H5a5 5 0 0 0-4.48 7.223.5.5 0 0 0 .896-.446A4 4 0 0 1 5 4zm4.48 1.777a.5.5 0 0 0-.896.446A4 4 0 0 1 11 12H5.001v-1.466a.25.25 0 0 0-.41-.192l-2.36 1.966a.25.25 0 0 0 0 .384l2.36 1.966a.25.25 0 0 0 .41-.192V13h6a5 5 0 0 0 4.48-7.223Z"/>
+                    <path d="M9 5.5a.5.5 0 0 0-.854-.354l-1.75 1.75a.5.5 0 1 0 .708.708L8 6.707V10.5a.5.5 0 0 0 1 0z"/>
+                  </svg>
+        </div>
+    </div>
+</div>
+
 
 
 
@@ -114,6 +223,8 @@
     <!-- jQuery is required for ClockPicker -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/clockpicker/dist/jquery-clockpicker.min.js"></script>
-    <script src="script.js"></script>
+
 </body>
+
 </html>
+

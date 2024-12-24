@@ -2,7 +2,7 @@
 
 # This project is licensed under the MIT License.
 
-# Disclaimer: This code has been created with the help of AI (ChatGPT) and may not be suitable for
+# Disclaimer: This code has been created under the help of AI (ChatGPT) and may not be suitable for
 # AI-Training. This code ist Alpha-Stage
 
 import logging
@@ -41,9 +41,9 @@ def sort_trips_by_earliest_departure_time(usage_plan):
     for car_name, car_trips in usage_plan.items():
         # Process recurring trips
         for trip in car_trips.get('recurring', []):
-            departure_day_name = trip['departure']
+            departure_day_name = trip['departure_date']
             departure_time_str = trip['departure_time']
-            return_day_name = trip.get('return', departure_day_name)
+            return_day_name = trip.get('return_date', departure_day_name)
             return_time_str = trip['return_time']
 
             # Convert day names to indexes
@@ -74,9 +74,9 @@ def sort_trips_by_earliest_departure_time(usage_plan):
 
         # Process non-recurring trips
         for trip in car_trips.get('non_recurring', []):
-            departure_date_str = trip['departure']
+            departure_date_str = trip['departure_date']  # Updated key
             departure_time_str = trip['departure_time']
-            return_date_str = trip.get('return', departure_date_str)
+            return_date_str = trip['return_date'] # old code: trip.get('return_date', departure_date_str)
             return_time_str = trip['return_time']
 
             departure_date = datetime.datetime.strptime(departure_date_str, '%Y-%m-%d').date()
@@ -100,7 +100,7 @@ def sort_trips_by_earliest_departure_time(usage_plan):
 
 # Definierte Gaussian-ähnliche Funktion zur Berechnung des Energieverbrauchs
 # TODO thoroughly go through function
-def calculate_ev_energy_consumption(departure_temperature, return_temperature, distance, CONSUMPTION, BUFFER_DISTANCE, car_name, evcc_state, a=80.145, b=22.170, c=17.776, d=44.805):
+def calculate_ev_energy_consumption(departure_temperature, return_temperature, distance, CONSUMPTION, BUFFER_DISTANCE, car_name, evcc_state, loadpoint_id):
     """
     Calculate the energy consumption of an electric vehicle (EV) for a round trip based on temperatures and distance.
     Parameters:
@@ -126,6 +126,11 @@ def calculate_ev_energy_consumption(departure_temperature, return_temperature, d
     uncorrected_energy_departure = (CONSUMPTION / 100) * (half_distance + BUFFER_DISTANCE / 2)
     uncorrected_energy_return = uncorrected_energy_departure
 
+    a=80.145
+    b=22.170
+    c=17.776
+    d=44.805
+
     # Berechnung des Korrekturfaktors für die Abfahrtstemperatur und Rückfahrtstemperatur
     correction_factor_departure = (a * np.exp(-((departure_temperature - b) ** 2) / (2 * c ** 2)) + d) / 100
     correction_factor_return = (a * np.exp(-((return_temperature - b) ** 2) / (2 * c ** 2)) + d) / 100
@@ -146,38 +151,61 @@ def calculate_ev_energy_consumption(departure_temperature, return_temperature, d
     logging.info(f"{GREEN}Gesamtenergieverbrauch zur Erreichung von {distance} km: {total_energy_consumption / 1000:.2f} kWh{RESET}")
     
     
-    degradated_battery_capacity = calculate_car_battery_degradation(car_name, evcc_state)
+    degradated_battery_capacity = calculate_car_battery_degradation(evcc_state, car_name, loadpoint_id)
     if total_energy_consumption > degradated_battery_capacity:
         logging.warning(f"{CYAN}However: Energy consumption exceeds battery capacity of the car!{RESET}")
         total_energy_consumption = degradated_battery_capacity
         
     return total_energy_consumption
 
-def calculate_car_battery_degradation(car, evcc_state):
+def calculate_car_battery_degradation(evcc_state, car_name, loadpoint_id):
     """
-    Calculate the battery degradation of an electric vehicle (EV) based on the year of the battery and the current year.
+    Calculate the battery degradation of an electric vehicle (EV) given its car name.
     Parameters:
-    car (dict): A dictionary containing the car information with keys 'BATTERY_CAPACITY', 'DEGRADATION', and 'BATTERY_YEAR'.
+    car_name (str): Name of the car as defined in cars_settings.
     Returns:
-    float: The battery degradation factor as a percentage.
+    float: The degraded battery capacity in kWh.
     """
-  
-    battery_capacity = evcc_state.get('result', {}).get('vehicles', {}).get(car, {}).get('capacity')
-
+    # get variables we need for the calculation
     cars_settings = initialize_smartcharge.settings['Cars']
-    car_settings = next((c for c in cars_settings if c['CAR_NAME'] == car), {})
-    degradation = car_settings.get('DEGRADATION')
-    battery_year = car_settings.get('BATTERY_YEAR')
+    car_id = None
+    for i, car in initialize_smartcharge.settings['Cars'].items():
+        if car['CAR_NAME'] == car_name:
+            car_id = i
+            break
+    if car_id is None:
+        logging.error(f"{RED}Car with name {car_name} not found in settings{RESET}")
+        return 0
+    cars_settings = initialize_smartcharge.settings['Cars'][car_id]
+    battery_capacity = cars_settings.get('BATTERY_CAPACITY')
+    degradation = cars_settings.get('DEGRADATION')
+    battery_year = cars_settings.get('BATTERY_YEAR')
+    
+    # get odometer from evcc_state
+    odometer = evcc_state['result']['loadpoints'][loadpoint_id]['vehicleOdometer']
+    
+    
+    # If odometer is 0, calculate degradation by age
+    if odometer == 0:
+        logging.warning(f"{YELLOW}Odometer is 0, calculating degradation by age{RESET}")
+        # Use values from car_settings since we have a zero odometer
+        degradated_battery_capacity = battery_capacity * (1 - degradation) ** (datetime.datetime.now().year - battery_year)
+        return degradated_battery_capacity
+    else:
+        logging.info(f"{GREEN}Calculating degradation by odometer{RESET}")
+        # Polynomial-based degradation by odometer
+        a = 2.3027725883259073e-12
+        b = -1.2056443455051694e-6
+        c = 1.00
+        degradation_car_battery_percentage = a * odometer**2 + b * odometer + c
+        degradated_battery_capacity = battery_capacity * -degradation_car_battery_percentage / 100
+        return degradated_battery_capacity
 
-    # Calculate the degradated battery capacity based on the lifespan
-    degradated_battery_capacity = battery_capacity * (1 - degradation) ** (datetime.datetime.now().year - battery_year)
-    return degradated_battery_capacity
-
-def calculate_required_soc(energy_consumption, car, evcc_state):
-    logging.info(f"{GREEN}Calculating required state of charge (SoC) for energy consumption of {energy_consumption/1000:.2f} kWh for car {car}{RESET}")
+def calculate_required_soc(energy_consumption, car, evcc_state, loadpoint_id, trip_name):
+    logging.info(f"{GREEN}Calculating required state of charge (SoC) for energy consumption of {energy_consumption/1000:.2f} kWh for car {car} for trip {trip_name}{RESET}")
     # Calculate the required state of charge (SoC) in percentage
     # we need kWh not Wh --> /1000
-    degradated_battery_capacity = calculate_car_battery_degradation(car, evcc_state) / 1000
+    degradated_battery_capacity = calculate_car_battery_degradation(evcc_state, car, loadpoint_id) / 1000
     required_soc = (energy_consumption / degradated_battery_capacity) * 100
     if required_soc > 100:
         required_soc = 100
@@ -186,78 +214,29 @@ def calculate_required_soc(energy_consumption, car, evcc_state):
     logging.debug(f"{BLUE}Required energy: {energy_consumption:.2f} kWh, Required SoC: {required_soc:.2f}%{RESET}")
     # FIXME: up to here it is correct
     # BUG: DEBUG:root:Required energy: 64.30 kWh, Required SoC: 100.00%
-    # and later on: INFO:root:the energy gap is 47.06 kWh! Check if it shouldn't be the same. Suspect: degradatin
+    # and later on: INFO:root:the energy gap is 47.06 kWh! Check if it shouldn't be the same. Suspect: degradation
+    # or a run for another car and everything is fine!  
     return required_soc
 
 # Function to get the current SoC of EVCC
-def get_evcc_soc(loadpoint_id):
+def get_evcc_soc(loadpoint_id, evcc_state):
     if loadpoint_id is None:
         logging.error(f"{RED}loadpoint_id is None{RESET}")
         return 0
     logging.debug(f"{GREEN}Retrieving current SoC from EVCC for loadpoint_id {loadpoint_id}{RESET}")
-    try:
-        response = requests.get(f"{EVCC_API_BASE_URL}/api/state")
-        response.raise_for_status()
-        data = response.json()
-        loadpoints = data.get('result', {}).get('loadpoints', [])
-        if len(loadpoints) > loadpoint_id:
-            current_soc = loadpoints[loadpoint_id].get('vehicleSoc')
-            if current_soc is not None:
-                logging.debug(f"{GREEN}Current SoC: {current_soc}%{RESET}")
-                return float(current_soc)
-            else:
-                logging.error(f"{RED}Current SoC not found{RESET}")
-                return 0  # Default to 0 if not found
+
+    loadpoints = evcc_state.get('result', {}).get('loadpoints', [])
+    if len(loadpoints) > loadpoint_id:
+        current_soc = loadpoints[loadpoint_id].get('vehicleSoc')
+        if current_soc is not None:
+            logging.debug(f"{GREEN}Current SoC: {current_soc}%{RESET}")
+            return float(current_soc)
         else:
-            logging.error(f"{RED}No loadpoints found{RESET}")
-            return 0
-    except Exception as e:
-        logging.error(f"{RED}Error retrieving current SoC: {e}{RESET}")
+            logging.error(f"{RED}Current SoC not found{RESET}")
+            return 0  # Default to 0 if not found
+    else:
+        logging.error(f"{RED}No loadpoints found{RESET}")
         return 0
-
-# FIXME: redundant code - delete
-def calculate_ev_energy_gap_redundant(required_soc, current_soc, car):
-    # Berechne die degradierte Batteriekapazität basierend auf der Lebensdauer
-    degradated_battery_capacity = car['BATTERY_CAPACITY'] * (1 - car['DEGRADATION']) ** (datetime.datetime.now().year - car['BATTERY_YEAR'])
-    
-    # Berechne den SoC-Unterschied
-    soc_gap = required_soc - current_soc
-    soc_gap = max(soc_gap, 0)  # Stelle sicher, dass soc_gap nicht negativ wird
-
-    # Berechne die Energielücke in Wh
-    ev_energy_gap = (soc_gap / 100) * degradated_battery_capacity
-    
-    return ev_energy_gap
-
-def get_current_soc(car_name):
-    try:
-        # API-Anfrage an EVCC
-        response = requests.get(f"{EVCC_API_BASE_URL}/api/state")
-        response.raise_for_status()  # Prüft auf HTTP-Fehler
-        data = response.json()
-
-        # Überprüfen, ob das gewünschte Fahrzeug im Abschnitt 'loadpoints' vorhanden ist
-        loadpoints = data.get('result', {}).get('loadpoints', [])
-        
-        # Nach dem Fahrzeug anhand des Namens suchen
-        for loadpoint in loadpoints:
-            if loadpoint.get('vehicleName') == car_name:
-                current_soc = loadpoint.get('vehicleSoc')
-                if current_soc is not None:
-                    logging.debug(f"Aktuelles SoC für {car_name}: {current_soc}%")
-                    return float(current_soc)
-                else:
-                    logging.error(f"{RED}SoC für Fahrzeug {car_name} nicht gefunden.{RESET}")
-                    return 0  # Default to 0 if not found
-
-        # Falls das Fahrzeug nicht im Abschnitt 'loadpoints' gefunden wird
-        logging.error(f"{RED}Fahrzeug {car_name} nicht in EVCC gefunden.{RESET}")
-        
-    except requests.RequestException as e:
-        logging.error(f"Fehler beim Abrufen des aktuellen SoC: {e}")
-    
-    # Rückgabe von 0 als Standardwert, falls kein SoC gefunden wird
-    return 0
 
 def get_loadpoint_and_car_info(assignment, loadpoints, cars):
     """
@@ -298,20 +277,11 @@ def get_next_trip(car_name, usage_plan):
     next_trip = car_schedule[0]
     return next_trip
 
-def calculate_energy_gap(required_soc, current_soc, car):
+
+def calculate_energy_gap(required_soc, current_soc, car, evcc_state, loadpoint_id):
     # BUG: wrong result
     # Calculate the energy gap in Wh between the required SoC and the current SoC
-    cars_settings = initialize_smartcharge.settings['Cars']
-    car_settings = next((c for c in cars_settings if c['CAR_NAME'] == car), None)
-    if car_settings:
-        battery_capacity = car_settings.get('BATTERY_CAPACITY')
-        degradation = car_settings.get('DEGRADATION')
-        battery_year = car_settings.get('BATTERY_YEAR')
-    else:
-        logging.error(f"{RED}Car settings for {car['CAR_NAME']} not found.{RESET}")
-        return None
-  
-    degradated_battery_capacity = battery_capacity * (1 - degradation) ** (datetime.datetime.now().year - battery_year)
+    degradated_battery_capacity = calculate_car_battery_degradation(evcc_state, car, loadpoint_id)
     soc_gap = required_soc - current_soc
     if soc_gap < 0:
         soc_gap = 0  # No gap, car is already charged

@@ -37,6 +37,7 @@ def get_home_battery_soc():
     """
     Ruft den aktuellen SoC der Hausbatterie ab.
     """
+    # we do not get it from evcc_state as we need it fresh every 4 minutes
     logging.debug(f"Retrieving home battery SoC from {EVCC_API_BASE_URL}/api/state")
     try:
         response = requests.get(f"{EVCC_API_BASE_URL}/api/state")
@@ -135,23 +136,16 @@ def calculate_homebattery_soc_forcast_in_Wh(home_batteries_capacity, remaining_h
 
     return home_battery_energy_forecast, grid_feedin, required_charge
 
-def get_tariffFeedIn():
+def get_tariffFeedIn(evcc_state):
     """
     Fetches the current feed-in tariff from the EVCC API.
     """
-    logging.debug(f"Fetching feed-in tariff from {EVCC_API_BASE_URL}/api/state")
-    try:
-        response = requests.get(f"{EVCC_API_BASE_URL}/api/state")
-        response.raise_for_status()
-        data = response.json()
-        tariffFeedIn = data['result']['tariffFeedIn']
-        logging.debug(f"Current feed-in tariff: {tariffFeedIn:.4f} €/kWh")
-        return tariffFeedIn
-    except Exception as e:
-        logging.error(f"Failed to retrieve feed-in tariff: {e}")
-        return None
+    logging.debug(f"Fetching feed-in tariff from evcc_state")
+    tariffFeedIn = evcc_state['result']['tariffFeedIn']
+    logging.debug(f"Current feed-in tariff: {tariffFeedIn:.4f} €/kWh")
+    return tariffFeedIn
 
-def calculate_charging_plan(home_battery_energy_forecast, electricity_prices, purchase_threshold, battery_data, required_charge):
+def calculate_charging_plan(home_battery_energy_forecast, electricity_prices, purchase_threshold, battery_data, required_charge, evcc_state):
     """
     Calculate the charging plan for a home battery system based on energy forecasts, electricity prices, and required charge.
     Parameters:
@@ -166,7 +160,7 @@ def calculate_charging_plan(home_battery_energy_forecast, electricity_prices, pu
     
     # if we do not need to charge we still charge if we earn money with it
     if required_charge == 0:
-        maximum_acceptable_price = get_tariffFeedIn() - purchase_threshold
+        maximum_acceptable_price = get_tariffFeedIn(evcc_state) - purchase_threshold
         return maximum_acceptable_price
     
     # Ensure required_charge is a dictionary
@@ -241,12 +235,6 @@ def get_current_price(electricity_prices):
         if datetime.datetime.fromisoformat(price['startsAt']).replace(minute=0, second=0, microsecond=0) == current_time),
         None
     )
-    
-    # FIXME: we get this twice:
-        #INFO:root:Der aktuelle Strompreis beträgt (26.24 Cent)
-        #INFO:root:Average battery efficiency: 93.00%
-        #INFO:root:Average battery efficiency: 93.00%
-        #INFO:root:Der aktuelle Strompreis beträgt (26.24 Cent)
 
     logging.info(f"{GREEN}Der aktuelle Strompreis beträgt ({current_price * 100:.2f} Cent){RESET}")
     return current_price
@@ -408,25 +396,22 @@ def process_battery_data(home_battery_json_data, home_battery_api_data):
     logging.debug(f"{GREY}Processed battery data: {processed_data}{RESET}")
     return processed_data
 
-def get_home_batteries_capacities():
+def get_home_batteries_capacities(evcc_state):
     """
     Calculates the usable and total capacity for each battery.
     """
-    batteryEnergy = None
+    batteryCapacity = None
     cache_folder = 'cache'
     cache_file = os.path.join(cache_folder, 'usable_capacity_cache.json')
 
-    def get_batteryEnergyFromAPI():
-        logging.debug("Fetching battery energy from API")
-        response = requests.get(f"{EVCC_API_BASE_URL}/api/state")
-        response.raise_for_status()
-        data = response.json()
-        batteryEnergy = data['result']['batteryEnergy']
+    def get_batteryCapacityFromAPI():
+        logging.debug("Fetching battery capacity from API")
+        batteryCapacity = evcc_state['result']['batteryCapacity']
         # Save to cache
-        logging.debug(f"Saving battery energy {batteryEnergy} to cache")
+        logging.debug(f"Saving battery Capacity {batteryCapacity} to cache")
         with open(cache_file, 'w') as f:
             json.dump({
-                'batteryEnergy': batteryEnergy,
+                'batteryCapacity': batteryCapacity,
                 'timestamp': time.time()
             }, f)
 
@@ -437,10 +422,10 @@ def get_home_batteries_capacities():
         os.makedirs(cache_folder, exist_ok=True)
         # Call API and store result in cache
         try:
-            get_batteryEnergyFromAPI()
+            get_batteryCapacityFromAPI()
         except Exception as e:
-            logging.error(f"Error fetching battery energy from API: {e}")
-            batteryEnergy = 0
+            logging.error(f"Error fetching battery Capacity from API: {e}")
+            batteryCapacity = 0
     else:
         # Check if cache is older than one week
         cache_age = time.time() - os.path.getmtime(cache_file)
@@ -449,25 +434,25 @@ def get_home_batteries_capacities():
             logging.debug("Cache is older than one week, updating")
             # Cache is old, update it
             try:
-                get_batteryEnergyFromAPI()
+                get_batteryCapacityFromAPI()
             except Exception as e:
-                logging.error(f"Error fetching battery energy from API: {e}")
-                batteryEnergy = 0
+                logging.error(f"Error fetching battery Capacity from API: {e}")
+                batteryCapacity = 0
         else:
             logging.debug("Using existing cache file")
             # Load from cache
             with open(cache_file, 'r') as f:
                 cache_data = json.load(f)
-                batteryEnergy = cache_data.get('batteryEnergy', 0)
-                logging.debug(f"Loaded battery energy {batteryEnergy} from cache")
+                batteryCapacity = cache_data.get('batteryCapacity')
+                logging.debug(f"Loaded battery Capacity {batteryCapacity} from cache")
                 
-    return batteryEnergy # which is the total_usable_capacity
+    return batteryCapacity # which is the total_usable_capacity
 
 def calculate_average_battery_efficiency(battery_data):
     """
     Calculates the weighted average efficiency of the home batteries.
     """
-    capacities = [battery['battery_energy'] for battery in battery_data]
+    capacities = [battery['battery_capacity'] for battery in battery_data]
     efficiencies = [battery['BATTERYSYSTEM_EFFICIENCY'] for battery in battery_data]
     weighted_efficiency = sum(cap * eff for cap, eff in zip(capacities, efficiencies)) / sum(capacities)
     logging.info(f"Average battery efficiency: {weighted_efficiency:.2%}")
@@ -497,7 +482,7 @@ def get_home_battery_charging_cost_per_Wh(battery_data):
         battery_purchase_price = battery_data['BATTERY_PURCHASE_PRICE']
         battery_max_cycles = battery_data['BATTERY_MAXIMUM_LOADING_CYCLES_LIFETIME']
 
-        usable_capacity = battery_data['battery_energy']
+        usable_capacity = battery_data['battery_capacity']
         age = datetime.datetime.now().year - battery_year
         degradated_capacity = usable_capacity * (1 - degradation) ** age
 
@@ -513,3 +498,55 @@ def get_home_battery_charging_cost_per_Wh(battery_data):
 
     # we just return one value as evcc just handles one virtual battery even if there are multiple physical batteries
     return charging_cost_per_Wh
+
+def calculate_future_grid_feedin(usable_energy, home_battery_energy_forecast, evcc_state):
+    """
+    Calculates the future grid feed-in based on the usable energy and home battery energy forecast.
+    """
+    future_grid_feedin = 0
+
+    # Ensure usable_energy is sorted by time
+    usable_energy = sorted(usable_energy, key=lambda x: x['time'])
+
+    # Ensure home_battery_energy_forecast is sorted by time
+    home_battery_energy_forecast = sorted(home_battery_energy_forecast, key=lambda x: x['time'])
+
+    for i in range(min(len(home_battery_energy_forecast), len(usable_energy))):
+        # Get the current hour's energy forecast
+        energy_forecast_hour = home_battery_energy_forecast[i]
+
+        # Get the current hour's usable energy
+        usable_energy_hour = usable_energy[i]
+
+        home_battery_energy = energy_forecast_hour['energy'] + usable_energy_hour['pv_estimate']
+        
+        # Get the maximum SoC allowed for the current hour
+        
+        maximum_soc_allowed = evcc_state['result']['batteryCapacity'] # this is an absolute value in Watt
+        if home_battery_energy > maximum_soc_allowed:
+            feedin_hour = maximum_soc_allowed - home_battery_energy
+        
+        future_grid_feedin += feedin_hour
+    return future_grid_feedin
+
+
+    # prevent curtailment (ger: Abregelung)
+    # for this we need to have a finer pv resolution and therefore might adopt the whole program
+    # Length of the averaging period in ISO 8601 format (PT5M, PT10M, PT15M, PT20M, PT30M, PT60M)
+    # https://docs.solcast.com.au/#4c9fa796-82e5-4e8a-b811-85a8c9fb85db
+    # it will work like this but will not be as precice as it could be
+            
+def danger_of_curtailment(settings, hourly_energy_surplus):
+    # BUG: it is not as simple as this as curtailment danger is when input is higher than x and also battery will be full
+    curtailment_threshold_percent = settings['House']['CURTAILMENT_THRESHOLD']
+    peak_power_watt = settings['House']['MAXIMUM_PV']
+    curtailment_threshold_watt = curtailment_threshold_percent / 100 * peak_power_watt
+
+    curtailment_endangered_energy = sum(
+        surplus['energy_surplus'] for surplus in hourly_energy_surplus if surplus['energy_surplus'] > curtailment_threshold_watt
+    )
+    if curtailment_endangered_energy > 0:
+        return curtailment_endangered_energy
+    else:
+        return 0
+
