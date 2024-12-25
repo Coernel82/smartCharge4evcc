@@ -283,13 +283,15 @@ if __name__ == "__main__":
         
        
         home_battery_api_data = initialize_smartcharge.get_home_battery_data_from_api(evcc_state)
-        if home_battery_json_data is None or home_battery_api_data is None:
+        if home_battery_json_data is None or home_battery_api_data == [{'battery_id': 0, 'battery_soc': 0, 'battery_capacity': 0}]:
             logging.error(f"{RED}Home battery data could not be loaded. Skipping the home battery optimization.{RESET}")
+            home_battery_energy_forecast, grid_feedin, required_charge, charging_plan, future_grid_feedin = None, None, None, None, None
         else:
             battery_data = home.process_battery_data(home_battery_json_data, home_battery_api_data)    
             home_batteries_capacity = home.get_home_batteries_capacities(evcc_state) # this is the total usable capacity of all batteries (info by evcc api)
             home_batteries_SoC = home.get_home_battery_soc()
             remaining_home_battery_capacity = home.calculate_remaining_home_battery_capacity(home_batteries_capacity, home_batteries_SoC)
+            
             
 
             # this is the additional cost due to wear of battery and inverter 
@@ -339,6 +341,8 @@ if __name__ == "__main__":
                 evcc.lock_battery(fake_loadpoint_id, True)
                 evcc.set_dischargecontrol(True)
                 logging.info(f"{GREEN}Locking battery and setting dischargecontrol to true.{RESET}")
+
+        utils.json_dump_all_time_series_data(weather_forecast, hourly_climate_energy, hourly_energy_surplus, electricity_prices, home_battery_energy_forecast, grid_feedin, required_charge, charging_plan, usable_energy, solar_forecast, future_grid_feedin)
         logging.info(f"{GREEN}EV charging optimization program completed.{RESET}")
         
         

@@ -61,6 +61,9 @@ def calculate_remaining_home_battery_capacity(home_batteries_capacity, home_batt
         float: The remaining capacity of the home batteries in kWh.
     
     """
+    if home_batteries_SoC is None:
+        logging.warning("Home battery SoC is None. Cannot calculate remaining capacity.")
+        return None
     remaining_capacity = home_batteries_capacity * (1 - home_batteries_SoC / 100)
     logging.debug(f"Usable home battery capacity: {remaining_capacity:.2f} kWh")
     return remaining_capacity
@@ -115,6 +118,9 @@ def calculate_homebattery_soc_forcast_in_Wh(home_batteries_capacity, remaining_h
             # Subtract home consumption from surplus energy
             net_energy = surplus_energy - home_consumption
             # Add net energy to cumulative_capacity
+            if cumulative_capacity == None:
+                logging.info(f"{RED}No home battery. Cannot store energy.{RESET}")
+                return 0
             cumulative_capacity += net_energy
             if cumulative_capacity > home_batteries_capacity:
                 grid_feedin.append({
@@ -454,6 +460,9 @@ def calculate_average_battery_efficiency(battery_data):
     """
     capacities = [battery['battery_capacity'] for battery in battery_data]
     efficiencies = [battery['BATTERYSYSTEM_EFFICIENCY'] for battery in battery_data]
+    if sum(capacities) == 0:
+        logging.warning("Total battery capacity is 0. Cannot calculate average battery efficiency.")
+        return 0
     weighted_efficiency = sum(cap * eff for cap, eff in zip(capacities, efficiencies)) / sum(capacities)
     logging.info(f"Average battery efficiency: {weighted_efficiency:.2%}")
     return weighted_efficiency
@@ -487,7 +496,9 @@ def get_home_battery_charging_cost_per_Wh(battery_data):
         degradated_capacity = usable_capacity * (1 - degradation) ** age
 
         logging.debug(f"Battery {battery_id} - Degraded Capacity: {degradated_capacity}")
-
+        if degradated_capacity == 0:
+            logging.warning(f"Battery {battery_id} - Degraded Capacity is 0. Skipping calculation. Assuming no costs: No battery --> no costs! :)")
+            return 0
         marginal_cost_battery = battery_purchase_price / (battery_efficiency * battery_max_cycles * degradated_capacity)
 
         logging.debug(f"Battery {battery_id} - Marginal Cost Battery per Wh: {marginal_cost_battery}")

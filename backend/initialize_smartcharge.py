@@ -178,13 +178,14 @@ def get_baseload_from_influxdb():
     # Log the time range
     logging.debug(f"Querying data from {start_time} till now to get baseload")
 
-    # divison by 3600000 to convert from Ws to kWh
+    # divison by 3600 to convert from Ws to kWh:
+    # 1 hour has 3600 seconds
     flux_query_baseload = f"""
     from(bucket: "{INFLUX_BUCKET}")
         |> range(start: {start_time}, stop: today())
         |> filter(fn: (r) => r["_measurement"] == "homePower")
         |> aggregateWindow(every: 1h, fn: integral, createEmpty: false)
-        |> map(fn: (r) => ({{_value: r._value / 3600000.0, _time: r._time}}))
+        |> map(fn: (r) => ({{_value: r._value / 3600.0, _time: r._time}}))
         |> yield(name: "integral")
     """
     # Query InfluxDB

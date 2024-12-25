@@ -910,3 +910,26 @@ def get_current_electricity_price(electricity_prices):
         return None
 
     return current_price
+
+
+def json_dump_all_time_series_data(weather_forecast, hourly_climate_energy, hourly_energy_surplus, electricity_prices, home_battery_energy_forecast, grid_feedin, required_charge, charging_plan, usable_energy, solar_forecast, future_grid_feedin):
+    """
+    Dumps all time series into www/templates/time_series_data.json
+    """
+    time_series_data = {
+        "weather_forecast": weather_forecast,
+        "hourly_climate_energy": hourly_climate_energy,
+        "hourly_energy_surplus": hourly_energy_surplus,
+        "electricity_prices": electricity_prices,
+        "home_battery_energy_forecast": home_battery_energy_forecast,
+        "grid_feedin": grid_feedin,
+        "required_charge": required_charge,
+        "charging_plan": charging_plan,
+        "usable_energy_for_ev": usable_energy,
+        "solar_forecast": solar_forecast,
+        "future_grid_feedin": future_grid_feedin
+    }
+
+    with open(os.path.join(os.path.dirname(__file__), '..', 'www', 'templates', 'time_series_data.json'), 'w') as f:
+        logging.debug(f"{GREY}Dumping all time series data to {__file__}{RESET}")
+        json.dump(time_series_data, f, default=str, indent=4)

@@ -40,8 +40,9 @@ def favicon():
 def send_static(path):
     return send_from_directory('static', path)
 
-
-
+@app.route('/templates/time_series_data.json')
+def serve_time_series_data():
+    return send_from_directory('templates', 'time_series_data.json')
 
 # Path to the usage_plan.json file
 USAGE_PLAN = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend', 'data', 'usage_plan.json'))

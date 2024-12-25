@@ -24,6 +24,10 @@
     <link rel="stylesheet" href="../static/bootstrap-clockpicker.min.css">
     <script src="../static/bootstrap-clockpicker.min.js"></script>
 
+    <!-- Einbindung Charts-->
+    <script src="../static/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
     <!-- my scripts to create the website-->
     <script src="../static/script.js" defer></script>
     <link rel="stylesheet" href="../static/styles.css"> <!-- load this after bootstrap to overwrite bootstrap-->
@@ -38,6 +42,12 @@
   <!--TODO: style the document afterwards-->
 
 <div class="container">
+    <div class="row">
+        <div class="col">
+            <div id="json-time-series"></div>
+        </div>
+
+    </div>
         <!-- edit trip form -->
     <!-- TODO: make bootstrap modal-->
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
