@@ -346,4 +346,42 @@ def get_current_temperature(weather_forecast):
             return forecast['temp']
     return weather_forecast[-1]['temp']
 
+# FIXME: def write_temperature_to_influx() seems to be missing
+# this version by chatgpt 4o and not o1
+def write_temperature_to_influx(temperature_data):
+    """
+    Writes temperature data to InfluxDB.
+    
+    Args:
+        temperature_data (list): List of dictionaries containing temperature data with keys 'time' and 'temp'.
+    """
+    from influxdb_client import InfluxDBClient, Point, WritePrecision
+
+    INFLUX_BASE_URL = settings['InfluxDB']['INFLUX_BASE_URL']
+    INFLUX_ORGANIZATION = settings['InfluxDB']['INFLUX_ORGANIZATION']
+    INFLUX_BUCKET = settings['InfluxDB']['INFLUX_BUCKET']
+    INFLUX_ACCESS_TOKEN = settings['InfluxDB']['INFLUX_ACCESS_TOKEN']
+
+    client = InfluxDBClient(
+        url=INFLUX_BASE_URL,
+        token=INFLUX_ACCESS_TOKEN,
+        org=INFLUX_ORGANIZATION
+    )
+    write_api = client.write_api(write_options=SYNCHRONOUS)
+
+    for entry in temperature_data:
+        point = Point("weatherData") \
+            .time(entry['time'], WritePrecision.NS) \
+            .field("temperature", entry['temp'])
+        
+        try:
+            write_api.write(
+                bucket=INFLUX_BUCKET,
+                org=INFLUX_ORGANIZATION,
+                record=point
+            )
+            logging.debug(f"{GREY}Temperature data {entry} written to InfluxDB.{RESET}")
+        except Exception as e:
+            logging.error(f"{RED}Failed to write temperature data to InfluxDB: {e}{RESET}")
+
 

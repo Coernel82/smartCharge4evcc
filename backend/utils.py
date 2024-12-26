@@ -754,7 +754,10 @@ def get_season():
         org=INFLUX_ORGANIZATION
     )
 
-
+    # BUG: no outdoor_temp with this query I guess (check in InfluxDB)
+    # first: create function to write the outdoor_temp to InfluxDB
+    # second: create query in InfluxDB
+    # third: get the data from InfluxDB here
     flux_query_temperatures = f'''
     from(bucket: "smartCharge4evcc")
         |> range(start: -30d)

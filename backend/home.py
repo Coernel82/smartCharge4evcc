@@ -255,7 +255,6 @@ def calculate_hourly_house_energy_consumption(solar_forecast, weather_forecast):
     INDOOR_TEMPERATURE = settings['House']['INDOOR_TEMPERATURE']
     ENERGY_CERTIFICATE = settings['House']['ENERGY_CERTIFICATE']
     COP = settings['House']['integrated_devices']['heatpump']['COP']
-    SUMMER_THRESHOLD = settings['House']['SUMMER_THRESHOLD']
     correction_factor_summer = settings['House']['correction_factor_summer']
     correction_factor_winter = settings['House']['correction_factor_winter']
     MAXIMUM_PV = settings['House']['MAXIMUM_PV']
@@ -298,17 +297,28 @@ def calculate_hourly_house_energy_consumption(solar_forecast, weather_forecast):
         climate_energy_corrected = 0
     
         # Temperaturdifferenz berechnen
+    
+        
         temp_difference = INDOOR_TEMPERATURE - outdoor_temp
     
         # Nominalen Klimaenergieverbrauch pro Stunde berechnen       
         climate_energy_nominal = (abs(temp_difference) * HEATED_AREA * ENERGY_CERTIFICATE / COP) / (365 * 24)
-    
+        # TODO: holdpoint here, check if there is a temp difference etc.
+        # at the moment the baseload seems to have a too high impact on the calculation
+
         # Berechnung der Heizenergie unter Einbezug der PV-Leistung
         global_radiation_summer = (pv_estimate / MAXIMUM_PV) * correction_factor_summer
         global_radiation_winter = (pv_estimate / MAXIMUM_PV) * correction_factor_winter
     
         
+        # BUG: No temperature data at all or less than 7 days available. Setting season to interim
+        # there cannot be data because write function is missing (tagged as BUG)
+        # workaround:
+        season = 'winter'
         
+        # the baseload is the homePower value from evcc which excludes the wallbox (= heatpump as it is the same in evcc logic)
+        # https://docs.evcc.io/docs/reference/configuration/messaging#msg
+        # gridPower would include everything (just as a sidenote)
         
         if season == 'summer':
             climate_energy_corrected = climate_energy_nominal + global_radiation_summer + get_baseload_for_time(time, baseload_data) # PLUS as it is cooling

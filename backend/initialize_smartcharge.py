@@ -235,7 +235,7 @@ def get_baseload():
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     cache_file = os.path.join(script_dir, 'cache', 'baseload_cache.json')
-
+    # BUG: Software can create empty cache file - order of operations is wrong
     # Check if cache file exists
     if not os.path.exists(cache_file):
         # Create cache directory if it doesn't exist

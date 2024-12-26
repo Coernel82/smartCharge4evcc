@@ -138,18 +138,18 @@ To keep SmartCharge running continuously, restart it automatically if it crashes
 Create a new service file to run SmartCharge and its server in the virtual environment:
 `nano run_smartcharge.sh`
 
-and past this:
+and paste this:
 ```bash
 #!/bin/bash
 
 # switching to the working directory
 cd /home/evcc-admin/smartCharge4evcc
 
-# Aktivieren der virtuellen Umgebung
+# Activate virtual environment
 source /home/evcc-admin/myenv/bin/activate
 
 # run both scripts simultaniously by using the &-sign
-python /home/evcc-admin/smartcharge/smartCharge4evcc.py &
+python /home/evcc-admin/smartcharge4evcc/backend/smartCharge.py &
 python /home/evcc-admin/smartCharge4evcc/www/server.py &
 
 # wait till the scripts finish (they never should)
