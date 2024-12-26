@@ -1,0 +1,150 @@
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/static/Montserrat/Montserrat-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('/static/Montserrat/Montserrat-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+:root {
+    --primary-color: #333; 
+    --secondary-color: #93949e;
+    --background-color: #f3f3f7;
+    --subtle: #e9eef5;
+    --bs-primary-bg-subtle: white!important;
+    --color: #ccc;
+}
+
+    
+
+/* Apply Montserrat Bold to Headings */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700; /* Bold */
+}
+
+
+h1 {
+    color: var(--primary-color);
+
+}
+
+
+
+h2 {
+    color: var(--secondary-color);
+}
+
+body {
+    background: var(--background-color);
+    font-family: 'Montserrat', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+
+
+
+
+
+
+
+/* Bootstrap modifications */
+.container {
+    margin-top: 3em;
+}
+
+.trip-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* FIXME: trip-actions hover must probably be other class */
+.trip-actions:hover {
+    color: darken(var(--secondary-color), 10%);
+}
+
+
+.alert {
+    border-radius: 2rem !important;
+}
+
+.alert-primary {
+    background-color: white;
+    border-color: white;
+    --bs-alert-color: var(--primary-color);
+    
+}
+
+.spacer-right {
+    margin-right: 0.5em;
+}
+
+.close {
+    border: none;
+    color: var(--primary-color);
+    background-color: white;
+    border-radius: 50%;
+    width: 2cm;
+    height: 2cm;
+    text-align: center;
+    line-height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: absolute;
+    top: 18px;
+    right: 10px;
+}
+
+
+.close:hover {
+    color: darken(var(--primary-color), 10%);
+}
+
+.btn-close:click {
+    display: none;
+}
+
+#open-settings-btn:hover,
+#add-weekly:hover,
+#add-non-recurring:hover {
+  filter: brightness(0.8);
+  cursor: pointer;
+  background-color: var(--subtle);
+}
+
+.modal {
+    backdrop-filter: blur(5px);
+}
+
+
+.modal-dialog {
+    width: 98%;
+}
+
+@media (max-width: 1024px) {
+    .container {
+        margin: 0.2em;
+    }
+
+}
+
+/* Increase font size on mobile devices */
+@media (max-width: 767px) {
+  body p .alert .alert-primary {
+    font-size: 5.2rem!important;
+  }
+
+  .bottom-bar a,
+  .bottom-bar button {
+    font-size: 1rem;
+  }
+}

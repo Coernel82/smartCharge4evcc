@@ -1,0 +1,11 @@
+<svg style="fill: var(primary-color);" height="1em"  version="1.1" viewBox="0 0 109.06 58.286" xmlns="http://www.w3.org/2000/svg">
+ <g transform="translate(-43.72 -148.28)">
+  <g transform="matrix(1.6776 0 0 1.6776 -21.748 -106.83)">
+   <g transform="matrix(.62098 -.62098 .75489 .75489 -120.83 116.72)">
+    <path d="m128.77 159.48v6.8024h6.976s0.91978 0.0614 1.3429-0.36175c1.6033-1.6034 1.8068-4.4077 0.20348-6.0111-0.49847-0.49847-1.8661-0.42958-1.8661-0.42958z" stroke-width=".89905" style="-inkscape-stroke:none"/>
+    <path d="m101.33 159.48-3.7205 3.2442 3.7205 3.5605h25.778v-6.8047z" stroke-width=".88102" style="-inkscape-stroke:none"/>
+   </g>
+   <path d="m54.742 157.95v28.781h28.781v-20.957l-4 4.1248v12.832h-20.781v-20.781h14.189l3.805-4z" style="-inkscape-stroke:none"/>
+  </g>
+ </g>
+</svg>

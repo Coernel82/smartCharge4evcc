@@ -10,7 +10,7 @@ backend/data/settings.json
 
 cache/
 *cache*
-www/
+
 
 # Ignoriere die Datei Zugangsdaten.py
 Zugangsdaten.py
