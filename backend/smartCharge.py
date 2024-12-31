@@ -44,7 +44,7 @@ import evcc
 import socGuard
 
 
-current_version = "v0.0.1-alpha"
+current_version = "v0.0.3-alpha"
 # Logging configuration with color scheme for debug information
 # DEBUG, INFO, WARNING, ERROR, CRITICAL
 logging.basicConfig(level=logging.DEBUG)
