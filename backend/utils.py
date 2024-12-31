@@ -112,6 +112,10 @@ def write_corrected_energy_consumption(hourly_climate_energy):
         for key, value in entry.items():
             if key == 'time':
                 continue  # 'time' is used as timestamp
+            elif key == 'maximumPv':
+                point = point.field(key, int(value))
+            elif key == 'pv_estimate':
+                point = point.field(key, int(value))
             elif isinstance(value, (int, float)):
                 point = point.field(key, float(value))
             else:
@@ -295,7 +299,7 @@ def update_correction_factor():
         json.dump(settings, f, indent=4)
 
     # Write a log of the correction factor to correction_factor_log.txt
-    # this is just to monitor the correction factor over time
+    # this is just to monitor the correction factor over time and monitor if the quality of the calculation is good
     if logging.getLogger().isEnabledFor(logging.DEBUG):
         quality_of_calculation = (1 - abs(average_climate_energy_corrected - real_energy) / real_energy) * 100
         log_entry = {
