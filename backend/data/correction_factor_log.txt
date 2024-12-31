@@ -121,3 +121,5 @@
 {"timestamp": "2024-11-26T19:26:57.265223", "correction_factor_summer": 0.0046, "correction_factor_winter": -22.195399774045175}
 {"timestamp": "2024-11-26T19:31:47.362077", "correction_factor_summer": 0.0046, "correction_factor_winter": -22.39539976328553}
 {"timestamp": "2024-11-26T19:36:31.069614", "correction_factor_summer": 0.0046, "correction_factor_winter": -22.595399752525957}
+{"timestamp": "2024-12-31T12:45:15.167119", "correction_factor_summer": 0.0046, "correction_factor_winter": 0.0046}
+{"timestamp": "2024-12-31T12:48:17.157804", "correction_factor_summer": 0.0046, "correction_factor_winter": 567176.9241659115}

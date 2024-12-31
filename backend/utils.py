@@ -20,7 +20,7 @@ import initialize_smartcharge
 import datetime
 import solarweather
 import home
-
+import math
 
                             
 settings = initialize_smartcharge.load_settings()
@@ -79,7 +79,6 @@ def ensure_datetime_with_timezone(time_value):
 
 
 
-# BUG: does not write (done: changed to own bucket)
 def write_corrected_energy_consumption(hourly_climate_energy):
     """
     Writes the corrected hourly energy consumption data to InfluxDB.
@@ -149,23 +148,23 @@ def query_influx_real_energy_readings():
 
 
     # Modify the Flux query to accumulate readings and get 7 * TIMESPAN_WEEKS readings at the end
-    # / 3600000.0 to convert from Wh to kWh
+    # / 3600000.0 to convert from Ws to Wh
     start_time = f"-{TIMESPAN_WEEKS * 7}d"
+    # set stop time to past midnight
+    stop_time = datetime.datetime.now().astimezone().replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
     flux_query_real_energy_readings = f"""
     from(bucket: "{INFLUX_BUCKET}")
-        |> range(start: {start_time}, stop: today())
-        |> filter(fn: (r) => r["_loadpoint"] == "Wärmepumpe")
-        |> filter(fn: (r) => r["_field"] == "value")
+        |> range(start: {start_time}, stop: time(v: "{stop_time}"))
+        |> filter(fn: (r) => r["loadpoint"] == "Wärmepumpe")
         |> filter(fn: (r) => r["_measurement"] == "chargePower")
         |> aggregateWindow(every: 1d, fn: integral, createEmpty: false)
-        |> map(fn: (r) => ({{_value: r._value / 3600000.0, _time: r._time, loadpoint: r.loadpoint, _field: r._field, _measurement: r._measurement, pv_estimate: r.pv_estimate}}))
-        |> yield(name: "integral")
+        |> map(fn: (r) => ({{_value: r._value / 3600.0}}))
+        |> yield(name: "mean")
     """
-     # Query InfluxDB
     query_api = client.query_api()
     result_real = query_api.query(org=INFLUX_ORGANIZATION, query=flux_query_real_energy_readings)
     #logging.debug(f"Flux Query (Calculated): {flux_query_calculated}")
-    logging.debug(f"{GREY}result_calculated from Influx: {result_real}{RESET}")
+    logging.debug(f"{GREY}result_real from Influx: {result_real}{RESET}")
     # Check if results are empty
     if not result_real:
         logging.warning("No data returned from real query")
@@ -176,7 +175,6 @@ def query_influx_calculated_energy_readings():
     INFLUX_BASE_URL = settings['InfluxDB']['INFLUX_BASE_URL']
     INFLUX_ORGANIZATION = settings['InfluxDB']['INFLUX_ORGANIZATION']
     INFLUX_ACCESS_TOKEN = settings['InfluxDB']['INFLUX_ACCESS_TOKEN']
-    INFLUX_LOADPOINT = settings['InfluxDB']['INFLUX_LOADPOINT']
     TIMESPAN_WEEKS = settings['InfluxDB']['TIMESPAN_WEEKS']
 
     # Initialize InfluxDB client
@@ -188,19 +186,22 @@ def query_influx_calculated_energy_readings():
 
     # Define start and stop times explicitly
     start_time = f"-{TIMESPAN_WEEKS * 7}d"
+    aggregate_time_window = f"{abs(int(start_time[:-1]))}d"
 
     # Log the time range
     logging.debug(f"Querying data from {start_time} till now")
     
-    # Modify the Flux query to accumulate readings and get 28 readings at the end
-    # / 3600000.0 to convert from Wh to kWh
+    # TODO: [low prio] check if we need the season, if yes we need it for the real readings as well
+    # season = get_season()
+    # |> filter(fn: (r) => r["season"] == "{season}")
 
     flux_query_calculated = f"""
-    from(bucket: "smartCharge4evcc")
-        |> range(start: {start_time}, stop: today())
-        |> filter(fn: (r) => r["SmartCharge"] == "calculatedEnergy")
-        |> aggregateWindow(every: 1d, fn: integral, createEmpty: false)
-        |> yield(name: "integral")
+        from(bucket: "smartCharge4evcc")
+            |> range(start: {start_time}, stop: today())
+            |> filter(fn: (r) => r["SmartCharge"] == "calculatedEnergy")
+            |> filter(fn: (r) => r["SmartCharge"] == "calculatedEnergy" and r["season"] != "interim")
+            |> aggregateWindow(every: {aggregate_time_window}, fn: mean, createEmpty: false)
+            |> yield(name: "mean")
     """
 
     # Query InfluxDB
@@ -222,32 +223,48 @@ def update_correction_factor():
     result_real = query_influx_real_energy_readings()
     
    
-    real_energy = 0
+    real_energy = []
     for table in result_real:
         for record in table.records:
-            real_energy = record['real_energy']
-
-    # if real_energy is empty abort
+            real_energy.append(record['_value'])
+    
+    
+     # if real_energy is empty abort
     if not real_energy:
-        logging.error(f"{YELLOW}Real energy is empty - maybe because you are running the programm for just a short timespan. Aborting correction factor update.{RESET}")
+        logging.error(f"{RED}Real energy is empty - maybe because you are running the programm for just a short timespan. Aborting correction factor update.{RESET}")
         return
+    else:
+        logging.debug(f"{GREY}Real energy from InfluxDB: {real_energy}{RESET}")
 
-
+    # Calculate the average real energy
+    real_energy = np.mean(real_energy)
+    logging.debug(f"{GREY}Average real energy from InfluxDB: {real_energy}{RESET}")
 
     # getting calculated values out of result_calculated
-    # this is close we need if condition winter / summer and do two calculations
     total_climate_energy_nominal = 0
     total_baseload = 0
     total_MAXIMUM_PV = 0
     total_pv_estimate = 0
     count = 0
-
-    for entry in result_calculated:
-        total_climate_energy_nominal += entry.get('climate_energy_nominal', 0)
-        total_baseload += entry.get('baseload', 0)
-        total_MAXIMUM_PV += entry.get('maximumPv', 0)
-        total_pv_estimate += entry.get('pv_estimate', 0)
-        count += 1
+    
+    for table in result_calculated:
+        for record in table.records:
+            field_name = record.values.get('_field', '')
+            field_value = record.values.get('_value', 0)
+            if field_name == 'climate_energy_nominal':
+                total_climate_energy_nominal += field_value
+            elif field_name == 'baseload':
+                total_baseload += field_value
+            elif field_name == 'maximum_pv':
+                total_MAXIMUM_PV += field_value
+            elif field_name == 'pv_estimate':
+                total_pv_estimate += field_value
+            count += 1
+            # Log the totals for debugging
+            logging.debug(f"Total climate_energy_nominal: {total_climate_energy_nominal}")
+            logging.debug(f"Total baseload: {total_baseload}")
+            logging.debug(f"Total maximum_pv: {total_MAXIMUM_PV}")
+            logging.debug(f"Total pv_estimate: {total_pv_estimate}")
 
     average_climate_energy_nominal = total_climate_energy_nominal / count if count else 0
     average_baseload = total_baseload / count if count else 0
@@ -258,17 +275,21 @@ def update_correction_factor():
     correction_factor = (real_energy - average_climate_energy_nominal - average_baseload) * (average_MAXIMUM_PV / average_pv_estimate)
     
     season = get_season()
-    # and apply it to the current season
+    # Apply the correction factor gradually by 10%
     if season == "summer":
-        settings['House']['correction_factor_summer'] = correction_factor
-    
-    if season == "winter":
-       settings['House']['correction_factor_winter'] = correction_factor
+        current_factor = settings['House']['correction_factor_summer']
+        updated_factor = current_factor + 0.03 * (correction_factor - current_factor)
+        settings['House']['correction_factor_summer'] = updated_factor
+        logging.info(f"{GREEN}Gradually updated correction factor for summer to: {updated_factor}{RESET}")
+    elif season == "winter":
+        current_factor = settings['House']['correction_factor_winter']
+        updated_factor = current_factor + 0.03 * (correction_factor - current_factor)
+        settings['House']['correction_factor_winter'] = updated_factor
+        logging.info(f"{GREEN}Gradually updated correction factor for winter to: {updated_factor}{RESET}")
     else:
-        logging.error(f"{RED}Season not defined or in between seasons.{RESET}")
-        # abort if no season is defined
+        logging.info(f"{GREEN}Season not defined or in between seasons. No correction factor update applied.{RESET}")
+        # Abort if no season is defined
         return
-    
 
     # Bestimme den Pfad relativ zur utils.py-Datei
     settings_path = os.path.join(os.path.dirname(__file__), 'data', 'settings.json')
@@ -503,8 +524,8 @@ def get_electricity_prices(TIBBER_API_URL, TIBBER_HEADERS):
                 else:
                     if cache_valid_today:
                         logging.debug(f"{GREEN}Strompreise für heute sind verfügbar und wurden zwischengespeichert.{RESET}")
-                        # Rückgabe nur der heutigen Preise
-                        return [p for p in fetched_prices if p['startsAt'].date() == today]
+                        # Rückgabe Preise
+                        return fetched_prices
                     else:
                         logging.warning(f"{YELLOW}Strompreise für heute sind noch nicht verfügbar.{RESET}")
                         return []
@@ -622,7 +643,7 @@ def calculate_remaining_hours(departure_time):
 
 def calculate_hourly_energy_surplus(hourly_climate_energy, solar_forecast):
     """
-    Calculate the hourly energy surplus by subtracting the hourly energy consumption from the solar forecast.
+    Calculate the hourly energy surplus by subtracting the climate_energy_corrected from the solar forecast.
 
     Args:
         hourly_climate_energy (list): List of dictionaries with keys 'time' and 'energy_consumption'.
@@ -654,7 +675,7 @@ def calculate_hourly_energy_surplus(hourly_climate_energy, solar_forecast):
 
     return hourly_energy_surplus
 
-def get_usable_charging_energy_surplus(usable_energy, departure_time, ev_energy_gap, evcc_state, loadpoint_id, load_car=True):
+def get_usable_charging_energy_surplus(usable_energy, departure_time, ev_energy_gap, evcc_state, car_name, load_car=True):
     """
     Extract and sum up all energy values from usable_energy higher than 700 Watt during the timespan 
     from now till departure_time until the sum is higher or equal to ev_energy_gap.
@@ -668,7 +689,7 @@ def get_usable_charging_energy_surplus(usable_energy, departure_time, ev_energy_
     
     Returns:
         tuple: usable_charging_energy_surplus, usable_energy
-        usable_charging_energy_surplus is limited to a minimum loading energy of the car
+        usable_charging_energy_surplus is limited to a minimum loading energy of the loadpoint
         usable_energy is unlimited and even contains small energy amounts which can be used for devices which can fully modulate
     """
     current_time = datetime.datetime.now().astimezone()
@@ -689,33 +710,49 @@ def get_usable_charging_energy_surplus(usable_energy, departure_time, ev_energy_
         current_time = current_time.astimezone()
         departure_time = departure_time.astimezone()
         if current_time <= time <= departure_time:
+    
             if load_car:
+                loadpoint_id = None
+                for ids, loadpoint in enumerate(evcc_state['result']['loadpoints']):
+                    if loadpoint.get('vehicleName') == car_name:
+                            loadpoint_id = ids
+                            break
+                    if loadpoint_id is None:
+                        raise ValueError(f"Car name {car_name} not found in EVCC state loadpoints")
+                
+                # Get maximum loadpoint energy from evcc
+                maximum_loadpoint_current = evcc_state['result']['loadpoints'][loadpoint_id]['maxCurrent']
+                phases_Enabled = evcc_state['result']['loadpoints'][loadpoint_id]['phasesEnabled']
+
+                # now this is physics: P = U * I * sqrt(3) for 3 phases and P = U * I for 1 phase
+                if phases_Enabled == 1:
+                    maximum_loadpoint_energy = 230 * maximum_loadpoint_current
+                elif phases_Enabled == 3:
+                    maximum_loadpoint_energy = math.sqrt(3) * 230 * maximum_loadpoint_current
+                else:
+                    raise ValueError("phasesEnabled must be 1 or 3")
+                
                 # Minimum charging power for EV is roughly 1.4 kW - so we assume that 700 Watt can mean that there was enough energy available for charging
                 if pv_estimate > 700:
-                    # Get maximum loadpoint energy from EVCC API
-                    maximum_loadpoint_energy = evcc_state['loadpoints'][loadpoint_id]['chargePower']
                     if pv_estimate > maximum_loadpoint_energy:
                         pv_estimate_usable = maximum_loadpoint_energy
-                        pv_estimate -= maximum_loadpoint_energy
-                    else:
-                        pv_estimate_usable = pv_estimate
-                        pv_estimate = 0
-                    usable_charging_energy_surplus += pv_estimate_usable
-                    usable_charging_energy_surplus += pv_estimate_usable
-                    # logging.debug(f"{GREY}usable charging energy surplus: Added {pv_estimate} Wh to the surplus{RESET}")
-                    entry['pv_estimate'] = pv_estimate  # the rest
-
-                    if usable_charging_energy_surplus >= ev_energy_gap:
-                        break
-            else:
-                usable_charging_energy_surplus += pv_estimate
-                logging.debug(f"{GREY}usable charging energy surplus: Added {pv_estimate} Wh to the surplus{RESET}")
-                entry['pv_estimate'] = 0  # Set the used energy to 0
+                        pv_estimate -= pv_estimate_usable
+                        # through iterations this value gets higher and higher and is used for charging the car
+                        usable_charging_energy_surplus += pv_estimate_usable
+                        # logging.debug(f"{GREY}usable charging energy surplus: Added {pv_estimate} Wh to the surplus{RESET}")
+                        # setting the nwe pv_estimate to the remaining energy (which will be used for other devices which can fully modulate)
+                        entry['pv_estimate'] = pv_estimate # Set the remaining energy to 0 as for sure we used everything up 
+                
+                else:
+                    usable_charging_energy_surplus += pv_estimate
+                    logging.debug(f"{GREY}usable charging energy surplus: Added {pv_estimate} Wh to the surplus{RESET}")
+                    entry['pv_estimate'] = 0  # Set the remaining energy to 0 as for sure we used everything up
 
                 if usable_charging_energy_surplus >= ev_energy_gap:
                     logging.info(f"{GREEN}Usable energy surplus of {usable_charging_energy_surplus/1000} kWh added to plan.{RESET}")
                     break
-    
+    # usable_charging_energy_surplus is limited to a minimum loading energy of the loadpoint
+    # whereas usable_energy is unlimited and even contains small energy amounts which can be used for devices which can fully modulate
     return usable_charging_energy_surplus, usable_energy
 
 
@@ -743,8 +780,9 @@ def get_season():
     """
     INFLUX_BASE_URL = settings['InfluxDB']['INFLUX_BASE_URL']
     INFLUX_ORGANIZATION = settings['InfluxDB']['INFLUX_ORGANIZATION']
-    INFLUX_BUCKET = settings['InfluxDB']['INFLUX_BUCKET']
     INFLUX_ACCESS_TOKEN = settings['InfluxDB']['INFLUX_ACCESS_TOKEN']
+    
+    # TODO: implement TIMESPAN_WEEKS_BASELOAD here in code or delete from settings
     TIMESPAN_WEEKS_BASELOAD = settings['InfluxDB']['TIMESPAN_WEEKS_BASELOAD']
     
     # Initialize InfluxDB client
@@ -754,30 +792,44 @@ def get_season():
         org=INFLUX_ORGANIZATION
     )
 
-    # BUG: no outdoor_temp with this query I guess (check in InfluxDB)
+    # TODO: query fixed, check if working!
+    # old text:
+    # no outdoor_temp with this query I guess (check in InfluxDB)
     # first: create function to write the outdoor_temp to InfluxDB
     # second: create query in InfluxDB
     # third: get the data from InfluxDB here
     flux_query_temperatures = f'''
     from(bucket: "smartCharge4evcc")
         |> range(start: -30d)
-        |> filter(fn: (r) => r["SmartCharge"] == "correctedEnergy")
-        |> filter(fn: (r) => r._field == "outdoor_temp")
-        |> aggregateWindow(every: 1d, fn: mean, createEmpty: false)
-        |> rename(columns: {{_value: "mean_temp"}})
+        |> filter(fn: (r) => r["_field"] == "outdoor_temp")
     '''
     query_api = client.query_api()
     points = query_api.query(org=INFLUX_ORGANIZATION, query=flux_query_temperatures)
     
+    logging.debug(f"{GREY}Temperature data from InfluxDB: {points}{RESET}")
+
+        
+        # TODO: check if fixed
+        # old bug note:
+        # No temperature data at all or less than 7 days available. Setting season to interim
+        # there cannot be data because write function is missing (tagged as BUG)
+        # workaround:
+        #season = 'winter'
+        
+
 
     # Convert to pandas DataFrame
-    temperature_data = pd.DataFrame(points)
+    records = []
+    for table in points:
+        for record in table.records:
+            records.append({'time': record.get_time(), 'mean_temp': record.get_value()})
+    temperature_data = pd.DataFrame(records)
     if temperature_data.empty or len(temperature_data) < 7:
-        logging.error(f"{YELLOW}No temperature data at all or less than 7 days available. Setting season to interim{RESET}")
-        season = 'interim'
-        return season
+      logging.error(f"{YELLOW}No temperature data at all or less than 7 days available. Setting season to interim{RESET}")
+      season = 'interim'
+      return season
     temperature_data['time'] = pd.to_datetime(temperature_data['time'])
-
+    logging.debug(f"{GREY}Temperature data: {temperature_data}{RESET}")
     # Prepare data for linear regression
 
     # Convert dates to ordinal format
@@ -792,7 +844,6 @@ def get_season():
     today_ordinal = np.array([[datetime.datetime.now().toordinal()]])
     expected_temperature = model.predict(today_ordinal)[0]
 
-    logging.debug(f"Expected temperature for today: {expected_temperature:.2f}°C")
 
     # Determine the season based on the expected temperature
     summer_threshold = settings['House']['SUMMER_THRESHOLD']
@@ -804,7 +855,7 @@ def get_season():
         season = 'winter'
     else:
         season = 'interim'
-
+    logging.info(f"{GREEN}Expected temperature for today based on past readings (and not weather report): {expected_temperature:.2f}°C. Season determined: {season}{RESET}")
     return season
 
 def cache_upper_price_limit(price_limit):

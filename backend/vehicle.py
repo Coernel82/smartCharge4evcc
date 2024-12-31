@@ -198,25 +198,24 @@ def calculate_car_battery_degradation(evcc_state, car_name, loadpoint_id):
         b = -1.2056443455051694e-6
         c = 1.00
         degradation_car_battery_percentage = a * odometer**2 + b * odometer + c
-        degradated_battery_capacity = battery_capacity * -degradation_car_battery_percentage / 100
+        if degradation_car_battery_percentage <= 0:
+            degradation_car_battery_percentage = 0
+            logging.critical(f"{RED}Degradation by odometer is negative or zero{RESET}")
+        degradated_battery_capacity = battery_capacity * degradation_car_battery_percentage
         return degradated_battery_capacity
 
-def calculate_required_soc(energy_consumption, car, evcc_state, loadpoint_id, trip_name):
+def calculate_required_soc_topup(energy_consumption, car, evcc_state, loadpoint_id, trip_name):
     logging.info(f"{GREEN}Calculating required state of charge (SoC) for energy consumption of {energy_consumption/1000:.2f} kWh for car {car} for trip {trip_name}{RESET}")
     # Calculate the required state of charge (SoC) in percentage
     # we need kWh not Wh --> /1000
-    degradated_battery_capacity = calculate_car_battery_degradation(evcc_state, car, loadpoint_id) / 1000
-    required_soc = (energy_consumption / degradated_battery_capacity) * 100
-    if required_soc > 100:
-        required_soc = 100
-    if required_soc < 0:
-        required_soc = 0
-    logging.debug(f"{BLUE}Required energy: {energy_consumption:.2f} kWh, Required SoC: {required_soc:.2f}%{RESET}")
-    # FIXME: up to here it is correct
-    # BUG: DEBUG:root:Required energy: 64.30 kWh, Required SoC: 100.00%
-    # and later on: INFO:root:the energy gap is 47.06 kWh! Check if it shouldn't be the same. Suspect: degradation
-    # or a run for another car and everything is fine!  
-    return required_soc
+    degradated_battery_capacity = calculate_car_battery_degradation(evcc_state, car, loadpoint_id) 
+    required_soc_topup = (energy_consumption / degradated_battery_capacity) * 100
+    if required_soc_topup > 100:
+        required_soc_topup = 100
+    if required_soc_topup < 0:
+        required_soc_topup = 0
+    logging.debug(f"{BLUE}Required energy: {energy_consumption/1000:.2f} kWh, Required SoC: {required_soc_topup:.2f}%{RESET}")
+    return required_soc_topup
 
 # Function to get the current SoC of EVCC
 def get_evcc_soc(loadpoint_id, evcc_state):
@@ -278,14 +277,13 @@ def get_next_trip(car_name, usage_plan):
     return next_trip
 
 
-def calculate_energy_gap(required_soc, current_soc, car, evcc_state, loadpoint_id):
-    # BUG: wrong result
-    # Calculate the energy gap in Wh between the required SoC and the current SoC
+def calculate_energy_gap(required_soc_final, current_soc, car, evcc_state, loadpoint_id):
+    logging.debug(f"{GREEN}Calculating energy gap for required SoC {required_soc_final}% and current SoC {current_soc}%{RESET}")
     degradated_battery_capacity = calculate_car_battery_degradation(evcc_state, car, loadpoint_id)
-    soc_gap = required_soc - current_soc
+    soc_gap = required_soc_final - current_soc
     if soc_gap < 0:
         soc_gap = 0  # No gap, car is already charged
-    energy_gap = (soc_gap / 100) * degradated_battery_capacity
-    logging.info(f"{GREEN}the energy gap is {energy_gap/1000:.2f} kWh before PV!{RESET}")
-    return energy_gap
+    energy_gap_Wh = (soc_gap / 100) * degradated_battery_capacity
+    logging.info(f"{GREEN}the energy gap is {energy_gap_Wh/1000:.2f} kWh before PV!{RESET}")
+    return energy_gap_Wh
 

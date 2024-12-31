@@ -59,7 +59,8 @@ def guard_home_battery_soc(settings, home_battery_energy_forecast, chargingCosts
         cost = feedin - chargingCosts
 
         
-        # BUG: negative value. also -40.058.... results in -4.005.8 cents
+        # TODO: negative value. also -40.058.... results in -4.005.8 cents
+        # could be correct as there can be negative energy costs
         # Guarding home battery charge
         # Still guarding!
         # Retrieving home battery SoC from http://192.168.178.28:7070/api/state

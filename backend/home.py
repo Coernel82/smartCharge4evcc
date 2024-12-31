@@ -310,12 +310,6 @@ def calculate_hourly_house_energy_consumption(solar_forecast, weather_forecast):
         global_radiation_summer = (pv_estimate / MAXIMUM_PV) * correction_factor_summer
         global_radiation_winter = (pv_estimate / MAXIMUM_PV) * correction_factor_winter
     
-        
-        # BUG: No temperature data at all or less than 7 days available. Setting season to interim
-        # there cannot be data because write function is missing (tagged as BUG)
-        # workaround:
-        season = 'winter'
-        
         # the baseload is the homePower value from evcc which excludes the wallbox (= heatpump as it is the same in evcc logic)
         # https://docs.evcc.io/docs/reference/configuration/messaging#msg
         # gridPower would include everything (just as a sidenote)
@@ -334,7 +328,9 @@ def calculate_hourly_house_energy_consumption(solar_forecast, weather_forecast):
             climate_energy_nominal = 0
             climate_energy_corrected = 0
             
-
+        # TODO: check if this fixed grid feedin when there is no sun
+        if climate_energy_corrected < 0:
+            climate_energy_corrected = 0    
         
         hourly_climate_energy.append({
             'time': time,
@@ -351,7 +347,6 @@ def calculate_hourly_house_energy_consumption(solar_forecast, weather_forecast):
     # correction_factor_summer = (climate_energy_corrected - climate_energy_nominal - baseload) * (MAXIMUM_PV / pv_estimate)
     return hourly_climate_energy
 
-# BUG: baseload successfully from Influx but then no cachefile is created and therefore no matches
 def get_baseload_for_time(time, baseload_data):
     # logging.debug(f"{GREY}Searching for BASE_LOAD entry matching time {time}{RESET}")
     #logging.debug(f"{GREY}Baseload data: {baseload_data}{RESET}")
@@ -558,7 +553,7 @@ def calculate_future_grid_feedin(usable_energy, home_battery_energy_forecast, ev
     # it will work like this but will not be as precice as it could be
             
 def danger_of_curtailment(settings, hourly_energy_surplus):
-    # BUG: it is not as simple as this as curtailment danger is when input is higher than x and also battery will be full
+    # BUG: [low prio] it is not as simple as this as curtailment danger is when input is higher than x and also battery will be full
     curtailment_threshold_percent = settings['House']['CURTAILMENT_THRESHOLD']
     peak_power_watt = settings['House']['MAXIMUM_PV']
     curtailment_threshold_watt = curtailment_threshold_percent / 100 * peak_power_watt

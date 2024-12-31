@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 departure_time,
                 return_date,
                 return_time,
-                distance,
+                distance: Number(distance),
                 description
             };
 
@@ -576,12 +576,13 @@ recurringForm.addEventListener('submit', function(event) {
         departure_time: departure_time,
         return: weekday,
         return_time: return_time,
-        distance: parseInt(distance),
+        distance: Number(distance),
         brand: brand,
         description: description
     };
 
     fetch('/add_recurring_trip', {
+        // BUG: For both recurring and non recurring trips the distance must be a number not a string
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newRecurringTrip)
@@ -737,6 +738,7 @@ fetch('/templates/time_series_data.json')
         const future_grid_feedin = data.future_grid_feedin || [];
         const weather_forecast = data.weather_forecast || [];
 
+
         // Create the chart
         new Chart(ctx, {
             type: 'line',
@@ -781,67 +783,79 @@ fetch('/templates/time_series_data.json')
                         data: home_battery_energy_forecast.map(entry => ({ x: entry.time, y: entry.forecast })),
                         borderColor: 'rgb(204, 0, 255)',
                         fill: false,
-                        yAxisID: 'y0' // Updated accordingly
+                        yAxisID: 'y0',
+                        tension: 0.4
                     },
                     {
                         label: 'Grid Feed-in',
                         data: grid_feedin.map(entry => ({ x: entry.time, y: entry.feedin })),
-                        borderColor: 'rgb(21, 255, 0)',
+                        borderColor: 'rgb(38, 133, 88)',
                         borderDash: [5, 5],
                         fill: false,
-                        yAxisID: 'y0' // Updated accordingly
+                        yAxisID: 'y0',
+                        tension: 0.4
                     },
                     {
                         label: 'Home battery charging',
                         data: required_charge.map(entry => ({ x: entry.time, y: entry.charge })),
                         borderColor: 'rgba(75, 192, 192, 0.5)',
                         fill: false,
-                        yAxisID: 'y0' // Updated accordingly
+                        yAxisID: 'y0',
+                        tension: 0.4
                     },
                     {
                         label: 'Charging Plan',
                         data: charging_plan.map(entry => ({ x: entry.time, y: entry.plan })),
                         borderColor: 'rgba(255, 99, 132, 0.5)',
                         fill: false,
-                        yAxisID: 'y0' // Updated accordingly
+                        yAxisID: 'y0',
+                        tension: 0.4
                     },
                     {
                         label: 'Usable Energy for EV',
                         data: usable_energy_for_ev.map(entry => ({ x: entry.time, y: entry.pv_estimate })),
                         borderColor: 'rgba(153, 102, 255, 0.5)',
                         fill: false,
-                        yAxisID: 'y0'
+                        yAxisID: 'y0',
+                        tension: 0.4
                     },
                     {
                         label: 'Solar Forecast',
                         data: solar_forecast.map(entry => ({ x: entry.time, y: entry.pv_estimate })),
                         borderColor: 'rgb(255, 244, 85)',
-                        fill: false,
+                        backgroundColor: 'rgb(255, 248, 144)',
+                        fill: true,
                         yAxisID: 'y0',
-                        pointStyle: 'crossRot'
+                        pointStyle: 'crossRot',
+                        tension: 0.4
                     },
                     {
                         label: 'Future Grid Feed-in',
                         data: future_grid_feedin.map(entry => ({ x: entry.time, y: entry.feedin })),
                         borderColor: 'rgba(27, 190, 54, 0.5)',
                         fill: false,
-                        yAxisID: 'y0'
+                        yAxisID: 'y0',
+                        tension: 0.4
                     },
                     {
                         label: 'Weather Forecast',
                         data: weather_forecast.map(entry => ({ x: entry.dt, y: entry.temp*100 })),
                         borderColor: 'rgba(255, 99, 132, 0.5)',
                         fill: false,
-                        yAxisID: 'y0'
+                        yAxisID: 'y0',
+                        tension: 0.4
                     }
                 ]
             },
             options: {
+                // TODO: does not work like this or getting it from the browser  maybe at wrong position? locale: 'de-DE', // Automatically set locale based on user's browser settings
                 scales: {
                     x: {
                         type: 'time',
                         time: {
-                            //parser: 'yyyy-MM-dd HH:mm:ssXXX', // Adjust based on your datetime format
+                            displayFormats: {
+                                hour: 'MMM d, HH:mm' // Display date and time in 24-hour format
+                            }
                             //tooltipFormat: 'll HH:mm'
                         },
                         title: {

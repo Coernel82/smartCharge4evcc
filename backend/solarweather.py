@@ -74,16 +74,26 @@ def get_solar_forecast(SOLCAST_API_URL):
 
         data = response.json()
         solar_forecast = []
-
-        # Verarbeite jeden Forecast
+        
+        # TODO: [low prio] if the whole program is set to 30 minutes increments go back to 30 minutes increments
+        
+        
+        # Combine 30-minute increments into hourly increments
+        forecasts_by_hour = {}
         for forecast in data['forecasts']:
-            pv_estimate = forecast['pv_estimate'] * 1000  # Convert kW to W
+            pv_estimate = forecast['pv_estimate'] * 1000
             period_end = datetime.datetime.fromisoformat(forecast['period_end'].replace('Z', '+00:00'))
-            period_end = period_end.astimezone()  # Konvertiere period_end in lokale Zeit
+            # substract one hour as energy prices are "start at" wheres pv is "ends at"
+            period_end = period_end.astimezone() - datetime.timedelta(hours=1)
 
+            # Round up to the next hour if minutes > 0
+            hour_key = (period_end + datetime.timedelta(minutes=30)).replace(minute=0, second=0, microsecond=0)
+            forecasts_by_hour[hour_key] = forecasts_by_hour.get(hour_key, 0) + pv_estimate
+
+        for hour_end in sorted(forecasts_by_hour.keys()):
             solar_forecast.append({
-                'time': period_end.isoformat(),
-                'pv_estimate': pv_estimate
+                'time': hour_end.isoformat(),
+                'pv_estimate': forecasts_by_hour[hour_end]
             })
 
         # Speichere die neuen Daten im Cache
@@ -345,43 +355,3 @@ def get_current_temperature(weather_forecast):
         if forecast_time >= current_time:
             return forecast['temp']
     return weather_forecast[-1]['temp']
-
-# FIXME: def write_temperature_to_influx() seems to be missing
-# this version by chatgpt 4o and not o1
-def write_temperature_to_influx(temperature_data):
-    """
-    Writes temperature data to InfluxDB.
-    
-    Args:
-        temperature_data (list): List of dictionaries containing temperature data with keys 'time' and 'temp'.
-    """
-    from influxdb_client import InfluxDBClient, Point, WritePrecision
-
-    INFLUX_BASE_URL = settings['InfluxDB']['INFLUX_BASE_URL']
-    INFLUX_ORGANIZATION = settings['InfluxDB']['INFLUX_ORGANIZATION']
-    INFLUX_BUCKET = settings['InfluxDB']['INFLUX_BUCKET']
-    INFLUX_ACCESS_TOKEN = settings['InfluxDB']['INFLUX_ACCESS_TOKEN']
-
-    client = InfluxDBClient(
-        url=INFLUX_BASE_URL,
-        token=INFLUX_ACCESS_TOKEN,
-        org=INFLUX_ORGANIZATION
-    )
-    write_api = client.write_api(write_options=SYNCHRONOUS)
-
-    for entry in temperature_data:
-        point = Point("weatherData") \
-            .time(entry['time'], WritePrecision.NS) \
-            .field("temperature", entry['temp'])
-        
-        try:
-            write_api.write(
-                bucket=INFLUX_BUCKET,
-                org=INFLUX_ORGANIZATION,
-                record=point
-            )
-            logging.debug(f"{GREY}Temperature data {entry} written to InfluxDB.{RESET}")
-        except Exception as e:
-            logging.error(f"{RED}Failed to write temperature data to InfluxDB: {e}{RESET}")
-
-

@@ -3,59 +3,96 @@
         "recurring": [
             {
                 "description": "another day",
-                "departure_date": "Tuesday",
-                "departure_time": "16:00",
-                "distance": 25,
-                "return_date": "Tuesday",
+                "departure_date": "Thursday",
+                "departure_time": "14:00",
+                "distance": 100,
+                "return_date": "Thursday",
                 "return_time": "17:00",
                 "id": "2"
+            },
+            {
+                "description": "another day",
+                "departure_date": "Thursday",
+                "departure_time": "19:00",
+                "distance": 120,
+                "return_date": "Thursday",
+                "return_time": "22:00",
+                "id": "23dadadd-1b1b-4b7b-8b7b-1b1b1b1b1b1b"
             }
+        ,
+        {
+            "description": "daily trip",
+            "departure_date": "Monday",
+            "departure_time": "08:00",
+            "distance": 50,
+            "return_date": "Monday",
+            "return_time": "09:00",
+            "id": "daily-1"
+        },
+        {
+            "description": "daily trip",
+            "departure_date": "Tuesday",
+            "departure_time": "08:00",
+            "distance": 50,
+            "return_date": "Tuesday",
+            "return_time": "09:00",
+            "id": "daily-2"
+        },
+        {
+            "description": "daily trip",
+            "departure_date": "Wednesday",
+            "departure_time": "08:00",
+            "distance": 50,
+            "return_date": "Wednesday",
+            "return_time": "09:00",
+            "id": "daily-3"
+        },
+        {
+            "description": "daily trip",
+            "departure_date": "Thursday",
+            "departure_time": "08:00",
+            "distance": 50,
+            "return_date": "Thursday",
+            "return_time": "09:00",
+            "id": "daily-4"
+        },
+        {
+            "description": "daily trip",
+            "departure_date": "Friday",
+            "departure_time": "08:00",
+            "distance": 50,
+            "return_date": "Friday",
+            "return_time": "09:00",
+            "id": "daily-5"
+        },
+        {
+            "description": "daily trip",
+            "departure_date": "Saturday",
+            "departure_time": "08:00",
+            "distance": 50,
+            "return_date": "Saturday",
+            "return_time": "09:00",
+            "id": "daily-6"
+        },
+        {
+            "description": "daily trip",
+            "departure_date": "Sunday",
+            "departure_time": "08:00",
+            "distance": 50,
+            "return_date": "Sunday",
+            "return_time": "09:00",
+            "id": "daily-7"
+        }
         ],
         "non_recurring": [
             {
-                "description": "html",
-                "departure_date": "2024-12-04",
-                "departure_time": "02:05",
-                "return_date": "2024-12-11",
-                "return_time": "14:10",
-                "distance": 22,
-                "id": "5"
-            },
-            {
-                "departure_date": "2024-12-16",
-                "departure_time": "22:22",
-                "return_date": "2024-12-26",
-                "return_time": "15:15",
-                "distance": 33,
-                "description": "Nice trip.",
-                "id": "nrt-754c327a-9cc7-4786-bdde-40c8dcf3e747"
-            },
-            {
-                "departure_date": "2024-12-16",
-                "departure_time": "22:22",
-                "return_date": "2024-12-26",
-                "return_time": "15:15",
-                "distance": 33,
-                "description": "Nice trip.",
-                "id": "nrt-754c327a-9cc7-478-bdde-40c8dcf3e747"
-            },
-            {
-                "departure_date": "2024-12-20",
-                "departure_time": "13:23",
-                "return_date": "2024-12-25",
-                "return_time": "22:00",
-                "distance": "55",
-                "description": "ttttt",
-                "id": "nrt-96ecda5c-ba3f-460b-9767-a65700e0c31e"
-            },
-            {
-                "departure_date": "2024-12-03",
-                "departure_time": "13:00",
-                "return_date": "2024-12-24",
-                "return_time": "23:00",
-                "distance": "555",
-                "description": "north pole",
-                "id": "nrt-b4cabfb4-ba7f-4c6c-b648-a4a365df334d"
+                "departure_date": "2024-12-29",
+                "departure_time": "10:00",
+                "return_date": "2024-12-29",
+                "return_time": "14:00",
+                "distance": 100,
+                "description": "Testfahrt",
+                "id": "nrt-517338af-896d-4da1-a621-0c8709e3494a"
             }
         ]
     },

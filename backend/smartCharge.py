@@ -9,6 +9,7 @@
     
 # Important
 
+
 # Good to have
 # FIXME: settings.json has Home and House
 # TODO: for days without (<=2% of maximum possible yield) sunshine is it possible to compare calculated and real heating energy and apply another correction factor
@@ -16,10 +17,12 @@
 # TODO: add pre-heating and pre-cooling
 # TODO: add additional (electric) heating (by timetable)
 
-# Unimportant 
+# Unimportant / Nice to have
 # TODO: optional: add MQTT temperature source (via external script and cache)
 # TODO. add multiple sources for energy prices (Awattar, Fraunhofer)
-# TODO: implement finer resolutions for the api data - finest resolution determined by the worst resolution of all data sources
+# TODO: implement finer resolutions for the api data - finest resolution determined by the worst resolution of all data sources. solcast hobbyist minimum and maximum is 30 minutes
+# TODO: add barchart into each trip with the energy compsotion (solar, grid)
+# TODO: add savings information for each trip (in the index.html) compared to average price
 
 
 
@@ -100,7 +103,7 @@ if __name__ == "__main__":
         print(f"{GREEN}║{CYAN} Starting the EV charging optimization program... {GREEN}{RESET}")
         print(f"{GREEN}╚══════════════════════════════════════════════════╝{RESET}")   
 
-        loadpoints =initialize_smartcharge.load_loadpoints()
+        
         cars = initialize_smartcharge.load_cars()
 
         # I will need this as I need more than /api/state
@@ -156,12 +159,13 @@ if __name__ == "__main__":
         else:
             last_update_date = ""
 
+        
+
         if last_update_date != today_date:
-            # Update the correction factor and save the current date
             utils.update_correction_factor()
             with open(last_update_file, "w") as file:
                 file.write(today_date)
-                            
+                        
 
 
 
@@ -223,35 +227,30 @@ if __name__ == "__main__":
         
             # here we calculate the final required SoC and the energy gap
             trip_name = trip['description']
-            required_soc_final = vehicle.calculate_required_soc(ev_energy_for_trip, car_name, evcc_state, loadpoint_id, trip_name)
-            ev_energy_gap = vehicle.calculate_energy_gap(required_soc_final, current_soc, car_name, evcc_state, loadpoint_id)
+            required_soc_final = current_soc + vehicle.calculate_required_soc_topup(ev_energy_for_trip, car_name, evcc_state, loadpoint_id, trip_name)
+            ev_energy_gap_Wh = vehicle.calculate_energy_gap(required_soc_final, current_soc, car_name, evcc_state, loadpoint_id)
             
             # remaining hours till departure to find best charging window                
             remaining_hours = utils.calculate_remaining_hours(departure_time)
 
             # from here we take care of the loading process
 
-            # load the technical data of the loadpoints (charging speed!)
-            loadpoints = initialize_smartcharge.load_loadpoints()
-            # we know the loadpoint_id from the assignments - so we can get the loadpoint which the car is connected to
-            loadpoint = next((lp for lp in loadpoints if isinstance(lp, dict) and lp.get('LOADPOINT_ID') == loadpoint_id), None)
-
             
             # how much regenerative energy can we use? (we do not need usable_energy for now)
-            regenerative_energy_surplus, usable_energy = utils.get_usable_charging_energy_surplus(usable_energy, departure_time, ev_energy_gap, evcc_state, loadpoint_id, load_car=True)
+            regenerative_energy_surplus, usable_energy = utils.get_usable_charging_energy_surplus(usable_energy, departure_time, ev_energy_gap_Wh, evcc_state, car_name, load_car=True)
             logging.debug(f"{GREY}Regenerativer Energieüberschuss der genutzt werden KANN: {regenerative_energy_surplus/1000:.2f} kWh{RESET}")
             
-            # Update ev_energy_gap: till departure we can use regenerative_energy_surplus
+            # Update ev_energy_gap_Wh: till departure we can use regenerative_energy_surplus
             logging.debug(f"{GREY}regenerative_energy_surplus: {regenerative_energy_surplus}{RESET}")
-            logging.debug(f"{GREY}ev_energy_gap: {ev_energy_gap}{RESET}")
-            ev_energy_gap -= regenerative_energy_surplus
-            if ev_energy_gap < 0:
-                ev_energy_gap = 0
-            logging.debug(f"{GREY}ev_energy_gap nach Abzug des regenerativen Energieüberschusses: {ev_energy_gap:.2f} kWh{RESET}")
-            logging.debug(f"{GREY}Energiebedarf für {car_name} nach regenerativer Energie: {ev_energy_gap:.2f} kWh{RESET}")
+            logging.debug(f"{GREY}ev_energy_gap_Wh: {ev_energy_gap_Wh}{RESET}")
+            ev_energy_gap_Wh -= regenerative_energy_surplus
+            if ev_energy_gap_Wh < 0:
+                ev_energy_gap_Wh = 0
+            logging.debug(f"{GREY}ev_energy_gap_Wh nach Abzug des regenerativen Energieüberschusses: {ev_energy_gap_Wh/1000:.2f} kWh{RESET}")
+            logging.debug(f"{GREY}Energiebedarf für {car_name} nach regenerativer Energie: {ev_energy_gap_Wh:.2f} kWh{RESET}")
             # this required energy to be topped up with grid energy in Wh
             # so using vehicle.calculate_required_soc again is correct
-            required_soc_grid_topup = vehicle.calculate_required_soc(ev_energy_gap, car_name, evcc_state, loadpoint_id, trip_name)
+            required_soc_grid_topup = vehicle.calculate_required_soc_topup(ev_energy_gap_Wh, car_name, evcc_state, loadpoint_id, trip_name)
             logging.info(f"{GREEN}Required SoC with addon from grid: {required_soc_grid_topup:.2f}%{RESET}")
             
             # required_soc_initial = required_soc_final -  required_soc_grid_topup

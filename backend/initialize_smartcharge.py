@@ -42,10 +42,6 @@ def save_settings(settings):
 # def load_influx():
 #     return settings['Influx']
 
-# Funktionen zum Einlesen der Ladepunkte und Autos
-def load_loadpoints():
-    # logging.info(f"{GREY}Settings loaded:\n{settings} {RESET}")
-    return settings['Loadpoints']
 
 def load_cars():
     """
@@ -235,7 +231,6 @@ def get_baseload():
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     cache_file = os.path.join(script_dir, 'cache', 'baseload_cache.json')
-    # BUG: Software can create empty cache file - order of operations is wrong
     # Check if cache file exists
     if not os.path.exists(cache_file):
         # Create cache directory if it doesn't exist
@@ -297,8 +292,8 @@ def delete_deprecated_trips():
     current_date = datetime.datetime.now().date()
     usage_plan = [trip for trip in usage_plan if isinstance(trip, dict)]  # Ensure each trip is a dictionary
     for trip in usage_plan:
-        # FIXME: does this need to be changed to departure_date?
-        trip_date = datetime.datetime.strptime(trip.get('date', ''), '%Y-%m-%d').date()
+        # FIXME: does this need to be changed to departure_date? ---> changed already, so check
+        trip_date = datetime.datetime.strptime(trip.get('departure_date', ''), '%Y-%m-%d').date()
         if trip_date < current_date:
             usage_plan.remove(trip)
     return usage_plan
