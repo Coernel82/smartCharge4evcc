@@ -112,10 +112,6 @@ def write_corrected_energy_consumption(hourly_climate_energy):
         for key, value in entry.items():
             if key == 'time':
                 continue  # 'time' is used as timestamp
-            elif key == 'maximumPv':
-                point = point.field(key, int(value))
-            elif key == 'pv_estimate':
-                point = point.field(key, int(value))
             elif isinstance(value, (int, float)):
                 point = point.field(key, float(value))
             else:
@@ -242,6 +238,7 @@ def update_correction_factor():
 
     # getting calculated values out of result_calculated
     total_climate_energy_nominal = 0
+    total_climate_energy_corrected = 0
     total_baseload = 0
     total_MAXIMUM_PV = 0
     total_pv_estimate = 0
@@ -253,6 +250,8 @@ def update_correction_factor():
             field_value = record.values.get('_value', 0)
             if field_name == 'climate_energy_nominal':
                 total_climate_energy_nominal += field_value
+            elif field_name =='climate_energy_corrected':
+                total_climate_energy_corrected += field_value
             elif field_name == 'baseload':
                 total_baseload += field_value
             elif field_name == 'maximum_pv':
@@ -260,19 +259,16 @@ def update_correction_factor():
             elif field_name == 'pv_estimate':
                 total_pv_estimate += field_value
             count += 1
-            # Log the totals for debugging
-            logging.debug(f"Total climate_energy_nominal: {total_climate_energy_nominal}")
-            logging.debug(f"Total baseload: {total_baseload}")
-            logging.debug(f"Total maximum_pv: {total_MAXIMUM_PV}")
-            logging.debug(f"Total pv_estimate: {total_pv_estimate}")
+
 
     average_climate_energy_nominal = total_climate_energy_nominal / count if count else 0
     average_baseload = total_baseload / count if count else 0
     average_MAXIMUM_PV = total_MAXIMUM_PV / count if count else 0
     average_pv_estimate = total_pv_estimate / count if count else 0
+    average_climate_energy_corrected = total_climate_energy_corrected / count if count else 0
 
     # Calculate the new correction factor
-    correction_factor = (real_energy - average_climate_energy_nominal - average_baseload) * (average_MAXIMUM_PV / average_pv_estimate)
+    correction_factor = (average_climate_energy_corrected - average_climate_energy_nominal - average_baseload) * (average_MAXIMUM_PV / average_pv_estimate)
     
     season = get_season()
     # Apply the correction factor gradually by 10%
@@ -301,15 +297,19 @@ def update_correction_factor():
     # Write a log of the correction factor to correction_factor_log.txt
     # this is just to monitor the correction factor over time
     if logging.getLogger().isEnabledFor(logging.DEBUG):
+        quality_of_calculation = (1 - abs(average_climate_energy_corrected - real_energy) / real_energy) * 100
         log_entry = {
         "timestamp": datetime.datetime.now().isoformat(),
         "correction_factor_summer": correction_factor_summer,
-        "correction_factor_winter": correction_factor_winter
+        "correction_factor_winter": correction_factor_winter,
+        "quality_of_calculation": quality_of_calculation,
         }
         log_file_path = os.path.join(os.path.dirname(__file__), 'data', 'correction_factor_log.txt')
         with open(log_file_path, 'a') as log_file:
             log_file.write(json.dumps(log_entry) + '\n')
 
+    
+    
 
 
 

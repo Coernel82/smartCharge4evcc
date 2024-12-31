@@ -887,6 +887,62 @@ fetch('/templates/time_series_data.json')
     });
 
 
+function holidayMode() {
+    // Create toggle switch container
+    const container = document.getElementById('holiday-mode-container');
+    if (!container) {
+        console.error('Container for Holiday Mode toggle not found.');
+        return;
+    }
+
+    // Create label for toggle
+    const label = document.createElement('label');
+    label.className = 'switch';
+    label.innerHTML = `
+        <input type="checkbox" id="holiday-toggle">
+        <span class="slider round"></span>
+    `;
+    container.appendChild(label);
+
+    const toggle = document.getElementById('holiday-toggle');
+
+    // Fetch current Holiday Mode setting
+    fetch('/load_settings')
+        .then(response => response.json())
+        .then(settings => {
+            const isHoliday = settings.HolidayMode.HOLIDAY_MODE === 'true';
+            toggle.checked = isHoliday;
+        })
+        .catch(error => console.error('Error fetching settings:', error));
+
+    // Handle toggle change
+    toggle.addEventListener('change', function() {
+        const newValue = this.checked;
+        fetch('/update_holiday_mode', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ HOLIDAY_MODE: Boolean(newValue) }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert('Holiday Mode updated successfully!');
+            } else {
+                alert('Error updating Holiday Mode: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error updating Holiday Mode:', error);
+            alert('An error occurred. Please try again later.');
+        });
+    });
+}
+
+// Initialize Holiday Mode toggle
+holidayMode();
+
 /* // ---------------- Fetch and update trip data --------------------
 function fetchTripsAndUpdateUI() {
     fetch('/get_data')

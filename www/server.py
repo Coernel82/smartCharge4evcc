@@ -213,6 +213,26 @@ def delete_trip():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/update_holiday_mode', methods=['POST'])
+def update_holiday_mode():
+    """API endpoint to update the holiday mode status"""
+    # empty code
+    try:
+        data = request.get_json()
+        holiday_mode = data.get('HOLIDAY_MODE', False)
+        if isinstance(holiday_mode, str):
+            holiday_mode = holiday_mode.lower() == 'true'
+        if not isinstance(holiday_mode, bool):
+            return jsonify({'error': 'HOLIDAY_MODE must be a boolean'}), 400
+        settings = load_settings().json
+        settings['HolidayMode']['HOLIDAY_MODE'] = holiday_mode
+        settings_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend', 'data', 'settings.json'))
+        with open(settings_path, 'w') as f:
+            json.dump(settings, f, indent=4)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    print("Holiday mode updated")
+    return
 
 
 
