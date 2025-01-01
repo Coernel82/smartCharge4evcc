@@ -66,7 +66,8 @@ LATITUDE = settings['OneCallAPI']['LATITUDE']
 LONGITUDE = settings['OneCallAPI']['LONGITUDE']
 
 # Energy: SOLCAST und TIBBER API-URLs und Header
-SOLCAST_API_URL = settings['EnergyAPIs']['SOLCAST_API_URL']
+SOLCAST_API_URL1 = settings['EnergyAPIs']['SOLCAST_API_URL1']
+SOLCAST_API_URL2 = settings['EnergyAPIs']['SOLCAST_API_URL2']
 TIBBER_API_URL = settings['EnergyAPIs']['TIBBER_API_URL']
 TIBBER_HEADERS = settings['EnergyAPIs']['TIBBER_HEADERS']
 
@@ -119,7 +120,7 @@ if __name__ == "__main__":
 
             # API-Abrufe
             weather_forecast, sunrise, sunset = solarweather.get_weather_forecast()
-            solar_forecast = solarweather.get_solar_forecast(SOLCAST_API_URL)
+            solar_forecast = solarweather.get_solar_forecast(SOLCAST_API_URL1, SOLCAST_API_URL2)
             electricity_prices = utils.get_electricity_prices(TIBBER_API_URL, TIBBER_HEADERS)
             
             evcc_state = initialize_smartcharge.get_evcc_state()

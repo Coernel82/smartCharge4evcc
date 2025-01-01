@@ -36,7 +36,7 @@ settings = initialize_smartcharge.load_settings()
 
 
 # Function to retrieve solar production forecast from Solcast API (cached every 6 hours)
-def get_solar_forecast(SOLCAST_API_URL):
+def get_solar_forecast(SOLCAST_API_URL1, SOLCAST_API_URL2):
     cache_file = os.path.join(CACHE_DIR, "solar_forecast_cache.json")
     current_time = datetime.datetime.now().astimezone()  # Verwende lokale Zeit mit Zeitzoneninfo
 
@@ -68,28 +68,32 @@ def get_solar_forecast(SOLCAST_API_URL):
 
     logging.debug(f"{CYAN}Abrufen der Solarprognose von Solcast{RESET}")
     try:
-        # API-Anfrage
-        response = requests.get(SOLCAST_API_URL)
-        response.raise_for_status()
+        SOLCAST_API_URLS = [
+            SOLCAST_API_URL1,
+            SOLCAST_API_URL2
+            ]
 
-        data = response.json()
         solar_forecast = []
-        
-        # TODO: [low prio] if the whole program is set to 30 minutes increments go back to 30 minutes increments
-        
-        
-        # Combine 30-minute increments into hourly increments
         forecasts_by_hour = {}
-        for forecast in data['forecasts']:
-            pv_estimate = forecast['pv_estimate'] * 1000
-            period_end = datetime.datetime.fromisoformat(forecast['period_end'].replace('Z', '+00:00'))
-            # substract one hour as energy prices are "start at" wheres pv is "ends at"
-            period_end = period_end.astimezone() - datetime.timedelta(hours=1)
 
-            # Round up to the next hour if minutes > 0
-            hour_key = (period_end + datetime.timedelta(minutes=30)).replace(minute=0, second=0, microsecond=0)
-            forecasts_by_hour[hour_key] = forecasts_by_hour.get(hour_key, 0) + pv_estimate
+        # Iterate through the array of URLs
+        for url in SOLCAST_API_URLS:
+            response = requests.get(url)
+            response.raise_for_status()
+            data = response.json()
 
+            # Process forecasts from the current API URL
+            for forecast in data['forecasts']:
+                pv_estimate = forecast['pv_estimate'] * 1000
+                period_end = datetime.datetime.fromisoformat(forecast['period_end'].replace('Z', '+00:00'))
+                period_end = period_end.astimezone() - datetime.timedelta(hours=1)
+                hour_key = (period_end + datetime.timedelta(minutes=30)).replace(minute=0, second=0, microsecond=0)
+                forecasts_by_hour[hour_key] = forecasts_by_hour.get(hour_key, 0) + pv_estimate
+                 # Sum forecasts for all URLs into a single dictionary
+                forecasts_by_hour[hour_key] = forecasts_by_hour.get(hour_key, 0) + pv_estimate
+              
+        # Combine the forecasts by summing pv_estimates for each hour
+        solar_forecast = []
         for hour_end in sorted(forecasts_by_hour.keys()):
             solar_forecast.append({
                 'time': hour_end.isoformat(),
