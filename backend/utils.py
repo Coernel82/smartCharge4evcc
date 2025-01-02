@@ -275,7 +275,7 @@ def update_correction_factor():
     correction_factor = (average_climate_energy_corrected - average_climate_energy_nominal - average_baseload) * (average_MAXIMUM_PV / average_pv_estimate)
     
     season = get_season()
-    # Apply the correction factor gradually by 10%
+    # Apply the correction factor gradually by 0.03 = 3% per day
     if season == "summer":
         current_factor = settings['House']['correction_factor_summer']
         updated_factor = current_factor + 0.03 * (correction_factor - current_factor)

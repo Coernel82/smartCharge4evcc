@@ -411,6 +411,8 @@ def get_home_batteries_capacities(evcc_state):
     """
     Calculates the usable and total capacity for each battery.
     """
+    # TODO: [low prio] we need to get the battery capacities from the evcc_state and not the api again
+    # so much simpler and some code to delete
     batteryCapacity = None
     cache_folder = 'cache'
     cache_file = os.path.join(cache_folder, 'usable_capacity_cache.json')
@@ -527,22 +529,29 @@ def calculate_future_grid_feedin(usable_energy, home_battery_energy_forecast, ev
     # Ensure home_battery_energy_forecast is sorted by time
     home_battery_energy_forecast = sorted(home_battery_energy_forecast, key=lambda x: x['time'])
 
+    future_grid_feedin = []
+    
     for i in range(min(len(home_battery_energy_forecast), len(usable_energy))):
         # Get the current hour's energy forecast
         energy_forecast_hour = home_battery_energy_forecast[i]
-
+    
         # Get the current hour's usable energy
         usable_energy_hour = usable_energy[i]
-
+    
         home_battery_energy = energy_forecast_hour['energy'] + usable_energy_hour['pv_estimate']
         
         # Get the maximum SoC allowed for the current hour
-        
-        maximum_soc_allowed = evcc_state['result']['batteryCapacity'] # this is an absolute value in Watt
+        maximum_soc_allowed = evcc_state['result']['batteryCapacity']  # this is an absolute value in Watt
         if home_battery_energy > maximum_soc_allowed:
             feedin_hour = maximum_soc_allowed - home_battery_energy
-        
-        future_grid_feedin += feedin_hour
+        else:
+            feedin_hour = 0  # or another appropriate value
+    
+        future_grid_feedin.append({
+        'time': energy_forecast_hour['time'],
+        'feedin': feedin_hour
+        })
+    
     return future_grid_feedin
 
 
@@ -552,17 +561,31 @@ def calculate_future_grid_feedin(usable_energy, home_battery_energy_forecast, ev
     # https://docs.solcast.com.au/#4c9fa796-82e5-4e8a-b811-85a8c9fb85db
     # it will work like this but will not be as precice as it could be
             
-def danger_of_curtailment(settings, hourly_energy_surplus):
-    # BUG: [low prio] it is not as simple as this as curtailment danger is when input is higher than x and also battery will be full
+def danger_of_curtailment(future_grid_feedin, settings):
+    # Function not used as no curtailment in Germany. I left it as first idea for the future
+    # if you live outside Germany
     curtailment_threshold_percent = settings['House']['CURTAILMENT_THRESHOLD']
     peak_power_watt = settings['House']['MAXIMUM_PV']
     curtailment_threshold_watt = curtailment_threshold_percent / 100 * peak_power_watt
+    
+    modulating_additional_load = sum(settings["Home"]["AdditionalLoads"]["ADDITIONAL_LOAD"].values())
+    capacity_additional_load = sum(settings["Home"]["AdditionalLoads"]["CAPACITY"].values())
+    # todo: [low prio] add modulating loads
+    # here it gets a bit complex as we have a "discharge" = cooling down of the water.
+    # also the same water being heated by a heating rod might be heated from 45°C to 55°C by heatpump using around 1/4 of the energy
+    # you could simulate this by using the first third of the CAPACITY just for 1/4 of the energy
 
-    curtailment_endangered_energy = sum(
-        surplus['energy_surplus'] for surplus in hourly_energy_surplus if surplus['energy_surplus'] > curtailment_threshold_watt
-    )
-    if curtailment_endangered_energy > 0:
-        return curtailment_endangered_energy
-    else:
-        return 0
+
+    # fixme: [low prio] and also battery either fully charged or cannot charge as fast
+    # this needs to be a time series simulating the battery SoC
+    # maybe take other "loadpoints" such as Smart Grid Heatpump and fully modulating heating rods into account increasing modulating_additional_load)
+    # maybe differentiate between battery and heating rods as battery will clearly be full - heating rod hard to say
+
+    # if there is a surplus of energy and the curtailment threshold is exceeded return true and therefore lock the battery
+    for surplus in future_grid_feedin:
+        if surplus > curtailment_threshold_watt:
+            return True
+        return False
+        
+   
 

@@ -99,8 +99,10 @@ def set_upper_price_limit(upper_limit_price_battery):
 
 def lock_battery(fake_loadpoint_id, lock):
     """
-    Locks the battery to prevent charging. This is done by a trick: There is no direct locking option in evcc, however
+    Locks the battery to prevent discharging. This is done by a trick: There is no direct locking option in evcc, however
     setting a loadpoint to quick charge ("now") will lock the home battery. For this you just need to
+    set up a fake loadpoint:
+    https://github.com/evcc-io/evcc/wiki/aaa-Lifehacks#entladung-eines-steuerbaren-hausspeicher-preisgesteuert-oder-manuell-sperren
     """
     if lock == True:
         post_url_dischargecontrol = f"{EVCC_API_BASE_URL}/api/batterydischargecontrol/true" 

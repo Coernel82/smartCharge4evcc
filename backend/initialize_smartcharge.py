@@ -71,31 +71,6 @@ def read_usage_plan():
         usage_plan = json.load(f)
         return usage_plan
 
-# Funktion zum Einlesen der Zuordnung von Autos zu Ladepunkten
-# TODO: delete if program working - redundant
-def load_assignments_redundant():
-    """
-    Loads loadpoint assignments from a JSON file.
-
-    The function determines the directory of the current script, constructs the path to the 
-    'loadpoint_assignments.json' file located in the 'data' subdirectory, and reads the 
-    assignments data from the file.
-
-    Returns:
-        list: A list of assignments loaded from the JSON file.
-
-    Raises:
-        FileNotFoundError: If the 'loadpoint_assignments.json' file does not exist.
-        json.JSONDecodeError: If the file is not a valid JSON.
-    """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    assignments_file = os.path.join(script_dir, 'data', 'loadpoint_assignments.json')
-    with open(assignments_file, 'r') as f:
-        assignments_data = json.load(f)
-    return assignments_data['assignments']
-
-
-
 def get_home_battery_data_from_json(): 
     """
     Reads home battery data from settings and returns relevant information.
@@ -292,7 +267,6 @@ def delete_deprecated_trips():
     current_date = datetime.datetime.now().date()
     usage_plan = [trip for trip in usage_plan if isinstance(trip, dict)]  # Ensure each trip is a dictionary
     for trip in usage_plan:
-        # FIXME: does this need to be changed to departure_date? ---> changed already, so check
         trip_date = datetime.datetime.strptime(trip.get('departure_date', ''), '%Y-%m-%d').date()
         if trip_date < current_date:
             usage_plan.remove(trip)
