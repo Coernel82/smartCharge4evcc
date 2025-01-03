@@ -26,7 +26,7 @@ formatter = ColorFormatter('%(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-# BUG: home_battery_energy_forecast has always the same value
+# BUG: [from 2025-01-10 high prio] home_battery_energy_forecast has always the same value
 def guard_home_battery_soc(settings, home_battery_energy_forecast, chargingCosts):
     EVCC_API_BASE_URL = settings['EVCC']['EVCC_API_BASE_URL']
     
@@ -81,3 +81,25 @@ def guard_home_battery_soc(settings, home_battery_energy_forecast, chargingCosts
             return
     else:
         logger.info("currentSoC ist kleiner als maximum_soc_allowed. Keine Aktion erforderlich.")
+
+def initiate_guarding(GREEN, RESET, settings, home_battery_energy_forecast, home_battery_charging_cost_per_kWh):
+    # Guarde the home battery every 4 minutes and break the loop just before the full hour
+    import time
+    end_time = datetime.datetime.now() + datetime.timedelta(minutes=4)
+    while datetime.datetime.now() < end_time:
+        logging.info(f"{GREEN}Guarding home battery charge / slowing down the program (when there is no home battery){RESET}")
+        current_time = datetime.datetime.now()
+        # Calculate the remaining time until the next full hour
+        seconds_until_full_hour = (60 - current_time.minute) * 60 - current_time.second
+        if seconds_until_full_hour <= 0:
+            # If it's already past the full hour, break the loop
+            break
+
+        while seconds_until_full_hour > 0:
+            sleep_duration = min(60, seconds_until_full_hour)
+            time.sleep(sleep_duration)
+            logging.info(f"{GREEN}Still guarding!{RESET}")
+            seconds_until_full_hour -= sleep_duration
+            if seconds_until_full_hour <= 4 * 60:
+                break
+        guard_home_battery_soc(settings, home_battery_energy_forecast, home_battery_charging_cost_per_kWh)

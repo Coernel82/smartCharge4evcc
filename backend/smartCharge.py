@@ -11,7 +11,6 @@
 
 
 # Good to have
-# FIXME: settings.json has Home and House
 # TODO: for days without (<=2% of maximum possible yield) sunshine is it possible to compare calculated and real heating energy and apply another correction factor
 # this can be done with real past data from influx 
 # TODO: add pre-heating and pre-cooling
@@ -165,10 +164,11 @@ if __name__ == "__main__":
                 last_update_date = ""
 
             # TODO: delete this line
-            # last_update_date = "2022-01-01" # for testing
+            last_update_date = "2022-01-01" # for testing
 
             if last_update_date != today_date:
                 utils.update_correction_factor()
+                utils.update_correction_factor_nominal()
                 with open(last_update_file, "w") as file:
                     file.write(today_date)
                             
@@ -213,15 +213,7 @@ if __name__ == "__main__":
                 car_info = next((car for car in cars.values() if car['CAR_NAME'] == car_name), None)
                 consumption = car_info['CONSUMPTION']
                 buffer_distance = car_info['BUFFER_DISTANCE']
-                
-                # TODO: delete. redundant?
-                """  # we need weather data till the return time of the earliest car - otherwise we can stop the whole loop
-                if not solarweather.weather_data_available_for_next_trip(weather_forecast, return_time):
-                    logging.error(f"{RED}Für alle Fahrten: Keine Wetterdaten verfügbar.{RESET}")
-                    break # cancel the whole loop
-                else: """
-
-                
+                              
                 # get departure_temperature and return_temperature from solarweather.get_temperatures
                 temperatures = solarweather.get_temperature_for_times(weather_forecast, departure_time, return_time)
                 if temperatures is None:
@@ -309,7 +301,7 @@ if __name__ == "__main__":
                 
                 # Here we forcast the energy of the home battery in hourly increments
                 home_battery_energy_forecast, grid_feedin, required_charge = home.calculate_homebattery_soc_forcast_in_Wh(home_batteries_capacity, remaining_home_battery_capacity, usable_energy, hourly_climate_energy, home_battery_efficiency)
-                
+
                 
                 # the real charging plan is done by evcc - we just set the price
                 charging_plan = home.calculate_charging_plan(home_battery_energy_forecast, electricity_prices, purchase_threshold, battery_data, required_charge, evcc_state)
@@ -322,57 +314,18 @@ if __name__ == "__main__":
                 # to expensive to charge but to cheap to use it - so we have to lock the battery
                 # get fake loadpoint id from settings
 
-                # BUG [high prio]: the following code are ideas and not working properly yet
-                # TODO: make this a function in home
-                fake_loadpoint_id = settings['House']['FAKE_LOADPOINT_ID']
-                current_electricity_price = utils.get_current_electricity_price(electricity_prices)
                 
+                # here we handley the battery lock to minimize the grid feedin                                
+                home.minimize_future_grid_feedin(settings, electricity_prices, usable_energy, home_battery_energy_forecast, evcc_state, maximum_acceptable_price, purchase_threshold)
+
+            # we guard the soc of the home battery every 4 minutes. If the current minute is 0, we exit the loop to run the main program
+            # error handling in case there is no battery
+            if 'home_battery_energy_forecast' not in locals() or 'grid_feedin' not in locals() or 'required_charge' not in locals() or 'home_battery_charging_cost_per_kWh' not in locals():
+                home_battery_energy_forecast, grid_feedin, required_charge, home_battery_charging_cost_per_kWh = [], [], [], 0
+    
+            # even without guard we "guard" to slow down the program
+            socGuard.initiate_guarding(GREEN, RESET, settings, home_battery_energy_forecast, home_battery_charging_cost_per_kWh)
                 
-                potential_future_grid_feedin = home.calculate_future_grid_feedin(usable_energy, home_battery_energy_forecast, evcc_state)
-                # potentail_future_grid_feedin can be prevented by charging the battery
-                if potential_future_grid_feedin > 0:
-                    evcc.lock_battery(fake_loadpoint_id, False) # first priority: store energy in battery, so free the battery capacity
-                    evcc.set_dischargecontrol(False)
-                    logging.info(f"{GREEN}Unlocking battery and setting dischargecontrol to false to prevent curtailment.{RESET}")
-                # TODO: Think about logic: when to enable heatepump and when after that heating rod
-
-                # we do not want to feed in as we could earn more money when using the energy
-                
-                
-                else:
-                    if current_electricity_price > maximum_acceptable_price and current_electricity_price < maximum_acceptable_price + purchase_threshold:
-                        evcc.lock_battery(fake_loadpoint_id, True)
-                        evcc.set_dischargecontrol(True)
-                        logging.info(f"{GREEN}Locking battery and setting dischargecontrol to true.{RESET}")
-                    else:
-                        evcc.lock_battery(fake_loadpoint_id, False)
-                # TODO: If you live outside of Germany there is a first draft about curtailment.
-                # with the EEG 2023 law we have no curtailment any more!
-                # if home.danger_of_curtailment(potential_future_grid_feedin, settings):
-                #   evcc.lock_battery(fake_loadpoint_id, False) # allow discharging
-
-                #### end of function            
-            
-                # we guard the soc of the home battery every 4 minutes
-                # If the current minute is 0, we exit the loop to run the main program
-                end_time = datetime.datetime.now() + datetime.timedelta(minutes=4)
-                while datetime.datetime.now() < end_time:
-                    logging.info(f"{GREEN}Guarding home battery charge{RESET}")
-                    current_time = datetime.datetime.now()
-                    # Calculate the remaining time until the next full hour
-                    seconds_until_full_hour = (60 - current_time.minute) * 60 - current_time.second
-                    if seconds_until_full_hour <= 0:
-                        # If it's already past the full hour, break the loop
-                        break
-
-                    while seconds_until_full_hour > 0:
-                        sleep_duration = min(60, seconds_until_full_hour)
-                        time.sleep(sleep_duration)
-                        logging.info(f"{GREEN}Still guarding!{RESET}")
-                        seconds_until_full_hour -= sleep_duration
-                        if seconds_until_full_hour <= 4 * 60:
-                            break
-                    socGuard.guard_home_battery_soc(settings, home_battery_energy_forecast, home_battery_charging_cost_per_kWh)
-
+            # data for the WebUI
             utils.json_dump_all_time_series_data(weather_forecast, hourly_climate_energy, hourly_energy_surplus, electricity_prices, home_battery_energy_forecast, grid_feedin, required_charge, charging_plan, usable_energy, solar_forecast, future_grid_feedin)
             logging.info(f"{GREEN}EV charging optimization program completed.{RESET}")

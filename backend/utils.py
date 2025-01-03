@@ -158,12 +158,12 @@ def query_influx_real_energy_readings():
         |> filter(fn: (r) => r["loadpoint"] == "Wärmepumpe")
         |> filter(fn: (r) => r["_measurement"] == "chargePower")
         |> aggregateWindow(every: 1d, fn: integral, createEmpty: false)
-        |> map(fn: (r) => ({{_value: r._value / 3600.0}}))
+        |> map(fn: (r) => ({{_value: r._value / 3600.0, _time: r._time}}))
         |> yield(name: "mean")
     """
+    # BUG: [high prio] missing timestamps in result_real
     query_api = client.query_api()
     result_real = query_api.query(org=INFLUX_ORGANIZATION, query=flux_query_real_energy_readings)
-    #logging.debug(f"Flux Query (Calculated): {flux_query_calculated}")
     logging.debug(f"{GREY}result_real from Influx: {result_real}{RESET}")
     # Check if results are empty
     if not result_real:
@@ -231,7 +231,7 @@ def update_correction_factor():
     
      # if real_energy is empty abort
     if not real_energy:
-        logging.error(f"{RED}Real energy is empty - maybe because you are running the programm for just a short timespan. Aborting correction factor update.{RESET}")
+        logging.error(f"{RED}[update correction factor] Real energy is empty - maybe because you are running the programm for just a short timespan. Aborting correction factor update.{RESET}")
         return
     else:
         logging.debug(f"{GREY}Real energy from InfluxDB: {real_energy}{RESET}")
@@ -239,7 +239,7 @@ def update_correction_factor():
     # Calculate the average real energy
     real_energy = np.mean(real_energy)
     logging.debug(f"{GREY}Average real energy from InfluxDB: {real_energy}{RESET}")
-
+    
     # getting calculated values out of result_calculated
     total_climate_energy_nominal = 0
     total_climate_energy_corrected = 0
@@ -280,12 +280,14 @@ def update_correction_factor():
         current_factor = settings['House']['correction_factor_summer']
         updated_factor = current_factor + 0.03 * (correction_factor - current_factor)
         settings['House']['correction_factor_summer'] = updated_factor
+        correction_factor_summer = updated_factor
         logging.info(f"{GREEN}Gradually updated correction factor for summer to: {updated_factor}{RESET}")
     elif season == "winter":
         current_factor = settings['House']['correction_factor_winter']
         updated_factor = current_factor + 0.03 * (correction_factor - current_factor)
         settings['House']['correction_factor_winter'] = updated_factor
         logging.info(f"{GREEN}Gradually updated correction factor for winter to: {updated_factor}{RESET}")
+        correction_factor_winter = updated_factor
     else:
         logging.info(f"{GREEN}Season not defined or in between seasons. No correction factor update applied.{RESET}")
         # Abort if no season is defined
@@ -311,6 +313,157 @@ def update_correction_factor():
         log_file_path = os.path.join(os.path.dirname(__file__), 'data', 'correction_factor_log.txt')
         with open(log_file_path, 'a') as log_file:
             log_file.write(json.dumps(log_entry) + '\n')
+
+def update_correction_factor_nominal():
+    "When there is no sun (less then 0.1% we can apply a correction factor to the energy certificate)"
+    logging.info(f"{GREEN}Updating correction factor for nominal energy consumption{RESET}")
+    # TODO: monitor the 0.001 value if it is too low or too high
+    energy_cutoff = settings['House']['MAXIMUM_PV'] * 0.001
+
+    INFLUX_BASE_URL = settings['InfluxDB']['INFLUX_BASE_URL']
+    INFLUX_ORGANIZATION = settings['InfluxDB']['INFLUX_ORGANIZATION']
+    INFLUX_ACCESS_TOKEN = settings['InfluxDB']['INFLUX_ACCESS_TOKEN']
+    TIMESPAN_WEEKS = settings['InfluxDB']['TIMESPAN_WEEKS']
+    BUCKET = settings['InfluxDB']['INFLUX_BUCKET']
+    
+    # get readings from the last 30 days with cloudy weather
+    start_time = f"-{TIMESPAN_WEEKS * 7}d"
+
+    flux_query_cloudy = f"""
+        from(bucket: "{BUCKET}")
+            |> range(start: {start_time}, stop: today())
+            |> filter(fn: (r) => r["_measurement"] == "pvPower")
+            |> filter(fn: (r) => r["_value"] <= {energy_cutoff})  // just get readings for very cloudy days
+            |> aggregateWindow(every: 1d, fn: integral, createEmpty: false)
+            |> yield(name: "integral")
+    """
+    # Initialize InfluxDB client
+    client = InfluxDBClient(
+        url=INFLUX_BASE_URL,
+        token=INFLUX_ACCESS_TOKEN,
+        org=INFLUX_ORGANIZATION
+    )
+
+    # Query InfluxDB
+    query_api = client.query_api()
+    cloudy_days = query_api.query(org=INFLUX_ORGANIZATION, query=flux_query_cloudy)
+
+    # Create a list of timestamps for cloudy days
+    cloudy_timestamps = []
+    for table in cloudy_days:
+        for record in table.records:
+            cloudy_timestamps.append(record.get_time())
+    logging.debug(f"{GREY}Cloudy days timestamps: {cloudy_timestamps}{RESET}")
+
+    # get real energy readings from the last 30 days and filter out the ones which mach cloudy_timestamps
+    result_real = query_influx_real_energy_readings()
+    
+    # working:
+    """  real_energy = []
+    for table in result_real:
+        for record in table.records:
+            real_energy.append(record['_value']) """
+    
+    # expression: result_real[0].records[0].row value: ['mean', 0, datetime.datetime(2024, 12, 7, 0, 0, tzinfo=datetime.timezone.utc), 5312.248716249997]
+
+    real_energy = []
+    for table in result_real:
+        for record in table.records: # BUG [high prio] empty as timestrings missing - traced back to query_influx_real_energy_readings
+            if record.get_time() in cloudy_timestamps:
+                real_energy.append(record['_value'])
+    
+     # if real_energy is empty abort
+    if not real_energy:
+        logging.error(f"{RED}Real energy for cloudy days is empty - maybe because you are running the programm for just a short timespan. Aborting correction factor update.{RESET}")
+        return
+    else:
+        logging.debug(f"{GREY}Real energy for cloudy days from InfluxDB: {real_energy}{RESET}")
+
+    # Calculate the average real energy
+    real_energy = np.mean(real_energy)
+    logging.debug(f"{GREY}Average real energy for cloudy daysfrom InfluxDB: {real_energy}{RESET}")
+
+    
+    # get climate_energy_nominal from the last 30 days and filter out the ones which match cloudy_timestamps
+    result_calculated = query_influx_calculated_energy_readings()
+    
+    total_climate_energy_nominal = 0
+    count = 0
+    
+    for table in result_calculated:
+        for record in table.records:
+            if record.get_time() in cloudy_timestamps:
+                field_name = record.values.get('_field', '')
+                field_value = record.values.get('_value', 0)
+                if field_name == 'climate_energy_nominal':
+                    total_climate_energy_nominal += field_value
+                count += 1
+
+    result_calculated = total_climate_energy_nominal / count if count else 0
+    climate_energy_nominal = result_calculated
+
+    logging.debug(f"{GREY}Total climate energy nominal for cloudy days: {total_climate_energy_nominal}{RESET}")
+    logging.debug(f"{GREY}Count of records for cloudy days: {count}{RESET}")
+    logging.debug(f"{GREY}Average climate energy nominal for cloudy days: {climate_energy_nominal}{RESET}")
+
+    # now we know result_real (for cloudy days) and result_calculated (for cloudy days) and can calculate the correction factor
+    # climate_energy_nominal = (abs(temp_difference) * HEATED_AREA * ENERGY_CERTIFICATE * correction_factor_summer_nominal / COP) / (365 * 24)
+    # resolve for correction_factor_<season>_nominal
+    correction_factor_summer_nominal = 0
+    correction_factor_winter_nominal = 0
+    season = get_season()
+    if season == "summer":
+        correction_factor_summer_nominal = real_energy / climate_energy_nominal
+        logging.debug(f"{GREY}Correction factor for summer nominal: {correction_factor_summer_nominal}{RESET}")
+    elif season == "winter":
+        correction_factor_winter_nominal = real_energy / climate_energy_nominal
+        logging.debug(f"{GREY}Correction factor for winter nominal: {correction_factor_winter_nominal}{RESET}")
+    else:
+        logging.info(f"{GREEN}Season not defined or in between seasons. No correction factor update applied.{RESET}")
+        # Abort if no season is defined
+        return
+    
+    # Apply the correction factor gradually by 0.03 = 3% per day
+    if season == "summer":
+        current_factor = settings['House']['correction_factor_summer_nominal']
+        updated_factor = current_factor + 0.03 * (correction_factor_summer_nominal - current_factor)
+        settings['House']['correction_factor_summer_nominal'] = updated_factor
+        correction_factor_summer_nominal = updated_factor
+        logging.info(f"{GREEN}Gradually updated correction factor nominal (for cloudy days) for summer to: {updated_factor}{RESET}")
+    elif season == "winter":
+        current_factor = settings['House']['correction_factor_winter_nominal']
+        updated_factor = current_factor + 0.03 * (correction_factor_winter_nominal - current_factor)
+        settings['House']['correction_factor_winter_nominal'] = updated_factor
+        logging.info(f"{GREEN}Gradually updated correction factor nominal (for cloudy days) for winter to: {updated_factor}{RESET}")
+        correction_factor_winter_nominal = updated_factor
+    else:
+        logging.info(f"{GREEN}Season not defined or in between seasons. No correction factor update applied.{RESET}")
+        # Abort if no season is defined
+        return
+
+    # Bestimme den Pfad relativ zur utils.py-Datei
+    settings_path = os.path.join(os.path.dirname(__file__), 'data', 'settings.json')
+
+    # Update the correction factor in settings based on the season
+    with open(settings_path, 'w') as f:
+        json.dump(settings, f, indent=4)
+        logging.debug(f"{GREY}Updated settings with new correction factors and saved to {settings_path}{RESET}")
+
+    # Write a log of the correction factor to correction_factor_log.txt
+    # this is just to monitor the correction factor over time and monitor if the quality of the calculation is good
+    if logging.getLogger().isEnabledFor(logging.DEBUG):
+        quality_of_calculation_nominal = (1 - abs(climate_energy_nominal - real_energy) / real_energy) * 100
+        log_entry = {
+            "timestamp": datetime.datetime.now().isoformat(),
+            "correction_factor_summer_nominal": correction_factor_summer_nominal,
+            "correction_factor_winter_nominal": correction_factor_winter_nominal,
+            "quality_of_calculation_nominal": quality_of_calculation_nominal,
+        }
+        log_file_path = os.path.join(os.path.dirname(__file__), 'data', 'correction_factor_nominal_log.txt')
+        with open(log_file_path, 'a') as log_file:
+            log_file.write(json.dumps(log_entry) + '\n')
+            logging.debug(f"{GREY}Logged correction factor update to {log_file_path}{RESET}")
+
 
     
     
@@ -786,9 +939,7 @@ def get_season():
     INFLUX_ORGANIZATION = settings['InfluxDB']['INFLUX_ORGANIZATION']
     INFLUX_ACCESS_TOKEN = settings['InfluxDB']['INFLUX_ACCESS_TOKEN']
     
-    # TODO: implement TIMESPAN_WEEKS_BASELOAD here in code or delete from settings
-    TIMESPAN_WEEKS_BASELOAD = settings['InfluxDB']['TIMESPAN_WEEKS_BASELOAD']
-    
+   
     # Initialize InfluxDB client
     client = InfluxDBClient(
         url=INFLUX_BASE_URL,
@@ -796,12 +947,6 @@ def get_season():
         org=INFLUX_ORGANIZATION
     )
 
-    # TODO: query fixed, check if working!
-    # old text:
-    # no outdoor_temp with this query I guess (check in InfluxDB)
-    # first: create function to write the outdoor_temp to InfluxDB
-    # second: create query in InfluxDB
-    # third: get the data from InfluxDB here
     flux_query_temperatures = f'''
     from(bucket: "smartCharge4evcc")
         |> range(start: -30d)
@@ -811,17 +956,6 @@ def get_season():
     points = query_api.query(org=INFLUX_ORGANIZATION, query=flux_query_temperatures)
     
     logging.debug(f"{GREY}Temperature data from InfluxDB: {points}{RESET}")
-
-        
-        # TODO: check if fixed
-        # old bug note:
-        # No temperature data at all or less than 7 days available. Setting season to interim
-        # there cannot be data because write function is missing (tagged as BUG)
-        # workaround:
-        #season = 'winter'
-        
-
-
     # Convert to pandas DataFrame
     records = []
     for table in points:

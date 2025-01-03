@@ -79,9 +79,9 @@ def get_home_battery_data_from_json():
         list: A list of dictionaries containing battery info and calculated marginal costs.
     """
     battery_data = []
-    home_batteries = settings['Home']['HomeBatteries'].keys()
+    home_batteries = settings['House']['HomeBatteries'].keys()
     for battery_id in home_batteries:
-        battery_info = settings['Home']['HomeBatteries'][battery_id].copy()
+        battery_info = settings['House']['HomeBatteries'][battery_id].copy()
         battery_info['battery_id'] = battery_id
         battery_data.append(battery_info)
     # logging.debug(f"{GREY}Home battery data: {battery_data}{RESET}")
@@ -95,7 +95,7 @@ def get_home_battery_data_from_api(evcc_state):
     Returns:
         list: A list of dictionaries containing battery SoC, capacity.
     """
-    home_batteries = settings['Home']['HomeBatteries'].keys()
+    home_batteries = settings['House']['HomeBatteries'].keys()
     if not home_batteries:
         logging.warning(f"{RED}No home batteries defined in settings.json{RESET}")
         return [{'battery_id': 0, 'battery_soc': 0, 'battery_capacity': 0}]

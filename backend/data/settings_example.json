@@ -22,8 +22,8 @@
         "EVCC_API_BASE_URL": "http://192.168.178.28:7070"
     },
     "EnergyAPIs": {
-        "SOLCAST_API_URL1": "https://api.solcast.com.au/rooftop_sites/YOUR_SITE_ID1/forecasts?format=json",
-        "SOLCAST_API_URL2": "https://api.solcast.com.au/rooftop_sites/YOUR_SITE_ID2/forecasts?format=json",
+        "SOLCAST_API_URL1": "https://api.solcast.com.au/rooftop_sites/YOUR_SITE_ID1/forecasts?format=json&api_key=YOUR_API_KEY",
+        "SOLCAST_API_URL2": "https://api.solcast.com.au/rooftop_sites/YOUR_SITE_ID2/forecasts?format=json&api_key=YOUR_API_KEY",
         "info": "The free plan of solcast support two sites = two urls. If you just have one url leave the second one empty",
         "TIBBER_API_URL": "https://api.tibber.com/v1-beta/gql",
         "TIBBER_HEADERS": {

@@ -14,6 +14,7 @@ import utils
 import initialize_smartcharge
 import math
 import time
+import evcc
 
 
 # Logging configuration with color scheme for debug information
@@ -29,7 +30,7 @@ GREY = "\033[37m"
 settings = initialize_smartcharge.load_settings()
 
 EVCC_API_BASE_URL = settings['EVCC']['EVCC_API_BASE_URL']
-home_batteries = settings['Home']['HomeBatteries']
+home_batteries = settings['House']['HomeBatteries']
 heatpump_name = settings['House']['integrated_devices']['heatpump']
 
 
@@ -257,6 +258,8 @@ def calculate_hourly_house_energy_consumption(solar_forecast, weather_forecast):
     COP = settings['House']['integrated_devices']['heatpump']['COP']
     correction_factor_summer = settings['House']['correction_factor_summer']
     correction_factor_winter = settings['House']['correction_factor_winter']
+    correction_factor_summer_nominal = settings['House']['correction_factor_summer_nominal']
+    correction_factor_winter_nominal = settings['House']['correction_factor_winter_nominal']
     MAXIMUM_PV = settings['House']['MAXIMUM_PV']
     
     # Funktion zum Normalisieren der Zeit
@@ -302,8 +305,11 @@ def calculate_hourly_house_energy_consumption(solar_forecast, weather_forecast):
         temp_difference = INDOOR_TEMPERATURE - outdoor_temp
     
         # Nominalen Klimaenergieverbrauch pro Stunde berechnen       
-        climate_energy_nominal = (abs(temp_difference) * HEATED_AREA * ENERGY_CERTIFICATE / COP) / (365 * 24)
-        # TODO: holdpoint here, check if there is a temp difference etc.
+        if season == 'summer':
+            climate_energy_nominal = ((abs(temp_difference) * HEATED_AREA * ENERGY_CERTIFICATE  / COP) / (365 * 24)) * correction_factor_summer_nominal
+        elif season == 'winter':
+            climate_energy_nominal = ((abs(temp_difference) * HEATED_AREA * ENERGY_CERTIFICATE / COP) / (365 * 24)) * correction_factor_winter_nominal
+        
         # at the moment the baseload seems to have a too high impact on the calculation
 
         # Berechnung der Heizenergie unter Einbezug der PV-Leistung
@@ -328,7 +334,6 @@ def calculate_hourly_house_energy_consumption(solar_forecast, weather_forecast):
             climate_energy_nominal = 0
             climate_energy_corrected = 0
             
-        # TODO: check if this fixed grid feedin when there is no sun
         if climate_energy_corrected < 0:
             climate_energy_corrected = 0    
         
@@ -411,8 +416,9 @@ def get_home_batteries_capacities(evcc_state):
     """
     Calculates the usable and total capacity for each battery.
     """
-    # TODO: [low prio] we need to get the battery capacities from the evcc_state and not the api again
+    # TODO: [from 2025-01-10 medium prio] we need to get the battery capacities from the evcc_state and not the api again
     # so much simpler and some code to delete
+    # batteryCapacity = evcc_state['result']['batteryCapacity']
     batteryCapacity = None
     cache_folder = 'cache'
     cache_file = os.path.join(cache_folder, 'usable_capacity_cache.json')
@@ -587,5 +593,25 @@ def danger_of_curtailment(future_grid_feedin, settings):
             return True
         return False
         
-   
-
+def minimize_future_grid_feedin(settings, electricity_prices, usable_energy, home_battery_energy_forecast, evcc_state, maximum_acceptable_price, purchase_threshold):  
+                fake_loadpoint_id = settings['House']['FAKE_LOADPOINT_ID']
+                current_electricity_price = utils.get_current_electricity_price(electricity_prices)
+                
+                
+                potential_future_grid_feedin = calculate_future_grid_feedin(usable_energy, home_battery_energy_forecast, evcc_state)
+                # potentail_future_grid_feedin can be prevented by charging the battery
+                if potential_future_grid_feedin > 0:
+                    evcc.lock_battery(fake_loadpoint_id, False) # first priority: store energy in battery, so free the battery capacity
+                    evcc.set_dischargecontrol(False)
+                    logging.info(f"{GREEN}Unlocking battery and setting dischargecontrol to false to prevent curtailment.{RESET}")                
+                else:
+                    if current_electricity_price > maximum_acceptable_price and current_electricity_price < maximum_acceptable_price + purchase_threshold:
+                        evcc.lock_battery(fake_loadpoint_id, True)
+                        evcc.set_dischargecontrol(True)
+                        logging.info(f"{GREEN}Locking battery and setting dischargecontrol to true.{RESET}")
+                    else:
+                        evcc.lock_battery(fake_loadpoint_id, False)
+                # TODO: [low prio] If you live outside of Germany there is a first draft about curtailment.
+                # with the EEG 2023 law we have no curtailment any more!
+                # if danger_of_curtailment(potential_future_grid_feedin, settings):
+                #   evcc.lock_battery(fake_loadpoint_id, False) # allow discharging

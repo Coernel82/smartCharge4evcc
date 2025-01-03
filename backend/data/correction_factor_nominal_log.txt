@@ -1,0 +1,2 @@
+{"timestamp": "2025-01-03T14:25:49.158672", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 11.257522370963628, "quality_of_calculation_nominal": 0.8441666200645903}
+{"timestamp": "2025-01-03T14:33:37.946632", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 14.473110298992435, "quality_of_calculation_nominal": 0.844282362443638}
