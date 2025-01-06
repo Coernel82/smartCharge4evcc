@@ -7,6 +7,7 @@ node_modules/
 
 # Ignoriere die settings.json Datei
 backend/data/settings.json
+backend/data/usage_plan.json
 
 cache/
 *cache*
