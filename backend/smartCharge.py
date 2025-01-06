@@ -11,17 +11,15 @@
 
 
 # Good to have
-# TODO: for days without (<=2% of maximum possible yield) sunshine is it possible to compare calculated and real heating energy and apply another correction factor
-# this can be done with real past data from influx 
-# TODO: add pre-heating and pre-cooling
-# TODO: add additional (electric) heating (by timetable)
 
-# Unimportant / Nice to have
-# TODO: optional: add MQTT temperature source (via external script and cache)
-# TODO. add multiple sources for energy prices (Awattar, Fraunhofer)
-# TODO: implement finer resolutions for the api data - finest resolution determined by the worst resolution of all data sources. solcast hobbyist minimum and maximum is 30 minutes
-# TODO: add barchart into each trip with the energy compsotion (solar, grid)
-# TODO: add savings information for each trip (in the index.html) compared to average price
+# TODO: Unimportant / Nice to have
+# add MQTT temperature source (via external script and cache)
+# add multiple sources for energy prices (Awattar, Fraunhofer)
+# implement finer resolutions for the api data - finest resolution determined by the worst resolution of all data sources. solcast hobbyist minimum and maximum is 30 minutes
+# add barchart into each trip with the energy compsotion (solar, grid)
+# add savings information for each trip (in the index.html) compared to average price
+# add pre-heating and pre-cooling using sg ready. evcc now has a virtual sg ready charger as well
+# add additional (electric) heating (by timetable)
 
 
 
@@ -43,7 +41,7 @@ import evcc
 import socGuard
 
 
-current_version = "v0.0.3-alpha"
+current_version = "v0.0.4-alpha"
 # Logging configuration with color scheme for debug information
 # DEBUG, INFO, WARNING, ERROR, CRITICAL
 logging.basicConfig(level=logging.DEBUG)
@@ -163,7 +161,7 @@ if __name__ == "__main__":
             else:
                 last_update_date = ""
 
-            # TODO: delete this line
+            # TODO: delete this line after testing
             last_update_date = "2022-01-01" # for testing
 
             if last_update_date != today_date:
@@ -192,7 +190,6 @@ if __name__ == "__main__":
 
             # which car is assigned to which loadpoint - we need to know that as the loadpoint determines the charging speed
             # here we just load the cars and loadpoints and assign later in the loop
-            # TODO: delete line if program running, should be redundant assignments = initialize_smartcharge.load_assignments()
             cars = initialize_smartcharge.load_cars()
             evcc_base_url = initialize_smartcharge.settings['EVCC']['EVCC_API_BASE_URL']
 

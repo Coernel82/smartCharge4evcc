@@ -161,7 +161,6 @@ def query_influx_real_energy_readings():
         |> map(fn: (r) => ({{_value: r._value / 3600.0, _time: r._time}}))
         |> yield(name: "mean")
     """
-    # BUG: [high prio] missing timestamps in result_real
     query_api = client.query_api()
     result_real = query_api.query(org=INFLUX_ORGANIZATION, query=flux_query_real_energy_readings)
     logging.debug(f"{GREY}result_real from Influx: {result_real}{RESET}")
@@ -368,7 +367,7 @@ def update_correction_factor_nominal():
 
     real_energy = []
     for table in result_real:
-        for record in table.records: # BUG [high prio] empty as timestrings missing - traced back to query_influx_real_energy_readings
+        for record in table.records:
             if record.get_time() in cloudy_timestamps:
                 real_energy.append(record['_value'])
     
@@ -409,6 +408,7 @@ def update_correction_factor_nominal():
     # now we know result_real (for cloudy days) and result_calculated (for cloudy days) and can calculate the correction factor
     # climate_energy_nominal = (abs(temp_difference) * HEATED_AREA * ENERGY_CERTIFICATE * correction_factor_summer_nominal / COP) / (365 * 24)
     # resolve for correction_factor_<season>_nominal
+
     correction_factor_summer_nominal = 0
     correction_factor_winter_nominal = 0
     season = get_season()

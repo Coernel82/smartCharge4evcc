@@ -99,7 +99,6 @@ def sort_trips_by_earliest_departure_time(usage_plan):
     return sorted_trips
 
 # Definierte Gaussian-ähnliche Funktion zur Berechnung des Energieverbrauchs
-# TODO thoroughly go through function
 def calculate_ev_energy_consumption(departure_temperature, return_temperature, distance, CONSUMPTION, BUFFER_DISTANCE, car_name, evcc_state, loadpoint_id):
     """
     Calculate the energy consumption of an electric vehicle (EV) for a round trip based on temperatures and distance.
