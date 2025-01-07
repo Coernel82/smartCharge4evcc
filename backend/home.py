@@ -615,3 +615,68 @@ def minimize_future_grid_feedin(settings, electricity_prices, usable_energy, hom
                 # with the EEG 2023 law we have no curtailment any more!
                 # if danger_of_curtailment(potential_future_grid_feedin, settings):
                 #   evcc.lock_battery(fake_loadpoint_id, False) # allow discharging
+
+def get_average_heating_energy():
+    """
+    Calculates the average heating energy using readings from InfluxDB
+    Returns: average_heating_energy (float)
+    """
+
+    # Check if /backend/cache/average_heating_energy.json existst, create it if not
+    cache_folder = 'cache'
+    cache_file = os.path.join(cache_folder, 'average_heating_energy.json')
+    if not os.path.exists(cache_file):
+        logging.debug("Creating cache file for average heating energy")
+        with open(cache_file, 'w') as f:
+            f.write('0')
+        os.utime(cache_file, (0, 0))
+
+    # Check if the cachefile is older than 24 hours
+    cache_age = time.time() - os.path.getmtime(cache_file)
+    one_day_seconds = 24 * 60 * 60
+    if cache_age < one_day_seconds:
+        logging.debug("Cache file for average heating energy is still valid, using value from cache")
+        # Read the average heating energy from the cache file (JSON format)
+        with open(cache_file, 'r') as f:
+            data = json.load(f)
+            average_heating_energy = data.get("average_heating_energy")
+    else:
+        logging.debug("Cache file for average heating energy is outdated, fetching new value")
+        INFLUX_ACCESS_TOKEN = settings["InfluxDB"]["INFLUX_ACCESS_TOKEN"]
+        INFLUX_BASE_URL = settings["InfluxDB"]["INFLUX_BASE_URL"]
+        bucket = settings["InfluxDB"]["INFLUX_BUCKET"]
+        loadpoint = settings["InfluxDB"]["INFLUX_LOADPOINT"]
+        INFLUX_ORGANIZATION = settings["InfluxDB"]["INFLUX_ORGANIZATION"]
+        timespan_weeks = settings["InfluxDB"]["TIMESPAN_WEEKS"]
+
+        from influxdb_client import InfluxDBClient, Point, WritePrecision
+        from influxdb_client.client.write_api import SYNCHRONOUS
+
+        client = InfluxDBClient(
+            url=INFLUX_BASE_URL,
+            token=INFLUX_ACCESS_TOKEN,
+            org=INFLUX_ORGANIZATION
+        )
+
+        query_string = f'''
+            from(bucket: "{bucket}")
+            |> range(start: -{timespan_weeks}w, stop: now())
+            |> filter(fn: (r) => r["loadpoint"] == "{loadpoint}")
+            |> filter(fn: (r) => r["_field"] == "value")
+            |> filter(fn: (r) => r["_measurement"] == "chargePower")
+            |> filter(fn: (r) => r["_value"] >= 200)
+            |> mean()
+            |> yield(name: "mean")
+        '''
+        query_api = client.query_api()
+        result = query_api.query(org=INFLUX_ORGANIZATION, query=query_string)
+
+        if result:
+            average_heating_energy = result[0].records[0].get_value()
+        else:
+            average_heating_energy = 1
+
+        with open(cache_file, 'w') as f:
+            json.dump({"average_heating_energy": float(average_heating_energy)}, f)
+
+    return average_heating_energy
