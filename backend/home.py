@@ -31,7 +31,8 @@ settings = initialize_smartcharge.load_settings()
 
 EVCC_API_BASE_URL = settings['EVCC']['EVCC_API_BASE_URL']
 home_batteries = settings['House']['HomeBatteries']
-heatpump_name = settings['House']['integrated_devices']['heatpump']
+# TODO: delete if not needed
+# heatpump_name = settings['House']['integrated_devices']['heatpump'] 
 
 
 def get_home_battery_soc():
@@ -157,7 +158,7 @@ def calculate_charging_plan(home_battery_energy_forecast, electricity_prices, pu
     Calculate the charging plan for a home battery system based on energy forecasts, electricity prices, and required charge.
     Parameters:
     home_battery_energy_forecast (list of dict): A list of dictionaries containing energy forecasts for the home battery, each with a 'time' and 'energy' key.
-    electricity_prices (list of dict): A list of dictionaries containing electricity prices, each with a 'startsAt' and 'total' key.
+    electricity_prices (list of dict): A list of dictionaries containing electricity prices, each with a 'starts' and 'pricetotal' key.
     purchase_threshold (float): The threshold price above which electricity should not be purchased.
     battery_data (list of dict): A list of dictionaries containing battery data, each with a 'BATTERY_LOADING_ENERGY' key.
     required_charge (float or dict): The required charge amount. If a float is provided, it will be converted to a dictionary with an 'energy' key.
@@ -178,7 +179,7 @@ def calculate_charging_plan(home_battery_energy_forecast, electricity_prices, pu
     home_battery_energy_forecast = sorted(home_battery_energy_forecast, key=lambda x: x['time'])
 
     # Ensure electricity_prices is sorted by time
-    sorted_electricity_prices = sorted(electricity_prices, key=lambda x: x['startsAt'])
+    sorted_electricity_prices = sorted(electricity_prices, key=lambda x: x['start'])
     sorted_electricity_prices_copy = sorted_electricity_prices.copy()
 
     # Calculate charging time
@@ -255,7 +256,8 @@ def calculate_hourly_house_energy_consumption(solar_forecast, weather_forecast):
     HEATED_AREA = settings['House']['HEATED_AREA']
     INDOOR_TEMPERATURE = settings['House']['INDOOR_TEMPERATURE']
     ENERGY_CERTIFICATE = settings['House']['ENERGY_CERTIFICATE']
-    COP = settings['House']['integrated_devices']['heatpump']['COP']
+    # TODO:[low prio ] currently just one heatpump supported so not iterating through keys
+    COP = settings['House']['AdditionalLoads']['0']['COP']
     correction_factor_summer = settings['House']['correction_factor_summer']
     correction_factor_winter = settings['House']['correction_factor_winter']
     correction_factor_summer_nominal = settings['House']['correction_factor_summer_nominal']
@@ -680,3 +682,12 @@ def get_average_heating_energy():
             json.dump({"average_heating_energy": float(average_heating_energy)}, f)
 
     return average_heating_energy
+
+
+def switch_heatpump_to_mode(heatpump_id, mode):
+    post_url = f"{EVCC_API_BASE_URL}/api/loadpoints/{heatpump_id}/mode/{mode}"
+    response = requests.post(post_url)
+    if response.status_code == 200:
+        logging.info(f"{GREEN}Successfully set heat pump mode to 'off'.{RESET}")
+    else:
+        logging.error(f"{RED}Failed to set heat pump mode to 'off'. Status code: {response.status_code}{RESET}")

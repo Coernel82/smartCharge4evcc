@@ -771,7 +771,7 @@ fetch('/templates/time_series_data.json')
                     },
                     {
                         label: 'Electricity Prices',
-                        data: electricity_prices.map(entry => ({ x: entry.startsAt, y: entry.total })),
+                        data: electricity_prices.map(entry => ({ x: entry.start, y: entry.total })),
                         borderColor: 'rgba(54, 162, 235, 1)',
                         fill: false,
                         yAxisID: 'y1',

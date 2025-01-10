@@ -30,10 +30,6 @@ Welcome to **SmartCharge**, a smart charging solution for electric vehicles (EVs
 Using evcc's api it sets up your car trips (using a schedule) and loads the car to the minimum amount possible using the cheapest energy price possible taking into consideration future charges from PV, energy consumption of the car considering the trip lenght and the temperatures. PV charge is estimated with solcast and added to the EV. Remaining energy is used to "cache" this in the home battery. Also the energy consumption of the house is estimated by multiple factors. This energy is precharged into the battery if this is economically  resonable - of course at cheapest cost possible.
 
 ### Prospect
-Include heatpump to preheat the house (so that the heatpump can be blocked when energy is expensive). This is different to the two implemented logics:
-- car charging: known departure and return time, known energy, known weather, known SoC
-- battery charging: hourly resolution of energy requirements, known Soc
-- heatpump: hourly resolution, unknown SoC (= temperature). Solution: energy readings from the heatpump in kWh or include thermometer (in my case in the exhaust air of the ventilation system before the heat exchanger to get an average home temperature) and get readings from MQTT
 - create a web interface using websockets to have the data available in real time and also to make setup of trips without danger of error
 
 # Participation
@@ -61,7 +57,7 @@ There is a lot to do:
 
 ## Prerequisites
 - PV installation
-- home battery (TODO: settings: USE_HOMEBATTERY: true / false)
+- home battery
 - Python
 - evcc
 - InfluxDB (also set up in evcc)
@@ -69,6 +65,11 @@ There is a lot to do:
 - An OpenWeather account to retrieve weather data. You can create an account and get your API key [here](https://home.openweathermap.org/users/sign_up).
 - a contract with tibber and your [acces token] (https://developer.tibber.com/settings/accesstoken), alternatively: integrate another source for energy prices such as Fraunhofer or Awattar - see - [Contributing](#contributing)
 - a fake loadpoint and charger to be able to lock the home battery with a "quick and dirty" trick: https://github.com/evcc-io/evcc/wiki/aaa-Lifehacks#entladung-eines-steuerbaren-hausspeicher-preisgesteuert-oder-manuell-sperren
+- heatpump set up with SG Ready (https://docs.evcc.io/docs/faq#heizstab--w%C3%A4rmepumpe)
+  - if not set up: you will just get an error message - the program keeps operable
+  - furthermore the relays need to react to different conditions. For the Smart Grid operations 1/0 is "boost light", it must react to the evcc MQTT api publish on
+  - 0/1 for block modes
+  - TODO: [high prio] - detailed description, link to my shelly scripts
 
 ## 🛠️ Installation
 If these instructions say ``sudo`` do so. If not, do not!

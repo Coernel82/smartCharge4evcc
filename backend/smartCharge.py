@@ -9,7 +9,6 @@
     
 # Important
 
-
 # Good to have
 # TODO: unify cache folder to /backend cache and not /cache
 # TODO: Unimportant / Nice to have
@@ -118,8 +117,9 @@ if __name__ == "__main__":
             # API-Abrufe
             weather_forecast, sunrise, sunset = solarweather.get_weather_forecast()
             solar_forecast = solarweather.get_solar_forecast(SOLCAST_API_URL1, SOLCAST_API_URL2)
-            electricity_prices = utils.get_electricity_prices(TIBBER_API_URL, TIBBER_HEADERS)
-            
+            # electricity_prices = utils.get_electricity_prices(TIBBER_API_URL, TIBBER_HEADERS)
+            electricity_prices = evcc.get_electricity_prices()
+            logging.debug(f"{GREY}Electricity prices: {electricity_prices}{RESET}")
             evcc_state = initialize_smartcharge.get_evcc_state()
 
             # Create our "smartCharge4evcc" bucket in InfluxDB if it does not exist
@@ -276,84 +276,36 @@ if __name__ == "__main__":
             season = utils.get_season()
             if season == "summer" or season == "interim":
                 logging.info(f"{GREEN}It is summer or interim season. Skipping the heating optimization.{RESET}")
-                # it can happen that from one round of the program the season changes and SG Ready is still on. So we have to switch it off
-                post_url = f"{evcc_base_url}/api/loadpoints/{heatpump_id}/mode/pv"
+                # it can happen that from one round of the program the season changes and SG Ready is still on. So we have to switch it to pv mode
+                home.switch_heatpump_to_mode(heatpump_id, "pv")
+            else:
+                # Calculate different time parameters
+                price_limit_blocking = utils.calculate_price_limit_blocktime(weather_forecast, electricity_prices, settings)
+                price_limit_boostmode = utils.calculate_price_limit_boostmode(settings, hourly_climate_energy, electricity_prices)
+                
+                # get basic parameters for the heating and blocking logic
+                heatpump_id = utils.get_heatpump_id(settings)
+                
+                # Decision: force heating / normal mode / blocking mode
+                # price limit for boostig can be set via evcc api
+                post_url = f"{evcc_base_url}/api/loadpoints/{heatpump_id}/smartcostlimit/{price_limit_boostmode}"
                 response = requests.post(post_url)
                 if response.status_code == 200:
-                    logging.info(f"{GREEN}Successfully set heat pump mode to 'pv'.{RESET}")
+                    logging.info(f"{GREEN}Successfully set smart cost limit for heat pump.{RESET}")
                 else:
-                    logging.error(f"{RED}Failed to set heat pump mode to 'pv'. Status code: {response.status_code}{RESET}")
-            else:
-                # iterate through settings till you find the heatpump 
-                for _, loadpoint_data in settings['House']['AdditionalLoads'].items():
-                    if loadpoint_data['INTEGRATED_DEVICE']:
-                        heatpump_id = loadpoint_data['LOADPOINT_ID']
-                        is_metered = loadpoint_data['IS_METERED']
-                        average_heating_power = loadpoint_data['AVERAGE_HEATING_POWER']
-                        break
-                if is_metered:
-                    average_heating_power = home.get_average_heating_energy() 
+                    logging.error(f"{RED}Failed to set smart cost limit for heat pump. Status code: {response.status_code}{RESET}")
+
+                # in between blocking and boost is the normal mode - nothing to do here
+                # the heatpump will opearte in default mode
+
+                # blocking is more tricky - when the current price is in the blocking range --> block
+                # TODO:[medium prio] Think about logic. Is made sure that blocking is only for x hours in y hours?
+                if utils.get_current_electricity_price(electricity_prices) >= price_limit_blocking:
+                    home.switch_heatpump_to_mode(heatpump_id, "off")
                 else:
-                    logging.info(f"{GREEN}The heat pump is not metered. Using average heating power from settings.{RESET}")                
-                total_climate_energy = sum(value['climate_energy_corrected'] for value in hourly_climate_energy)
-                maximum_heating_time = math.floor(total_climate_energy / average_heating_power)
-
-                # find the current price for electricity
-                electricity_prices
-                current_hour = datetime.datetime.now().hour
-                current_time = datetime.datetime.now()
-
-                # Find the current electricity price
-                current_price = next(
-                    (price for price in electricity_prices if datetime.datetime.fromisoformat(price['startsAt']).hour == current_hour)
-                )
-     
-                # Get the maximum_heating_time cheapest prices
-                if maximum_heating_time > 6:
-                    maximum_heating_time = 6
-                cheapest_prices = sorted(electricity_prices, key=lambda x: x['total'])[:maximum_heating_time]
-                # Check if the current price is among the 6 cheapest
-                is_cheapest = any(current_price == price['total'] for price in cheapest_prices)
-
-                sg_ready_cache_file = "backend/cache/sg_ready_cache.txt"
-                sg_ready_hours = 0
-                if not os.path.exists("backend/cache"):
-                    os.makedirs("backend/cache")
-                if not os.path.isfile(sg_ready_cache_file):
-                    with open(sg_ready_cache_file, "w") as file:
-                        file.write("0")
-                else:
-                    with open(sg_ready_cache_file, "r") as file:
-                        content = file.readline().strip()
-                        if content.isdigit():
-                            cached_hours = int(content)
-                            if cached_hours > 0:
-                                cached_hours -= 1
-                            sg_ready_hours = cached_hours
-
-                with open(sg_ready_cache_file, "w") as file:
-                    file.write(str(sg_ready_hours))
-
-                if is_cheapest and sg_ready_hours < 6:
-                    logging.info(f"{GREEN}The current electricity price is among the cheapest. Starting the heating...{RESET}")
-                    sg_ready_hours += 1
-                    with open(sg_ready_cache_file, "w") as file:
-                        file.write(str(sg_ready_hours))
-                    post_url = f"{evcc_base_url}/api/loadpoints/{heatpump_id}/mode/now"
-                    response = requests.post(post_url)
-                    if response.status_code == 200:
-                        logging.info(f"{GREEN}Successfully set heat pump mode to 'now'.{RESET}")
-                    else:
-                        logging.error(f"{RED}Failed to set heat pump mode to 'now'. Status code: {response.status_code}{RESET}")
-                else:
-                    post_url = f"{evcc_base_url}/api/loadpoints/{heatpump_id}/mode/pv"
-                    response = requests.post(post_url)
-                    if response.status_code == 200:
-                        logging.info(f"{GREEN}Successfully set heat pump mode to 'pv'.{RESET}")
-                    else:
-                        logging.error(f"{RED}Failed to set heat pump mode to 'pv'. Status code: {response.status_code}{RESET}")
-                
-                
+                    # switch heat pump to pv mode to enable normal operation
+                    home.switch_heatpump_to_mode(heatpump_id, "pv")
+          
                 
 
 

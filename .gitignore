@@ -20,3 +20,9 @@ Zugangsdaten.py
 SmartCharge.code-workspace
 settings.json
 Abhängigkeit Temperatur und realie Reichweite.ods
+
+
+# Files created from the program (but no cache)
+www/templates/time_series_data.json
+backend/data/correction_factor_nominal_log.txt
+

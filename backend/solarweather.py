@@ -11,6 +11,7 @@ import os
 import json
 import requests
 import initialize_smartcharge
+from math import floor
 
 
 
@@ -339,7 +340,8 @@ def weather_data_available_for_next_trip(weather_forecast, return_time):
 
     return True
 
-def get_current_temperature(weather_forecast):
+# TODO: delete if not needed
+def get_current_temperature_delete(weather_forecast):
     if not weather_forecast:
         logging.error("No weather forecast data available")
         return None
@@ -359,3 +361,5 @@ def get_current_temperature(weather_forecast):
         if forecast_time >= current_time:
             return forecast['temp']
     return weather_forecast[-1]['temp']
+
+

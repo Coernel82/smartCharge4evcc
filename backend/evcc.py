@@ -142,3 +142,30 @@ def set_dischargecontrol(is_active):
         logging.info(f"{GREEN}Successfully set discharge control: {False}{RESET}")
     except Exception as e:
         logging.error(f"{RED}Failed to set discharge control: {e}{RESET}")
+
+def get_electricity_prices():
+    """
+    Get the electricity prices from the EVCC API
+    """
+    logging.debug(f"{GREEN}Retrieving electricity prices from {EVCC_API_BASE_URL}/api/tariff/grid{RESET}")
+    try:
+        response = requests.get(f"{EVCC_API_BASE_URL}/api/tariff/grid")
+        response.raise_for_status()  # Check for HTTP errors
+        prices = response.json()
+        logging.debug(f"{GREY}Response from EVCC API: {prices}{RESET}")
+
+        # transform the new JSON (prices["result"]["rates"]) to match the old format ("prices": [{"total": x, "startsAt": y}, ...])
+        new_rates = prices.get("result", {}).get("rates", [])
+        old_format_prices = []
+        for rate in new_rates:
+            old_format_prices.append({
+            "total": rate["price"],
+            "startsAt": rate["start"]
+            })
+        prices = {"prices": old_format_prices}
+
+        return prices
+    except requests.RequestException as e:
+        logging.critical(f"{RED}Error retrieving the electricity prices: {e}{RESET}")
+        # stop the whole program if the EVCC state cannot be retrieved as this is vital
+        raise SystemExit
