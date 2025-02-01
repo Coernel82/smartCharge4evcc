@@ -13,7 +13,7 @@
 - [🧐 How It Works](#-how-it-works)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
-- [📷 Screenshots](#screenshots)
+- [📷 Screenshots](#-screenshots)
 
 ---
 
