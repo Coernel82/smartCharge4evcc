@@ -154,7 +154,7 @@ def get_electricity_prices():
         prices = response.json()
         logging.debug(f"{GREY}Response from EVCC API: {prices}{RESET}")
 
-        # transform the new JSON (prices["result"]["rates"]) to match the old format ("prices": [{"total": x, "startsAt": y}, ...])
+        # transform the new JSON (prices["result"]["rates"]) to match the old format ("total": x, "startsAt": y, ...)
         new_rates = prices.get("result", {}).get("rates", [])
         old_format_prices = []
         for rate in new_rates:
@@ -162,7 +162,7 @@ def get_electricity_prices():
             "total": rate["price"],
             "startsAt": rate["start"]
             })
-        prices = {"prices": old_format_prices}
+        prices = old_format_prices
 
         return prices
     except requests.RequestException as e:

@@ -732,10 +732,10 @@ fetch('/templates/time_series_data.json')
         const home_battery_energy_forecast = data.home_battery_energy_forecast || [];
         const grid_feedin = data.grid_feedin || [];
         const required_charge = data.required_charge || [];
-        const charging_plan = data.charging_plan || [];
+        // const charging_plan = data.charging_plan || [];
         const usable_energy_for_ev = data.usable_energy_for_ev || [];
         const solar_forecast = data.solar_forecast || [];
-        const future_grid_feedin = data.future_grid_feedin || [];
+        //const future_grid_feedin = data.future_grid_feedin || [];
         const weather_forecast = data.weather_forecast || [];
 
 
@@ -803,14 +803,18 @@ fetch('/templates/time_series_data.json')
                         yAxisID: 'y0',
                         tension: 0.4
                     },
-                    {
+                    // TODO: BUG
+ /*                    { TODO: Error fetching time series data: TypeError: charging_plan.map is not a function
+    <anonymous> http://smartenergy-2.local:5000/static/script.js:808
+script.js:886:17
+
                         label: 'Charging Plan',
                         data: charging_plan.map(entry => ({ x: entry.time, y: entry.plan })),
                         borderColor: 'rgba(255, 99, 132, 0.5)',
                         fill: false,
                         yAxisID: 'y0',
                         tension: 0.4
-                    },
+                    }, */
                     {
                         label: 'Usable Energy for EV',
                         data: usable_energy_for_ev.map(entry => ({ x: entry.time, y: entry.pv_estimate })),
@@ -829,14 +833,14 @@ fetch('/templates/time_series_data.json')
                         pointStyle: 'crossRot',
                         tension: 0.4
                     },
-                    {
+    /*                 {
                         label: 'Future Grid Feed-in',
                         data: future_grid_feedin.map(entry => ({ x: entry.time, y: entry.feedin })),
                         borderColor: 'rgba(27, 190, 54, 0.5)',
                         fill: false,
                         yAxisID: 'y0',
                         tension: 0.4
-                    },
+                    }, */
                     {
                         label: 'Weather Forecast',
                         data: weather_forecast.map(entry => ({ x: entry.dt, y: entry.temp*100 })),

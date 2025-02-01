@@ -179,11 +179,11 @@ def calculate_charging_plan(home_battery_energy_forecast, electricity_prices, pu
     home_battery_energy_forecast = sorted(home_battery_energy_forecast, key=lambda x: x['time'])
 
     # Ensure electricity_prices is sorted by time
-    sorted_electricity_prices = sorted(electricity_prices, key=lambda x: x['start'])
+    sorted_electricity_prices = sorted(electricity_prices, key=lambda x: x['startsAt'])
     sorted_electricity_prices_copy = sorted_electricity_prices.copy()
 
     # Calculate charging time
-    average_battery_efficiency = calculate_average_battery_efficiency(battery_data)
+    average_battery_efficiency = calculate_average_battery_efficiency(battery_data, evcc_state)
     charging_speed = sum(battery['BATTERY_LOADING_ENERGY'] for battery in battery_data)    
     
    
@@ -420,14 +420,17 @@ def get_home_batteries_capacities(evcc_state):
     """
     # TODO: [from 2025-01-10 medium prio] we need to get the battery capacities from the evcc_state and not the api again
     # so much simpler and some code to delete
-    # batteryCapacity = evcc_state['result']['batteryCapacity']
+    # first attempt on 23.01.2025 - if working delete the todo
     batteryCapacity = None
     cache_folder = 'cache'
     cache_file = os.path.join(cache_folder, 'usable_capacity_cache.json')
 
     def get_batteryCapacityFromAPI():
         logging.debug("Fetching battery capacity from API")
-        batteryCapacity = evcc_state['result']['batteryCapacity']
+        batteryCapacity = 0
+        for key, value in evcc_state['result']['battery'].items():
+            if key.startswith('0'):
+                batteryCapacity += value['batteryCapacity']
         # Save to cache
         logging.debug(f"Saving battery Capacity {batteryCapacity} to cache")
         with open(cache_file, 'w') as f:
@@ -469,21 +472,23 @@ def get_home_batteries_capacities(evcc_state):
                 
     return batteryCapacity # which is the total_usable_capacity
 
-def calculate_average_battery_efficiency(battery_data):
+def calculate_average_battery_efficiency(battery_data, evcc_state):
     """
     Calculates the weighted average efficiency of the home batteries.
     """
-    capacities = [battery['battery_capacity'] for battery in battery_data]
-    efficiencies = [battery['BATTERYSYSTEM_EFFICIENCY'] for battery in battery_data]
-    if sum(capacities) == 0:
-        logging.warning("Total battery capacity is 0. Cannot calculate average battery efficiency.")
-        return 0
-    weighted_efficiency = sum(cap * eff for cap, eff in zip(capacities, efficiencies)) / sum(capacities)
-    logging.info(f"Average battery efficiency: {weighted_efficiency:.2%}")
-    return weighted_efficiency
+    # TODO: [low prio]: If you have more than one battery, you need to calculate the weighted average efficiency yourself or
+    # alter the code so that it calculates the weighted efficiency by iterating through the settings
+    # get total capacity from evcc_state
+    # capacities = evcc_state['result']['batteryCapacity']
+    for battery_data in battery_data:
+        efficiency = battery_data['BATTERYSYSTEM_EFFICIENCY']
+ 
+
+    logging.info(f"Average battery efficiency: {efficiency:.2%}")
+    return efficiency
 
 
-def get_home_battery_charging_cost_per_Wh(battery_data):
+def get_home_battery_charging_cost_per_Wh(battery_data, evcc_state):
     import home  # To avoid circular import error
     # Calculate marginal cost for battery inverter
     for battery_data in battery_data:
@@ -506,7 +511,9 @@ def get_home_battery_charging_cost_per_Wh(battery_data):
         battery_purchase_price = battery_data['BATTERY_PURCHASE_PRICE']
         battery_max_cycles = battery_data['BATTERY_MAXIMUM_LOADING_CYCLES_LIFETIME']
 
-        usable_capacity = battery_data['battery_capacity']
+        
+        usable_capacity = evcc_state['result']['batteryCapacity']
+        
         age = datetime.datetime.now().year - battery_year
         degradated_capacity = usable_capacity * (1 - degradation) ** age
 
@@ -520,7 +527,7 @@ def get_home_battery_charging_cost_per_Wh(battery_data):
 
         # Total charging cost per Wh
         charging_cost_per_Wh = marginal_cost_inverter_per_Wh + marginal_cost_battery
-        logging.debug(f"Battery {battery_id} - Charging Cost per Wh: {charging_cost_per_Wh}")
+        logging.debug(f"Battery {battery_id} - Charging Cost per kWh: {charging_cost_per_Wh * 1000:.3f} €")
 
     # we just return one value as evcc just handles one virtual battery even if there are multiple physical batteries
     return charging_cost_per_Wh
@@ -596,13 +603,15 @@ def danger_of_curtailment(future_grid_feedin, settings):
         return False
         
 def minimize_future_grid_feedin(settings, electricity_prices, usable_energy, home_battery_energy_forecast, evcc_state, maximum_acceptable_price, purchase_threshold):  
-                fake_loadpoint_id = settings['House']['FAKE_LOADPOINT_ID']
+                fake_loadpoint_id = settings['House']['FAKE_LOADPOINT_ID'] + 1  # loadpoints begin with 0 in /api/state but with 1 in POST
                 current_electricity_price = utils.get_current_electricity_price(electricity_prices)
                 
                 
                 potential_future_grid_feedin = calculate_future_grid_feedin(usable_energy, home_battery_energy_forecast, evcc_state)
-                # potentail_future_grid_feedin can be prevented by charging the battery
-                if potential_future_grid_feedin > 0:
+                
+                # potential_future_grid_feedin can be prevented by charging the battery
+                potential_future_grid_feedin_sum = sum([entry['feedin'] for entry in potential_future_grid_feedin])
+                if potential_future_grid_feedin_sum > 0:
                     evcc.lock_battery(fake_loadpoint_id, False) # first priority: store energy in battery, so free the battery capacity
                     evcc.set_dischargecontrol(False)
                     logging.info(f"{GREEN}Unlocking battery and setting dischargecontrol to false to prevent curtailment.{RESET}")                

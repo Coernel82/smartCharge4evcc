@@ -236,35 +236,6 @@ def get_evcc_soc(loadpoint_id, evcc_state):
         logging.error(f"{RED}No loadpoints found{RESET}")
         return 0
 
-def get_loadpoint_and_car_info(assignment, loadpoints, cars):
-    """
-    Retrieve loadpoint and car information based on the given assignment.
-    Args:
-        assignment (dict): A dictionary containing the assignment details with keys 'CAR_NAME' and 'LOADPOINT_ID'.
-        loadpoints (list): A list of dictionaries, each representing a loadpoint with at least the key 'LOADPOINT_ID'.
-        cars (list): A list of dictionaries, each representing a car with at least the key 'CAR_NAME'.
-    Returns:
-        tuple: A tuple containing two elements:
-            - loadpoint (dict): The loadpoint dictionary that matches the 'LOADPOINT_ID' from the assignment.
-            - car (dict or None): The car dictionary that matches the 'CAR_NAME' from the assignment, or None if not found.
-    Logs:
-        - Critical: If the loadpoint with the specified 'LOADPOINT_ID' is not found.
-        - Error: If the car with the specified 'CAR_NAME' is not found.
-    """
-    car_name = assignment.get('CAR_NAME')
-    loadpoint_id = assignment.get('LOADPOINT_ID')
-
-    loadpoint = next((lp for lp in loadpoints if lp['LOADPOINT_ID'] == loadpoint_id), {})
-    car = next((c for c in cars if c['CAR_NAME'] == car_name), None)
-
-    if not loadpoint:
-        logging.critical(f"{LILAC}Ladepunkt mit ID {loadpoint_id} nicht gefunden für Zuweisung: {assignment}{RESET}")
-    if not car:
-        logging.error(f"{LILAC}Auto mit Name {car_name} nicht gefunden für Zuweisung: {assignment}{RESET}")
-        return None, None
-
-    return loadpoint, car
-
 def get_next_trip(car_name, usage_plan):
     car_schedule = usage_plan.get(car_name)
     if not car_schedule:

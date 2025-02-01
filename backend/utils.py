@@ -112,8 +112,8 @@ def write_corrected_energy_consumption(hourly_climate_energy):
         for key, value in entry.items():
             if key == 'time':
                 continue  # 'time' is used as timestamp
-            elif key == 'maximumPv':
-                point = point.field(key, int(value))
+            elif key in ['climate_energy_nominal', 'climate_energy_corrected', 'baseload', 'maximum_pv']:
+                point = point.field(key, float(value))
             elif key == 'pv_estimate':
                 point = point.field(key, int(value))
             elif isinstance(value, (int, float)):
@@ -870,7 +870,7 @@ def get_usable_charging_energy_surplus(usable_energy, departure_time, ev_energy_
                 loadpoint_id = None
                 for ids, loadpoint in enumerate(evcc_state['result']['loadpoints']):
                     if loadpoint.get('vehicleName') == car_name:
-                            loadpoint_id = ids
+                            loadpoint_id = ids # we do not POST so no + 1
                             break
                     if loadpoint_id is None:
                         raise ValueError(f"Car name {car_name} not found in EVCC state loadpoints")
@@ -1089,16 +1089,12 @@ def get_current_electricity_price(electricity_prices):
     current_hour = current_time.replace(minute=0, second=0, microsecond=0)
     
     current_price = None
-    for price in electricity_prices.get('prices', []):
-        if isinstance(price, str):
-            price = json.loads(price)
-        price_time = ensure_datetime_with_timezone(price['startsAt'])
+    for total in electricity_prices:
+        if isinstance(total, str):
+            total = json.loads(total)
+        price_time = ensure_datetime_with_timezone(total['startsAt'])
         if price_time == current_hour:
-            current_price = price['total']
-            break
-        price_time = ensure_datetime_with_timezone(price['startsAt'])
-        if price_time == current_hour:
-            current_price = price['total']
+            current_price = total['total']
             break
 
     if current_price is None:
@@ -1107,8 +1103,7 @@ def get_current_electricity_price(electricity_prices):
 
     return current_price
 
-
-def json_dump_all_time_series_data(weather_forecast, hourly_climate_energy, hourly_energy_surplus, electricity_prices, home_battery_energy_forecast, grid_feedin, required_charge, charging_plan, usable_energy, solar_forecast, future_grid_feedin):
+def json_dump_all_time_series_data(weather_forecast, hourly_climate_energy, hourly_energy_surplus, electricity_prices, home_battery_energy_forecast, grid_feedin, required_charge, charging_plan, usable_energy, solar_forecast):
     """
     Dumps all time series into www/templates/time_series_data.json
     """
@@ -1123,7 +1118,7 @@ def json_dump_all_time_series_data(weather_forecast, hourly_climate_energy, hour
         "charging_plan": charging_plan,
         "usable_energy_for_ev": usable_energy,
         "solar_forecast": solar_forecast,
-        "future_grid_feedin": future_grid_feedin
+        #"future_grid_feedin": future_grid_feedin
     }
 
     with open(os.path.join(os.path.dirname(__file__), '..', 'www', 'templates', 'time_series_data.json'), 'w') as f:
@@ -1135,7 +1130,7 @@ def calculate_price_limit_boostmode(settings, hourly_climate_energy, electricity
     Calculate various parameters related to heating, such as the heat pump ID,
     average heating power, total climate energy, maximum heating time, and the current electricity price.
     """
-    maximum_heating_time_limit = settings['House']['MAXIMUM_HEATING_TIME_LIMIT']
+    maximum_boost_lower_percentile = settings['House']['MAXIMUM_BOOST_LOWER_PERCENTILE']
 
     # Iterate through settings till you find the heat pump
     for _, loadpoint_data in settings['House']['AdditionalLoads'].items():
@@ -1152,47 +1147,37 @@ def calculate_price_limit_boostmode(settings, hourly_climate_energy, electricity
         logging.info(f"{GREEN}The heat pump is not metered. Using average heating power from settings.{RESET}")
 
     total_climate_energy = sum(value['climate_energy_corrected'] for value in hourly_climate_energy)
-    maximum_heating_time = math.floor(total_climate_energy / average_heating_power)
+    maximum_heating_time = (total_climate_energy / average_heating_power) / 60 # in hours
 
-    # Find the current price for electricity
-    current_hour = datetime.datetime.now().hour
+    # get the price spread of the electricity prices from lowest to highest
+    lowest_price = min(electricity_prices, key=lambda x: x['total'])['total']
+    highest_price = max(electricity_prices, key=lambda x: x['total'])['total']
+    price_spread = highest_price - lowest_price
 
-    current_price = next(
-        (price for price in electricity_prices['prices'] if datetime.datetime.fromisoformat(price['startsAt']).hour == current_hour),
-        None
-    )
-    if current_price is None:
-        raise ValueError("Current electricity price not found")
-
-    # Get the maximum_heating_time cheapest prices
-    if maximum_heating_time > maximum_heating_time_limit:
-        maximum_heating_time = maximum_heating_time_limit
-        
-    # We get the highest price as this is already a reduced list
-    price_limit_boostmode = sorted(electricity_prices['prices'], key=lambda x: x['total'], reverse=True)[:1]
+    # calculate the price limit for the boost mode
+    price_limit_boostmode = lowest_price + maximum_boost_lower_percentile * price_spread
+    
     return price_limit_boostmode
 
 def calculate_price_limit_blocktime(weather_forecast, electricity_prices, settings):
     from math import floor
     maximum_kelvinminutes = settings['House']['MAXIMUM_KELVINMINUTES']
-    maximum_heating_time_limit = settings['House']['MAXIMUM_HEATING_TIME_LIMIT']
     indoor_temperature = settings['House']['INDOOR_TEMPERATURE']
     # Calculate average temperature for the available weather data
+    # this is a bit a shortcut and not precise as we could calculate for each hour and interate
     total_temp = sum(forecast['temp'] for forecast in weather_forecast)
     average_temp = total_temp / len(weather_forecast) if weather_forecast else 0
     delta_K = indoor_temperature - average_temp
     maximum_blocktime_minutes = maximum_kelvinminutes / delta_K
 
-    if maximum_blocktime_minutes > maximum_heating_time_limit:
-        maximum_blocktime_minutes = maximum_heating_time_limit
+    
     maximum_blocktime_hours = floor(maximum_blocktime_minutes / 60)
 
     # Find most expensive prices to block
-    # Sort the prices from low to high
-    # Extract the list of prices from the dictionary
-    prices_list = electricity_prices.get('prices', [])
-    # Sort the prices by the 'total' key
-    electricity_prices_sorted = sorted(prices_list, key=lambda x: x.get('total'))
+    # ####################################
+ 
+    # Sort the prices by the 'total' key from high to low
+    electricity_prices_sorted = sorted(electricity_prices, key=lambda x: x.get('total'), reverse=True)
     
     # go through the prices. the position which equals maximum_blocktime_hours is the price we need
     price_limit_blocking = electricity_prices_sorted[maximum_blocktime_hours]
@@ -1205,5 +1190,5 @@ def calculate_price_limit_blocktime(weather_forecast, electricity_prices, settin
 
 def get_heatpump_id(settings):
     # Currently supports one heatpump only
-    heatpump_id = settings['House']['AdditionalLoads']['0']['LOADPOINT_ID']
+    heatpump_id = settings['House']['AdditionalLoads']['0']['LOADPOINT_ID'] + 1 # + 1 because of 0-based index in /api/state and 1 based in POST
     return heatpump_id

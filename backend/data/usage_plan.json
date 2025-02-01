@@ -3,120 +3,22 @@
         "recurring": [
             {
                 "description": "another day",
-                "departure_date": "Thursday",
-                "departure_time": "14:00",
-                "distance": 100,
-                "return_date": "Thursday",
-                "return_time": "17:00",
+                "departure_date": "Wednesday",
+                "departure_time": "13:00",
+                "distance": 75,
+                "return_date": "Wednesday",
+                "return_time": "19:00",
                 "id": "2"
             },
             {
-                "description": "another day",
-                "departure_date": "Thursday",
-                "departure_time": "19:00",
-                "distance": 120,
-                "return_date": "Thursday",
-                "return_time": "22:00",
-                "id": "23dadadd-1b1b-4b7b-8b7b-1b1b1b1b1b1b"
-            }
-        ,
-        {
-            "description": "daily trip",
-            "departure_date": "Monday",
-            "departure_time": "08:00",
-            "distance": 50,
-            "return_date": "Monday",
-            "return_time": "09:00",
-            "id": "daily-1"
-        },
-        {
-            "description": "daily trip",
-            "departure_date": "Tuesday",
-            "departure_time": "08:00",
-            "distance": 50,
-            "return_date": "Tuesday",
-            "return_time": "09:00",
-            "id": "daily-2"
-        },
-        {
-            "description": "daily trip",
-            "departure_date": "Wednesday",
-            "departure_time": "08:00",
-            "distance": 50,
-            "return_date": "Wednesday",
-            "return_time": "09:00",
-            "id": "daily-3"
-        },
-        {
-            "description": "daily trip",
-            "departure_date": "Thursday",
-            "departure_time": "08:00",
-            "distance": 50,
-            "return_date": "Thursday",
-            "return_time": "09:00",
-            "id": "daily-4"
-        },
-        {
-            "description": "daily trip",
-            "departure_date": "Friday",
-            "departure_time": "08:00",
-            "distance": 50,
-            "return_date": "Friday",
-            "return_time": "09:00",
-            "id": "daily-5"
-        },
-        {
-            "description": "daily trip",
-            "departure_date": "Saturday",
-            "departure_time": "08:00",
-            "distance": 50,
-            "return_date": "Saturday",
-            "return_time": "09:00",
-            "id": "daily-6"
-        },
-        {
-            "description": "daily trip",
-            "departure_date": "Sunday",
-            "departure_time": "08:00",
-            "distance": 50,
-            "return_date": "Sunday",
-            "return_time": "09:00",
-            "id": "daily-7"
-        }
-        ],
-        "non_recurring": [
-            {
-                "departure_date": "2024-12-29",
-                "departure_time": "10:00",
-                "return_date": "2024-12-29",
-                "return_time": "14:00",
-                "distance": 100,
-                "description": "Testfahrt",
-                "id": "nrt-517338af-896d-4da1-a621-0c8709e3494a"
+                "description": "daily trip",
+                "departure_date": "Friday",
+                "departure_time": "13:00",
+                "distance": 70,
+                "return_date": "Friday",
+                "return_time": "19:00",
+                "id": "daily-7"
             }
         ]
-    },
-    "VW": {
-        "recurring": [
-            {
-                "description": "To Space",
-                "departure_date": "Monday",
-                "departure_time": "12:05",
-                "distance": 60,
-                "return_date": "Monday",
-                "return_time": "17:00",
-                "id": "6"
-            },
-            {
-                "description": "To the moon",
-                "departure_date": "Tuesday",
-                "departure_time": "12:59",
-                "distance": 12,
-                "return_date": "Tuesday",
-                "return_time": "12:05",
-                "id": "7"
-            }
-        ],
-        "non_recurring": []
     }
 }

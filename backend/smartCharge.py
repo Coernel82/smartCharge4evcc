@@ -20,8 +20,10 @@
 # add pre-heating and pre-cooling using sg ready. evcc now has a virtual sg ready charger as well
 # add additional (electric) heating (by timetable)
 
-
-
+# Quality check:
+# ✓ heatpump id is correct 
+# ✓ check loadpoint for car is not necessary as we set for car and not loadpoint
+# ✓ fake_loadpint_id is correct as well
 
 
 
@@ -198,7 +200,7 @@ if __name__ == "__main__":
                 # get the car name and the loadpoint id from assignments
                 car_name = trip['car_name']
                 logging.info(f"\033[42m\033[93mEnergy calculation for {car_name}{RESET}")
-                loadpoint_id = initialize_smartcharge.get_loadpoint_id_for_car(car_name, evcc_state)
+                loadpoint_id = initialize_smartcharge.get_loadpoint_id_for_car(car_name, evcc_state) # + 1 already done in the function
                 if loadpoint_id is None:
                     logging.error(f"{RED}No loadpoint assigned to car {car_name}. Skipping this trip.{RESET}")
                     continue
@@ -280,32 +282,51 @@ if __name__ == "__main__":
                 home.switch_heatpump_to_mode(heatpump_id, "pv")
             else:
                 # Calculate different time parameters
+                # BUG: [high prio] block price is higher than boost price. calculation boost is wrong
                 price_limit_blocking = utils.calculate_price_limit_blocktime(weather_forecast, electricity_prices, settings)
                 price_limit_boostmode = utils.calculate_price_limit_boostmode(settings, hourly_climate_energy, electricity_prices)
-                
+                current_price = utils.get_current_electricity_price(electricity_prices)
                 # get basic parameters for the heating and blocking logic
-                heatpump_id = utils.get_heatpump_id(settings)
+                heatpump_id = utils.get_heatpump_id(settings) # +1 already in get_heatpump_id() IDs in the api POST begin with 1 however in the settings and /api/state with 0
                 
                 # Decision: force heating / normal mode / blocking mode
                 # price limit for boostig can be set via evcc api
+                # FIXME: [medium prio] off and price limit can be set in the same round
+                
+                logging.debug(f"{GREY}Heatpump ID: {heatpump_id}{RESET}")
+                logging.debug(f"{GREY}Price limit for blocking: {price_limit_blocking}{RESET}")
+                logging.debug(f"{GREY}Price limit for boosting: {price_limit_boostmode}{RESET}")
+
+                # BOOST MODE - we can always set this mode as it does not interfere with anything else
                 post_url = f"{evcc_base_url}/api/loadpoints/{heatpump_id}/smartcostlimit/{price_limit_boostmode}"
                 response = requests.post(post_url)
                 if response.status_code == 200:
                     logging.info(f"{GREEN}Successfully set smart cost limit for heat pump.{RESET}")
+                    with open("cache/heatpump.log", "a") as log_file:
+                        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        log_file.write(f"{timestamp} - SG: price limit {price_limit_boostmode} \n")
                 else:
                     logging.error(f"{RED}Failed to set smart cost limit for heat pump. Status code: {response.status_code}{RESET}")
 
-                # in between blocking and boost is the normal mode - nothing to do here
-                # the heatpump will opearte in default mode
+                # NORMAL MODE - also does not interfere with anything else
+                if price_limit_boostmode <= current_price < price_limit_blocking:
+                    home.switch_heatpump_to_mode(heatpump_id, "pv")
+                    with open("cache/heatpump.log", "a") as log_file:
+                        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        log_file.write(f"{timestamp} - SG: pv \n")
+                
 
                 # blocking is more tricky - when the current price is in the blocking range --> block
                 # TODO:[medium prio] Think about logic. Is made sure that blocking is only for x hours in y hours?
-                if utils.get_current_electricity_price(electricity_prices) >= price_limit_blocking:
+                if current_price >= price_limit_blocking:
                     home.switch_heatpump_to_mode(heatpump_id, "off")
-                else:
-                    # switch heat pump to pv mode to enable normal operation
-                    home.switch_heatpump_to_mode(heatpump_id, "pv")
-          
+                    with open("cache/heatpump.log", "a") as log_file:
+                        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        log_file.write(f"{timestamp} - SG: off \n")
+
+                # we have a maximum blocktime - as we get new priceds at 1300hrs the blocktime might be to long
+                # therefore here is a
+                # TODO [low prio]: global variable counting the blocked hours and then manual override
                 
 
 
@@ -321,7 +342,7 @@ if __name__ == "__main__":
             home_battery_api_data = initialize_smartcharge.get_home_battery_data_from_api(evcc_state)
             if home_battery_json_data is None or home_battery_api_data == [{'battery_id': 0, 'battery_soc': 0, 'battery_capacity': 0}]:
                 logging.error(f"{RED}Home battery data could not be loaded. Skipping the home battery optimization.{RESET}")
-                potential_home_battery_energy_forecast, grid_feedin, required_charge, charging_plan, future_grid_feedin = None, None, None, None, None
+                potential_home_battery_energy_forecast, grid_feedin, required_charge, charging_plan, grid_feedin = None, None, None, None, None
             else:
                 battery_data = home.process_battery_data(home_battery_json_data, home_battery_api_data)    
                 home_batteries_capacity = home.get_home_batteries_capacities(evcc_state) # this is the total usable capacity of all batteries (info by evcc api)
@@ -331,10 +352,10 @@ if __name__ == "__main__":
                 
 
                 # this is the additional cost due to wear of battery and inverter 
-                home_battery_charging_cost_per_kWh = home.get_home_battery_charging_cost_per_Wh(battery_data) * 1000
+                home_battery_charging_cost_per_kWh = home.get_home_battery_charging_cost_per_Wh(battery_data, evcc_state) * 1000
                 
                 purchase_threshold = home_battery_charging_cost_per_kWh
-                home_battery_efficiency = home.calculate_average_battery_efficiency(battery_data)
+                home_battery_efficiency = home.calculate_average_battery_efficiency(battery_data, evcc_state)
                 
                 # Here we forcast the energy of the home battery in hourly increments
                 home_battery_energy_forecast, grid_feedin, required_charge = home.calculate_homebattery_soc_forcast_in_Wh(home_batteries_capacity, remaining_home_battery_capacity, usable_energy, hourly_climate_energy, home_battery_efficiency)
@@ -363,6 +384,8 @@ if __name__ == "__main__":
             # even without guard we "guard" to slow down the program
             socGuard.initiate_guarding(GREEN, RESET, settings, home_battery_energy_forecast, home_battery_charging_cost_per_kWh)
                 
-            # data for the WebUI
-            utils.json_dump_all_time_series_data(weather_forecast, hourly_climate_energy, hourly_energy_surplus, electricity_prices, home_battery_energy_forecast, grid_feedin, required_charge, charging_plan, usable_energy, solar_forecast, future_grid_feedin)
+            # TODO: check if there is a future_grid_feedin or just grid_feedin
+            # FIXME: got outdated values from 3 weeks ago in the web UI, check if that still is the case
+            # data for the WebUI, might all be correct as the battery guard stops the program till the next full hour
+            utils.json_dump_all_time_series_data(weather_forecast, hourly_climate_energy, hourly_energy_surplus, electricity_prices, home_battery_energy_forecast, grid_feedin, required_charge, charging_plan, usable_energy, solar_forecast)
             logging.info(f"{GREEN}EV charging optimization program completed.{RESET}")

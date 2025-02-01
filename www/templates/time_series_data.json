@@ -1,1371 +1,1642 @@
 {
     "weather_forecast": [
         {
-            "dt": "2025-01-03 11:00:00+01:00",
-            "temp": 1.36
+            "dt": "2025-01-28 09:00:00+01:00",
+            "temp": 6.77
         },
         {
-            "dt": "2025-01-03 12:00:00+01:00",
-            "temp": 1.67
+            "dt": "2025-01-28 10:00:00+01:00",
+            "temp": 6.86
         },
         {
-            "dt": "2025-01-03 13:00:00+01:00",
-            "temp": 1.53
+            "dt": "2025-01-28 11:00:00+01:00",
+            "temp": 6.88
         },
         {
-            "dt": "2025-01-03 14:00:00+01:00",
-            "temp": 1.61
+            "dt": "2025-01-28 12:00:00+01:00",
+            "temp": 6.94
         },
         {
-            "dt": "2025-01-03 15:00:00+01:00",
-            "temp": 1.61
+            "dt": "2025-01-28 13:00:00+01:00",
+            "temp": 7.48
         },
         {
-            "dt": "2025-01-03 16:00:00+01:00",
-            "temp": 1.43
+            "dt": "2025-01-28 14:00:00+01:00",
+            "temp": 8.07
         },
         {
-            "dt": "2025-01-03 17:00:00+01:00",
-            "temp": 0.95
+            "dt": "2025-01-28 15:00:00+01:00",
+            "temp": 8.32
         },
         {
-            "dt": "2025-01-03 18:00:00+01:00",
-            "temp": 0.54
+            "dt": "2025-01-28 16:00:00+01:00",
+            "temp": 7.93
         },
         {
-            "dt": "2025-01-03 19:00:00+01:00",
-            "temp": 0.12
+            "dt": "2025-01-28 17:00:00+01:00",
+            "temp": 6.85
         },
         {
-            "dt": "2025-01-03 20:00:00+01:00",
-            "temp": 0.19
+            "dt": "2025-01-28 18:00:00+01:00",
+            "temp": 6.57
         },
         {
-            "dt": "2025-01-03 21:00:00+01:00",
-            "temp": 0.28
+            "dt": "2025-01-28 19:00:00+01:00",
+            "temp": 6.37
         },
         {
-            "dt": "2025-01-03 22:00:00+01:00",
-            "temp": 0.49
+            "dt": "2025-01-28 20:00:00+01:00",
+            "temp": 5.96
         },
         {
-            "dt": "2025-01-03 23:00:00+01:00",
-            "temp": -0.08
+            "dt": "2025-01-28 21:00:00+01:00",
+            "temp": 5.93
         },
         {
-            "dt": "2025-01-04 00:00:00+01:00",
-            "temp": 0.1
+            "dt": "2025-01-28 22:00:00+01:00",
+            "temp": 6.33
         },
         {
-            "dt": "2025-01-04 01:00:00+01:00",
-            "temp": 0.39
+            "dt": "2025-01-28 23:00:00+01:00",
+            "temp": 6.33
         },
         {
-            "dt": "2025-01-04 02:00:00+01:00",
-            "temp": 0.57
+            "dt": "2025-01-29 00:00:00+01:00",
+            "temp": 6.26
         },
         {
-            "dt": "2025-01-04 03:00:00+01:00",
-            "temp": 0.54
+            "dt": "2025-01-29 01:00:00+01:00",
+            "temp": 6.66
         },
         {
-            "dt": "2025-01-04 04:00:00+01:00",
-            "temp": 0.5
+            "dt": "2025-01-29 02:00:00+01:00",
+            "temp": 6.65
         },
         {
-            "dt": "2025-01-04 05:00:00+01:00",
-            "temp": 0.58
+            "dt": "2025-01-29 03:00:00+01:00",
+            "temp": 6.59
         },
         {
-            "dt": "2025-01-04 06:00:00+01:00",
-            "temp": 0.68
+            "dt": "2025-01-29 04:00:00+01:00",
+            "temp": 5.87
         },
         {
-            "dt": "2025-01-04 07:00:00+01:00",
-            "temp": 0.71
+            "dt": "2025-01-29 05:00:00+01:00",
+            "temp": 6.14
         },
         {
-            "dt": "2025-01-04 08:00:00+01:00",
-            "temp": 0.22
+            "dt": "2025-01-29 06:00:00+01:00",
+            "temp": 6.11
         },
         {
-            "dt": "2025-01-04 09:00:00+01:00",
-            "temp": -1.13
+            "dt": "2025-01-29 07:00:00+01:00",
+            "temp": 6.5
         },
         {
-            "dt": "2025-01-04 10:00:00+01:00",
-            "temp": -1.85
+            "dt": "2025-01-29 08:00:00+01:00",
+            "temp": 6.39
         },
         {
-            "dt": "2025-01-04 11:00:00+01:00",
-            "temp": -0.5
+            "dt": "2025-01-29 09:00:00+01:00",
+            "temp": 5.66
         },
         {
-            "dt": "2025-01-04 12:00:00+01:00",
-            "temp": 0.34
+            "dt": "2025-01-29 10:00:00+01:00",
+            "temp": 5.86
         },
         {
-            "dt": "2025-01-04 13:00:00+01:00",
-            "temp": 0.69
+            "dt": "2025-01-29 11:00:00+01:00",
+            "temp": 6.4
         },
         {
-            "dt": "2025-01-04 14:00:00+01:00",
-            "temp": 1.12
+            "dt": "2025-01-29 12:00:00+01:00",
+            "temp": 6.97
         },
         {
-            "dt": "2025-01-04 15:00:00+01:00",
-            "temp": 1.26
+            "dt": "2025-01-29 13:00:00+01:00",
+            "temp": 6.46
         },
         {
-            "dt": "2025-01-04 16:00:00+01:00",
-            "temp": 1.16
+            "dt": "2025-01-29 14:00:00+01:00",
+            "temp": 6.42
         },
         {
-            "dt": "2025-01-04 17:00:00+01:00",
-            "temp": 0.71
+            "dt": "2025-01-29 15:00:00+01:00",
+            "temp": 6.78
         },
         {
-            "dt": "2025-01-04 18:00:00+01:00",
-            "temp": 0.11
+            "dt": "2025-01-29 16:00:00+01:00",
+            "temp": 6.35
         },
         {
-            "dt": "2025-01-04 19:00:00+01:00",
-            "temp": 0.1
+            "dt": "2025-01-29 17:00:00+01:00",
+            "temp": 6.52
         },
         {
-            "dt": "2025-01-04 20:00:00+01:00",
-            "temp": 0.11
+            "dt": "2025-01-29 18:00:00+01:00",
+            "temp": 6.23
         },
         {
-            "dt": "2025-01-04 21:00:00+01:00",
-            "temp": 0.01
+            "dt": "2025-01-29 19:00:00+01:00",
+            "temp": 5.95
         },
         {
-            "dt": "2025-01-04 22:00:00+01:00",
-            "temp": -0.06
+            "dt": "2025-01-29 20:00:00+01:00",
+            "temp": 5.1
         },
         {
-            "dt": "2025-01-04 23:00:00+01:00",
-            "temp": -0.27
+            "dt": "2025-01-29 21:00:00+01:00",
+            "temp": 3.44
         },
         {
-            "dt": "2025-01-05 00:00:00+01:00",
-            "temp": -0.44
+            "dt": "2025-01-29 22:00:00+01:00",
+            "temp": 2.89
         },
         {
-            "dt": "2025-01-05 01:00:00+01:00",
-            "temp": -0.39
+            "dt": "2025-01-29 23:00:00+01:00",
+            "temp": 2.64
         },
         {
-            "dt": "2025-01-05 02:00:00+01:00",
-            "temp": -0.4
+            "dt": "2025-01-30 00:00:00+01:00",
+            "temp": 2.5
         },
         {
-            "dt": "2025-01-05 03:00:00+01:00",
-            "temp": -0.73
+            "dt": "2025-01-30 01:00:00+01:00",
+            "temp": 3.36
         },
         {
-            "dt": "2025-01-05 04:00:00+01:00",
-            "temp": -0.61
+            "dt": "2025-01-30 02:00:00+01:00",
+            "temp": 3.82
         },
         {
-            "dt": "2025-01-05 05:00:00+01:00",
-            "temp": -0.55
+            "dt": "2025-01-30 03:00:00+01:00",
+            "temp": 4.06
         },
         {
-            "dt": "2025-01-05 06:00:00+01:00",
-            "temp": -0.22
+            "dt": "2025-01-30 04:00:00+01:00",
+            "temp": 4.22
         },
         {
-            "dt": "2025-01-05 07:00:00+01:00",
-            "temp": 0.2
+            "dt": "2025-01-30 05:00:00+01:00",
+            "temp": 4.31
         },
         {
-            "dt": "2025-01-05 08:00:00+01:00",
-            "temp": 0.73
+            "dt": "2025-01-30 06:00:00+01:00",
+            "temp": 4.38
         },
         {
-            "dt": "2025-01-05 09:00:00+01:00",
-            "temp": 1.27
+            "dt": "2025-01-30 07:00:00+01:00",
+            "temp": 4.39
         },
         {
-            "dt": "2025-01-05 10:00:00+01:00",
-            "temp": 1.78
+            "dt": "2025-01-30 08:00:00+01:00",
+            "temp": 4.4
         }
     ],
     "hourly_climate_energy": [
         {
-            "time": "2025-01-03 11:00:00+01:00",
+            "time": "2025-01-28 14:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 774.2404870624049,
-            "baseload": 754.0121579166662,
-            "climate_energy_corrected": 740.3050769676722,
-            "outdoor_temp": 1.36,
+            "climate_energy_nominal": 7199.368012573816,
+            "baseload": 308.81670552083335,
+            "climate_energy_corrected": 8446.13398185521,
+            "outdoor_temp": 8.07,
             "maximum_pv": 7200,
-            "pv_estimate": 13227.6
+            "pv_estimate": 11492.6
         },
         {
-            "time": "2025-01-03 12:00:00+01:00",
+            "time": "2025-01-28 15:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 762.0197869101977,
-            "baseload": 323.9096786111109,
-            "climate_energy_corrected": 1165.5576861774998,
-            "outdoor_temp": 1.67,
+            "climate_energy_nominal": 7060.169095083989,
+            "baseload": 205.5794629166667,
+            "climate_energy_corrected": 7510.629006045421,
+            "outdoor_temp": 8.32,
             "maximum_pv": 7200,
-            "pv_estimate": 13363.0
+            "pv_estimate": 4846.799999999999
         },
         {
-            "time": "2025-01-03 13:00:00+01:00",
+            "time": "2025-01-28 16:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 767.5388127853881,
-            "baseload": 891.9150420833336,
-            "climate_energy_corrected": 477.40795048314465,
-            "outdoor_temp": 1.53,
+            "climate_energy_nominal": 7277.3194063681185,
+            "baseload": 306.7177717708334,
+            "climate_energy_corrected": 7144.126945588397,
+            "outdoor_temp": 7.93,
             "maximum_pv": 7200,
-            "pv_estimate": 11054.6
+            "pv_estimate": 1282.0
         },
         {
-            "time": "2025-01-03 14:00:00+01:00",
+            "time": "2025-01-28 17:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 764.3850837138508,
-            "baseload": 745.0370734722218,
-            "climate_energy_corrected": 386.60478936300353,
-            "outdoor_temp": 1.61,
-            "maximum_pv": 7200,
-            "pv_estimate": 6746.4
-        },
-        {
-            "time": "2025-01-03 15:00:00+01:00",
-            "season": "winter",
-            "climate_energy_nominal": 764.3850837138508,
-            "baseload": 741.1568138888889,
-            "climate_energy_corrected": 146.95369487937012,
-            "outdoor_temp": 1.61,
-            "maximum_pv": 7200,
-            "pv_estimate": 2272.7999999999997
-        },
-        {
-            "time": "2025-01-03 16:00:00+01:00",
-            "season": "winter",
-            "climate_energy_nominal": 771.4809741248097,
-            "baseload": 256.77734138888906,
-            "climate_energy_corrected": 525.6128967190707,
-            "outdoor_temp": 1.43,
-            "maximum_pv": 7200,
-            "pv_estimate": 200.4
-        },
-        {
-            "time": "2025-01-03 17:00:00+01:00",
-            "season": "winter",
-            "climate_energy_nominal": 790.4033485540335,
-            "baseload": 256.8999909722222,
-            "climate_energy_corrected": 533.5033575818113,
-            "outdoor_temp": 0.95,
+            "climate_energy_nominal": 7878.658729924168,
+            "baseload": 483.33944010416667,
+            "climate_energy_corrected": 7395.319289820001,
+            "outdoor_temp": 6.85,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 18:00:00+01:00",
+            "time": "2025-01-28 18:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 806.566210045662,
-            "baseload": 510.7401840277778,
-            "climate_energy_corrected": 295.82602601788426,
-            "outdoor_temp": 0.54,
+            "climate_energy_nominal": 8034.561517512772,
+            "baseload": 836.9389133680556,
+            "climate_energy_corrected": 7197.622604144717,
+            "outdoor_temp": 6.57,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 19:00:00+01:00",
+            "time": "2025-01-28 19:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 823.1232876712328,
-            "baseload": 693.1723995833331,
-            "climate_energy_corrected": 129.95088808789967,
-            "outdoor_temp": 0.12,
+            "climate_energy_nominal": 8145.9206515046335,
+            "baseload": 793.6193730902777,
+            "climate_energy_corrected": 7352.301278414356,
+            "outdoor_temp": 6.37,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 20:00:00+01:00",
+            "time": "2025-01-28 20:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 820.3637747336377,
-            "baseload": 672.6022055555553,
-            "climate_energy_corrected": 147.76156917808237,
-            "outdoor_temp": 0.19,
+            "climate_energy_nominal": 8374.206876187947,
+            "baseload": 773.7852519791668,
+            "climate_energy_corrected": 7600.4216242087805,
+            "outdoor_temp": 5.96,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 21:00:00+01:00",
+            "time": "2025-01-28 21:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 816.8158295281584,
-            "baseload": 550.7674977777776,
-            "climate_energy_corrected": 266.0483317503807,
-            "outdoor_temp": 0.28,
+            "climate_energy_nominal": 8390.910746286727,
+            "baseload": 712.5099731597222,
+            "climate_energy_corrected": 7678.400773127005,
+            "outdoor_temp": 5.93,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 22:00:00+01:00",
+            "time": "2025-01-28 22:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 808.5372907153729,
-            "baseload": 285.21570680555556,
-            "climate_energy_corrected": 523.3215839098174,
-            "outdoor_temp": 0.49,
+            "climate_energy_nominal": 8168.192478303005,
+            "baseload": 389.4009879861111,
+            "climate_energy_corrected": 7778.791490316894,
+            "outdoor_temp": 6.33,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 23:00:00+01:00",
+            "time": "2025-01-28 23:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 831.007610350076,
-            "baseload": 268.3252525000001,
-            "climate_energy_corrected": 562.682357850076,
-            "outdoor_temp": -0.08,
+            "climate_energy_nominal": 8168.192478303005,
+            "baseload": 524.6973367013891,
+            "climate_energy_corrected": 7643.4951416016165,
+            "outdoor_temp": 6.33,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 00:00:00+01:00",
+            "time": "2025-01-29 00:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 823.9117199391171,
-            "baseload": 244.83806625000014,
-            "climate_energy_corrected": 579.073653689117,
-            "outdoor_temp": 0.1,
+            "climate_energy_nominal": 8207.168175200157,
+            "baseload": 313.2436995833335,
+            "climate_energy_corrected": 7893.924475616824,
+            "outdoor_temp": 6.26,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 01:00:00+01:00",
+            "time": "2025-01-29 01:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 812.4794520547945,
-            "baseload": 363.21729361111124,
-            "climate_energy_corrected": 449.26215844368323,
-            "outdoor_temp": 0.39,
+            "climate_energy_nominal": 7984.449907216435,
+            "baseload": 383.5878800694445,
+            "climate_energy_corrected": 7600.862027146991,
+            "outdoor_temp": 6.66,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 02:00:00+01:00",
+            "time": "2025-01-29 02:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 805.3835616438356,
-            "baseload": 358.9493100000002,
-            "climate_energy_corrected": 446.4342516438354,
-            "outdoor_temp": 0.57,
+            "climate_energy_nominal": 7990.017863916028,
+            "baseload": 271.8223217708335,
+            "climate_energy_corrected": 7718.195542145194,
+            "outdoor_temp": 6.65,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 03:00:00+01:00",
+            "time": "2025-01-29 03:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 806.566210045662,
-            "baseload": 323.05802750000015,
-            "climate_energy_corrected": 483.5081825456619,
-            "outdoor_temp": 0.54,
+            "climate_energy_nominal": 8023.425604113586,
+            "baseload": 263.17787559027784,
+            "climate_energy_corrected": 7760.247728523308,
+            "outdoor_temp": 6.59,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 04:00:00+01:00",
+            "time": "2025-01-29 04:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 808.1430745814307,
-            "baseload": 899.1537001388888,
-            "climate_energy_corrected": 0,
-            "outdoor_temp": 0.5,
+            "climate_energy_nominal": 8424.318486484284,
+            "baseload": 237.76613125000006,
+            "climate_energy_corrected": 8186.552355234284,
+            "outdoor_temp": 5.87,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 05:00:00+01:00",
+            "time": "2025-01-29 05:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 804.9893455098936,
-            "baseload": 752.248438055556,
-            "climate_energy_corrected": 52.740907454337616,
-            "outdoor_temp": 0.58,
+            "climate_energy_nominal": 8273.983655595273,
+            "baseload": 247.1669312500001,
+            "climate_energy_corrected": 8026.8167243452735,
+            "outdoor_temp": 6.14,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 06:00:00+01:00",
+            "time": "2025-01-29 06:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 801.0471841704718,
-            "baseload": 313.64886569444445,
-            "climate_energy_corrected": 487.3983184760274,
-            "outdoor_temp": 0.68,
+            "climate_energy_nominal": 8290.687525694053,
+            "baseload": 268.2922520833333,
+            "climate_energy_corrected": 8022.395273610719,
+            "outdoor_temp": 6.11,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 07:00:00+01:00",
+            "time": "2025-01-29 07:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 799.8645357686453,
-            "baseload": 345.9369068055554,
-            "climate_energy_corrected": 453.9276289630899,
-            "outdoor_temp": 0.71,
+            "climate_energy_nominal": 8073.537214409924,
+            "baseload": 506.9598295138888,
+            "climate_energy_corrected": 7566.577384896035,
+            "outdoor_temp": 6.5,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 08:00:00+01:00",
+            "time": "2025-01-29 08:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 819.1811263318112,
-            "baseload": 858.6913962500005,
-            "climate_energy_corrected": 0,
-            "outdoor_temp": 0.22,
+            "climate_energy_nominal": 8134.784738105449,
+            "baseload": 885.7892067708333,
+            "climate_energy_corrected": 7304.545287676856,
+            "outdoor_temp": 6.39,
             "maximum_pv": 7200,
-            "pv_estimate": 56.400000000000006
+            "pv_estimate": 410.4000000000001
         },
         {
-            "time": "2025-01-04 09:00:00+01:00",
+            "time": "2025-01-29 09:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 872.4003044140031,
-            "baseload": 584.4088523611113,
-            "climate_energy_corrected": 353.29461110572015,
-            "outdoor_temp": -1.13,
+            "climate_energy_nominal": 8541.24557717574,
+            "baseload": 701.8587990972222,
+            "climate_energy_corrected": 8233.107858118257,
+            "outdoor_temp": 5.66,
             "maximum_pv": 7200,
-            "pv_estimate": 1199.6
+            "pv_estimate": 2908.7999999999997
         },
         {
-            "time": "2025-01-04 10:00:00+01:00",
+            "time": "2025-01-29 10:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 900.7838660578388,
-            "baseload": 419.3078697222224,
-            "climate_energy_corrected": 638.9852997729733,
-            "outdoor_temp": -1.85,
+            "climate_energy_nominal": 8429.88644318388,
+            "baseload": 429.3885906250002,
+            "climate_energy_corrected": 9031.44393968439,
+            "outdoor_temp": 5.86,
             "maximum_pv": 7200,
-            "pv_estimate": 2893.4000000000005
+            "pv_estimate": 7616.5999999999985
         },
         {
-            "time": "2025-01-04 11:00:00+01:00",
+            "time": "2025-01-29 11:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 847.564687975647,
-            "baseload": 474.1113005555555,
-            "climate_energy_corrected": 624.2575841424909,
-            "outdoor_temp": -0.5,
+            "climate_energy_nominal": 8129.216781405855,
+            "baseload": 620.3848326736113,
+            "climate_energy_corrected": 9069.34155124124,
+            "outdoor_temp": 6.4,
             "maximum_pv": 7200,
-            "pv_estimate": 4607.200000000001
+            "pv_estimate": 11528.999999999998
         },
         {
-            "time": "2025-01-04 12:00:00+01:00",
+            "time": "2025-01-29 12:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 814.4505327245055,
-            "baseload": 864.4287363888891,
-            "climate_energy_corrected": 246.55344687960292,
-            "outdoor_temp": 0.34,
+            "climate_energy_nominal": 7811.843249529053,
+            "baseload": 249.89202118055556,
+            "climate_energy_corrected": 9444.281251616048,
+            "outdoor_temp": 6.97,
             "maximum_pv": 7200,
-            "pv_estimate": 5447.2
+            "pv_estimate": 13906.599999999997
         },
         {
-            "time": "2025-01-04 13:00:00+01:00",
+            "time": "2025-01-29 13:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 800.6529680365296,
-            "baseload": 583.927610972222,
-            "climate_energy_corrected": 509.65324874759267,
-            "outdoor_temp": 0.69,
+            "climate_energy_nominal": 8095.809041208296,
+            "baseload": 140.82660520833335,
+            "climate_energy_corrected": 9914.491969663093,
+            "outdoor_temp": 6.46,
             "maximum_pv": 7200,
-            "pv_estimate": 5380.999999999999
+            "pv_estimate": 14476.8
         },
         {
-            "time": "2025-01-04 14:00:00+01:00",
+            "time": "2025-01-29 14:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 783.7016742770167,
-            "baseload": 608.3231547222224,
-            "climate_energy_corrected": 378.8874640388667,
-            "outdoor_temp": 1.12,
+            "climate_energy_nominal": 8118.080868006668,
+            "baseload": 411.6837531944444,
+            "climate_energy_corrected": 9474.054249256322,
+            "outdoor_temp": 6.42,
             "maximum_pv": 7200,
-            "pv_estimate": 3738.4
+            "pv_estimate": 13059.400000000003
         },
         {
-            "time": "2025-01-04 15:00:00+01:00",
+            "time": "2025-01-29 15:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 778.1826484018264,
-            "baseload": 315.2360122222222,
-            "climate_energy_corrected": 551.9191963296064,
-            "outdoor_temp": 1.26,
+            "climate_energy_nominal": 7917.634426821318,
+            "baseload": 730.4089978124998,
+            "climate_energy_corrected": 8096.162377813434,
+            "outdoor_temp": 6.78,
             "maximum_pv": 7200,
-            "pv_estimate": 1634.4
+            "pv_estimate": 6715.2
         },
         {
-            "time": "2025-01-04 16:00:00+01:00",
+            "time": "2025-01-29 16:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 782.124809741248,
-            "baseload": 380.9456033333334,
-            "climate_energy_corrected": 410.9017340895044,
-            "outdoor_temp": 1.16,
+            "climate_energy_nominal": 8157.056564903819,
+            "baseload": 327.24586805555555,
+            "climate_energy_corrected": 8050.656170649432,
+            "outdoor_temp": 6.35,
             "maximum_pv": 7200,
-            "pv_estimate": 178.6
+            "pv_estimate": 1631.6000000000001
         },
         {
-            "time": "2025-01-04 17:00:00+01:00",
+            "time": "2025-01-29 17:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 799.8645357686453,
-            "baseload": 738.1681020833331,
-            "climate_energy_corrected": 61.69643368531217,
-            "outdoor_temp": 0.71,
+            "climate_energy_nominal": 8062.401301010739,
+            "baseload": 410.1151402083333,
+            "climate_energy_corrected": 7656.346815505786,
+            "outdoor_temp": 6.52,
+            "maximum_pv": 7200,
+            "pv_estimate": 30.0
+        },
+        {
+            "time": "2025-01-29 18:00:00+01:00",
+            "season": "winter",
+            "climate_energy_nominal": 8223.872045298936,
+            "baseload": 913.5522094444444,
+            "climate_energy_corrected": 7310.319835854492,
+            "outdoor_temp": 6.23,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 18:00:00+01:00",
+            "time": "2025-01-29 19:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 823.517503805175,
-            "baseload": 372.9782893055555,
-            "climate_energy_corrected": 450.5392144996195,
-            "outdoor_temp": 0.11,
+            "climate_energy_nominal": 8379.774832887544,
+            "baseload": 1040.0943780902778,
+            "climate_energy_corrected": 7339.680454797266,
+            "outdoor_temp": 5.95,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 19:00:00+01:00",
+            "time": "2025-01-29 20:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 823.9117199391171,
-            "baseload": 432.41984694444443,
-            "climate_energy_corrected": 391.4918729946727,
-            "outdoor_temp": 0.1,
+            "climate_energy_nominal": 8853.051152352951,
+            "baseload": 623.2009796180556,
+            "climate_energy_corrected": 8229.850172734896,
+            "outdoor_temp": 5.1,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 20:00:00+01:00",
+            "time": "2025-01-29 21:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 823.517503805175,
-            "baseload": 525.2497476388891,
-            "climate_energy_corrected": 298.26775616628595,
-            "outdoor_temp": 0.11,
+            "climate_energy_nominal": 9777.331964485396,
+            "baseload": 644.179699201389,
+            "climate_energy_corrected": 9133.152265284007,
+            "outdoor_temp": 3.44,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 21:00:00+01:00",
+            "time": "2025-01-29 22:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 827.4596651445967,
-            "baseload": 894.8643513888892,
-            "climate_energy_corrected": 0,
-            "outdoor_temp": 0.01,
+            "climate_energy_nominal": 10083.569582963017,
+            "baseload": 469.0152918402779,
+            "climate_energy_corrected": 9614.554291122739,
+            "outdoor_temp": 2.89,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 22:00:00+01:00",
+            "time": "2025-01-29 23:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 830.2191780821917,
-            "baseload": 365.31628819444444,
-            "climate_energy_corrected": 464.9028898877472,
-            "outdoor_temp": -0.06,
+            "climate_energy_nominal": 10222.768500452843,
+            "baseload": 293.32879177083345,
+            "climate_energy_corrected": 9929.43970868201,
+            "outdoor_temp": 2.64,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 23:00:00+01:00",
+            "time": "2025-01-30 00:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 838.4977168949771,
-            "baseload": 339.96479472222234,
-            "climate_energy_corrected": 498.53292217275475,
-            "outdoor_temp": -0.27,
+            "climate_energy_nominal": 10300.719894247146,
+            "baseload": 295.25536611111124,
+            "climate_energy_corrected": 10005.464528136035,
+            "outdoor_temp": 2.5,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 00:00:00+01:00",
+            "time": "2025-01-30 01:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 845.1993911719941,
-            "baseload": 325.80881111111125,
-            "climate_energy_corrected": 519.3905800608828,
-            "outdoor_temp": -0.44,
+            "climate_energy_nominal": 9821.875618082142,
+            "baseload": 549.1174665277779,
+            "climate_energy_corrected": 9272.758151554364,
+            "outdoor_temp": 3.36,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 01:00:00+01:00",
+            "time": "2025-01-30 02:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 843.2283105022831,
-            "baseload": 293.7537054166668,
-            "climate_energy_corrected": 549.4746050856163,
-            "outdoor_temp": -0.39,
+            "climate_energy_nominal": 9565.749609900862,
+            "baseload": 387.60409731481474,
+            "climate_energy_corrected": 9178.145512586047,
+            "outdoor_temp": 3.82,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 02:00:00+01:00",
+            "time": "2025-01-30 03:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 843.6225266362251,
-            "baseload": 296.4360875000002,
-            "climate_energy_corrected": 547.1864391362249,
-            "outdoor_temp": -0.4,
+            "climate_energy_nominal": 9432.118649110631,
+            "baseload": 399.1428053240741,
+            "climate_energy_corrected": 9032.975843786557,
+            "outdoor_temp": 4.06,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 03:00:00+01:00",
+            "time": "2025-01-30 04:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 856.6316590563166,
-            "baseload": 298.17651194444437,
-            "climate_energy_corrected": 558.4551471118723,
-            "outdoor_temp": -0.73,
+            "climate_energy_nominal": 9343.031341917142,
+            "baseload": 219.38601986111112,
+            "climate_energy_corrected": 9123.64532205603,
+            "outdoor_temp": 4.22,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 04:00:00+01:00",
+            "time": "2025-01-30 05:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 851.9010654490106,
-            "baseload": 297.87915736111114,
-            "climate_energy_corrected": 554.0219080878994,
-            "outdoor_temp": -0.61,
+            "climate_energy_nominal": 9292.919731620805,
+            "baseload": 234.77521546296296,
+            "climate_energy_corrected": 9058.144516157841,
+            "outdoor_temp": 4.31,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 05:00:00+01:00",
+            "time": "2025-01-30 06:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 849.5357686453577,
-            "baseload": 325.2133202777777,
-            "climate_energy_corrected": 524.32244836758,
-            "outdoor_temp": -0.55,
+            "climate_energy_nominal": 9253.944034723652,
+            "baseload": 260.45944254629643,
+            "climate_energy_corrected": 8993.484592177356,
+            "outdoor_temp": 4.38,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 06:00:00+01:00",
+            "time": "2025-01-30 07:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 836.5266362252663,
-            "baseload": 345.1983062500001,
-            "climate_energy_corrected": 491.32832997526623,
-            "outdoor_temp": -0.22,
+            "climate_energy_nominal": 9248.37607802406,
+            "baseload": 326.255099212963,
+            "climate_energy_corrected": 8922.120978811095,
+            "outdoor_temp": 4.39,
             "maximum_pv": 7200,
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 07:00:00+01:00",
+            "time": "2025-01-30 08:00:00+01:00",
             "season": "winter",
-            "climate_energy_nominal": 819.9695585996957,
-            "baseload": 340.00591736111113,
-            "climate_energy_corrected": 479.96364123858456,
-            "outdoor_temp": 0.2,
+            "climate_energy_nominal": 9242.808121324466,
+            "baseload": 841.9215651388889,
+            "climate_energy_corrected": 8446.474172988857,
+            "outdoor_temp": 4.4,
             "maximum_pv": 7200,
-            "pv_estimate": 0
-        },
-        {
-            "time": "2025-01-05 08:00:00+01:00",
-            "season": "winter",
-            "climate_energy_nominal": 799.076103500761,
-            "baseload": 659.7266158333334,
-            "climate_energy_corrected": 139.83942467265877,
-            "outdoor_temp": 0.73,
-            "maximum_pv": 7200,
-            "pv_estimate": 9.0
-        },
-        {
-            "time": "2025-01-05 09:00:00+01:00",
-            "season": "winter",
-            "climate_energy_nominal": 777.7884322678844,
-            "baseload": 781.9723670833334,
-            "climate_energy_corrected": 7.748753134184199,
-            "outdoor_temp": 1.27,
-            "maximum_pv": 7200,
-            "pv_estimate": 219.2
-        },
-        {
-            "time": "2025-01-05 10:00:00+01:00",
-            "season": "winter",
-            "climate_energy_nominal": 757.6834094368342,
-            "baseload": 501.674239027778,
-            "climate_energy_corrected": 288.54098755641377,
-            "outdoor_temp": 1.78,
-            "maximum_pv": 7200,
-            "pv_estimate": 597.6
+            "pv_estimate": 336.79999999999995
         }
     ],
     "hourly_energy_surplus": [
         {
-            "time": "2025-01-03 11:00:00+01:00",
-            "energy_surplus": 12487.294923032328
+            "time": "2025-01-28 14:00:00+01:00",
+            "energy_surplus": 3046.4660181447907
         },
         {
-            "time": "2025-01-03 12:00:00+01:00",
-            "energy_surplus": 12197.4423138225
+            "time": "2025-01-28 15:00:00+01:00",
+            "energy_surplus": -2663.829006045422
         },
         {
-            "time": "2025-01-03 13:00:00+01:00",
-            "energy_surplus": 10577.192049516856
+            "time": "2025-01-28 16:00:00+01:00",
+            "energy_surplus": -5862.126945588397
         },
         {
-            "time": "2025-01-03 14:00:00+01:00",
-            "energy_surplus": 6359.795210636996
+            "time": "2025-01-28 17:00:00+01:00",
+            "energy_surplus": -7395.319289820001
         },
         {
-            "time": "2025-01-03 15:00:00+01:00",
-            "energy_surplus": 2125.8463051206295
+            "time": "2025-01-28 18:00:00+01:00",
+            "energy_surplus": -7197.622604144717
         },
         {
-            "time": "2025-01-03 16:00:00+01:00",
-            "energy_surplus": -325.2128967190707
+            "time": "2025-01-28 19:00:00+01:00",
+            "energy_surplus": -7352.301278414356
         },
         {
-            "time": "2025-01-03 17:00:00+01:00",
-            "energy_surplus": -533.5033575818113
+            "time": "2025-01-28 20:00:00+01:00",
+            "energy_surplus": -7600.4216242087805
         },
         {
-            "time": "2025-01-03 18:00:00+01:00",
-            "energy_surplus": -295.82602601788426
+            "time": "2025-01-28 21:00:00+01:00",
+            "energy_surplus": -7678.400773127005
         },
         {
-            "time": "2025-01-03 19:00:00+01:00",
-            "energy_surplus": -129.95088808789967
+            "time": "2025-01-28 22:00:00+01:00",
+            "energy_surplus": -7778.791490316894
         },
         {
-            "time": "2025-01-03 20:00:00+01:00",
-            "energy_surplus": -147.76156917808237
+            "time": "2025-01-28 23:00:00+01:00",
+            "energy_surplus": -7643.4951416016165
         },
         {
-            "time": "2025-01-03 21:00:00+01:00",
-            "energy_surplus": -266.0483317503807
+            "time": "2025-01-29 00:00:00+01:00",
+            "energy_surplus": -7893.924475616824
         },
         {
-            "time": "2025-01-03 22:00:00+01:00",
-            "energy_surplus": -523.3215839098174
+            "time": "2025-01-29 01:00:00+01:00",
+            "energy_surplus": -7600.862027146991
         },
         {
-            "time": "2025-01-03 23:00:00+01:00",
-            "energy_surplus": -562.682357850076
+            "time": "2025-01-29 02:00:00+01:00",
+            "energy_surplus": -7718.195542145194
         },
         {
-            "time": "2025-01-04 00:00:00+01:00",
-            "energy_surplus": -579.073653689117
+            "time": "2025-01-29 03:00:00+01:00",
+            "energy_surplus": -7760.247728523308
         },
         {
-            "time": "2025-01-04 01:00:00+01:00",
-            "energy_surplus": -449.26215844368323
+            "time": "2025-01-29 04:00:00+01:00",
+            "energy_surplus": -8186.552355234284
         },
         {
-            "time": "2025-01-04 02:00:00+01:00",
-            "energy_surplus": -446.4342516438354
+            "time": "2025-01-29 05:00:00+01:00",
+            "energy_surplus": -8026.8167243452735
         },
         {
-            "time": "2025-01-04 03:00:00+01:00",
-            "energy_surplus": -483.5081825456619
+            "time": "2025-01-29 06:00:00+01:00",
+            "energy_surplus": -8022.395273610719
         },
         {
-            "time": "2025-01-04 04:00:00+01:00",
-            "energy_surplus": 0
+            "time": "2025-01-29 07:00:00+01:00",
+            "energy_surplus": -7566.577384896035
         },
         {
-            "time": "2025-01-04 05:00:00+01:00",
-            "energy_surplus": -52.740907454337616
+            "time": "2025-01-29 08:00:00+01:00",
+            "energy_surplus": -6894.145287676856
         },
         {
-            "time": "2025-01-04 06:00:00+01:00",
-            "energy_surplus": -487.3983184760274
+            "time": "2025-01-29 09:00:00+01:00",
+            "energy_surplus": -5324.307858118258
         },
         {
-            "time": "2025-01-04 07:00:00+01:00",
-            "energy_surplus": -453.9276289630899
+            "time": "2025-01-29 10:00:00+01:00",
+            "energy_surplus": -1414.8439396843914
         },
         {
-            "time": "2025-01-04 08:00:00+01:00",
-            "energy_surplus": 56.400000000000006
+            "time": "2025-01-29 11:00:00+01:00",
+            "energy_surplus": 2459.658448758759
         },
         {
-            "time": "2025-01-04 09:00:00+01:00",
-            "energy_surplus": 846.3053888942798
+            "time": "2025-01-29 12:00:00+01:00",
+            "energy_surplus": 4462.318748383948
         },
         {
-            "time": "2025-01-04 10:00:00+01:00",
-            "energy_surplus": 2254.4147002270274
+            "time": "2025-01-29 13:00:00+01:00",
+            "energy_surplus": 4562.308030336906
         },
         {
-            "time": "2025-01-04 11:00:00+01:00",
-            "energy_surplus": 3982.94241585751
+            "time": "2025-01-29 14:00:00+01:00",
+            "energy_surplus": 3585.3457507436815
         },
         {
-            "time": "2025-01-04 12:00:00+01:00",
-            "energy_surplus": 5200.646553120397
+            "time": "2025-01-29 15:00:00+01:00",
+            "energy_surplus": -1380.9623778134346
         },
         {
-            "time": "2025-01-04 13:00:00+01:00",
-            "energy_surplus": 4871.346751252407
+            "time": "2025-01-29 16:00:00+01:00",
+            "energy_surplus": -6419.056170649432
         },
         {
-            "time": "2025-01-04 14:00:00+01:00",
-            "energy_surplus": 3359.5125359611334
+            "time": "2025-01-29 17:00:00+01:00",
+            "energy_surplus": -7626.346815505786
         },
         {
-            "time": "2025-01-04 15:00:00+01:00",
-            "energy_surplus": 1082.4808036703937
+            "time": "2025-01-29 18:00:00+01:00",
+            "energy_surplus": -7310.319835854492
         },
         {
-            "time": "2025-01-04 16:00:00+01:00",
-            "energy_surplus": -232.30173408950438
+            "time": "2025-01-29 19:00:00+01:00",
+            "energy_surplus": -7339.680454797266
         },
         {
-            "time": "2025-01-04 17:00:00+01:00",
-            "energy_surplus": -61.69643368531217
+            "time": "2025-01-29 20:00:00+01:00",
+            "energy_surplus": -8229.850172734896
         },
         {
-            "time": "2025-01-04 18:00:00+01:00",
-            "energy_surplus": -450.5392144996195
+            "time": "2025-01-29 21:00:00+01:00",
+            "energy_surplus": -9133.152265284007
         },
         {
-            "time": "2025-01-04 19:00:00+01:00",
-            "energy_surplus": -391.4918729946727
+            "time": "2025-01-29 22:00:00+01:00",
+            "energy_surplus": -9614.554291122739
         },
         {
-            "time": "2025-01-04 20:00:00+01:00",
-            "energy_surplus": -298.26775616628595
+            "time": "2025-01-29 23:00:00+01:00",
+            "energy_surplus": -9929.43970868201
         },
         {
-            "time": "2025-01-04 21:00:00+01:00",
-            "energy_surplus": 0
+            "time": "2025-01-30 00:00:00+01:00",
+            "energy_surplus": -10005.464528136035
         },
         {
-            "time": "2025-01-04 22:00:00+01:00",
-            "energy_surplus": -464.9028898877472
+            "time": "2025-01-30 01:00:00+01:00",
+            "energy_surplus": -9272.758151554364
         },
         {
-            "time": "2025-01-04 23:00:00+01:00",
-            "energy_surplus": -498.53292217275475
+            "time": "2025-01-30 02:00:00+01:00",
+            "energy_surplus": -9178.145512586047
         },
         {
-            "time": "2025-01-05 00:00:00+01:00",
-            "energy_surplus": -519.3905800608828
+            "time": "2025-01-30 03:00:00+01:00",
+            "energy_surplus": -9032.975843786557
         },
         {
-            "time": "2025-01-05 01:00:00+01:00",
-            "energy_surplus": -549.4746050856163
+            "time": "2025-01-30 04:00:00+01:00",
+            "energy_surplus": -9123.64532205603
         },
         {
-            "time": "2025-01-05 02:00:00+01:00",
-            "energy_surplus": -547.1864391362249
+            "time": "2025-01-30 05:00:00+01:00",
+            "energy_surplus": -9058.144516157841
         },
         {
-            "time": "2025-01-05 03:00:00+01:00",
-            "energy_surplus": -558.4551471118723
+            "time": "2025-01-30 06:00:00+01:00",
+            "energy_surplus": -8993.484592177356
         },
         {
-            "time": "2025-01-05 04:00:00+01:00",
-            "energy_surplus": -554.0219080878994
+            "time": "2025-01-30 07:00:00+01:00",
+            "energy_surplus": -8922.120978811095
         },
         {
-            "time": "2025-01-05 05:00:00+01:00",
-            "energy_surplus": -524.32244836758
-        },
-        {
-            "time": "2025-01-05 06:00:00+01:00",
-            "energy_surplus": -491.32832997526623
-        },
-        {
-            "time": "2025-01-05 07:00:00+01:00",
-            "energy_surplus": -479.96364123858456
-        },
-        {
-            "time": "2025-01-05 08:00:00+01:00",
-            "energy_surplus": -130.83942467265877
-        },
-        {
-            "time": "2025-01-05 09:00:00+01:00",
-            "energy_surplus": 211.4512468658158
-        },
-        {
-            "time": "2025-01-05 10:00:00+01:00",
-            "energy_surplus": 309.05901244358625
+            "time": "2025-01-30 08:00:00+01:00",
+            "energy_surplus": -8109.674172988857
         }
     ],
     "electricity_prices": [
         {
-            "total": 0.2835,
-            "startsAt": "2025-01-03T00:00:00+01:00"
+            "total": 0.2566,
+            "startsAt": "2025-01-28T00:00:00+01:00"
         },
         {
-            "total": 0.2692,
-            "startsAt": "2025-01-03T01:00:00+01:00"
+            "total": 0.2501,
+            "startsAt": "2025-01-28T01:00:00+01:00"
         },
         {
-            "total": 0.2662,
-            "startsAt": "2025-01-03T02:00:00+01:00"
+            "total": 0.2333,
+            "startsAt": "2025-01-28T02:00:00+01:00"
         },
         {
-            "total": 0.2647,
-            "startsAt": "2025-01-03T03:00:00+01:00"
+            "total": 0.2475,
+            "startsAt": "2025-01-28T03:00:00+01:00"
         },
         {
-            "total": 0.2573,
-            "startsAt": "2025-01-03T04:00:00+01:00"
-        },
-        {
-            "total": 0.2601,
-            "startsAt": "2025-01-03T05:00:00+01:00"
-        },
-        {
-            "total": 0.2645,
-            "startsAt": "2025-01-03T06:00:00+01:00"
-        },
-        {
-            "total": 0.2584,
-            "startsAt": "2025-01-03T07:00:00+01:00"
-        },
-        {
-            "total": 0.2633,
-            "startsAt": "2025-01-03T08:00:00+01:00"
-        },
-        {
-            "total": 0.2611,
-            "startsAt": "2025-01-03T09:00:00+01:00"
+            "total": 0.2566,
+            "startsAt": "2025-01-28T04:00:00+01:00"
         },
         {
             "total": 0.2574,
-            "startsAt": "2025-01-03T10:00:00+01:00"
-        },
-        {
-            "total": 0.2489,
-            "startsAt": "2025-01-03T11:00:00+01:00"
-        },
-        {
-            "total": 0.2483,
-            "startsAt": "2025-01-03T12:00:00+01:00"
-        },
-        {
-            "total": 0.2576,
-            "startsAt": "2025-01-03T13:00:00+01:00"
-        },
-        {
-            "total": 0.2588,
-            "startsAt": "2025-01-03T14:00:00+01:00"
-        },
-        {
-            "total": 0.2665,
-            "startsAt": "2025-01-03T15:00:00+01:00"
-        },
-        {
-            "total": 0.2906,
-            "startsAt": "2025-01-03T16:00:00+01:00"
-        },
-        {
-            "total": 0.3039,
-            "startsAt": "2025-01-03T17:00:00+01:00"
-        },
-        {
-            "total": 0.302,
-            "startsAt": "2025-01-03T18:00:00+01:00"
-        },
-        {
-            "total": 0.3018,
-            "startsAt": "2025-01-03T19:00:00+01:00"
-        },
-        {
-            "total": 0.2999,
-            "startsAt": "2025-01-03T20:00:00+01:00"
-        },
-        {
-            "total": 0.2933,
-            "startsAt": "2025-01-03T21:00:00+01:00"
+            "startsAt": "2025-01-28T05:00:00+01:00"
         },
         {
             "total": 0.2819,
-            "startsAt": "2025-01-03T22:00:00+01:00"
+            "startsAt": "2025-01-28T06:00:00+01:00"
         },
         {
-            "total": 0.2704,
-            "startsAt": "2025-01-03T23:00:00+01:00"
+            "total": 0.3143,
+            "startsAt": "2025-01-28T07:00:00+01:00"
+        },
+        {
+            "total": 0.3406,
+            "startsAt": "2025-01-28T08:00:00+01:00"
+        },
+        {
+            "total": 0.326,
+            "startsAt": "2025-01-28T09:00:00+01:00"
+        },
+        {
+            "total": 0.3085,
+            "startsAt": "2025-01-28T10:00:00+01:00"
+        },
+        {
+            "total": 0.3035,
+            "startsAt": "2025-01-28T11:00:00+01:00"
+        },
+        {
+            "total": 0.3016,
+            "startsAt": "2025-01-28T12:00:00+01:00"
+        },
+        {
+            "total": 0.3047,
+            "startsAt": "2025-01-28T13:00:00+01:00"
+        },
+        {
+            "total": 0.3094,
+            "startsAt": "2025-01-28T14:00:00+01:00"
+        },
+        {
+            "total": 0.3315,
+            "startsAt": "2025-01-28T15:00:00+01:00"
+        },
+        {
+            "total": 0.34,
+            "startsAt": "2025-01-28T16:00:00+01:00"
+        },
+        {
+            "total": 0.3431,
+            "startsAt": "2025-01-28T17:00:00+01:00"
+        },
+        {
+            "total": 0.3256,
+            "startsAt": "2025-01-28T18:00:00+01:00"
+        },
+        {
+            "total": 0.3184,
+            "startsAt": "2025-01-28T19:00:00+01:00"
+        },
+        {
+            "total": 0.2778,
+            "startsAt": "2025-01-28T20:00:00+01:00"
+        },
+        {
+            "total": 0.2689,
+            "startsAt": "2025-01-28T21:00:00+01:00"
+        },
+        {
+            "total": 0.26,
+            "startsAt": "2025-01-28T22:00:00+01:00"
+        },
+        {
+            "total": 0.2417,
+            "startsAt": "2025-01-28T23:00:00+01:00"
+        },
+        {
+            "total": 0.2694,
+            "startsAt": "2025-01-29T00:00:00+01:00"
+        },
+        {
+            "total": 0.2643,
+            "startsAt": "2025-01-29T01:00:00+01:00"
+        },
+        {
+            "total": 0.258,
+            "startsAt": "2025-01-29T02:00:00+01:00"
+        },
+        {
+            "total": 0.255,
+            "startsAt": "2025-01-29T03:00:00+01:00"
+        },
+        {
+            "total": 0.2591,
+            "startsAt": "2025-01-29T04:00:00+01:00"
+        },
+        {
+            "total": 0.2685,
+            "startsAt": "2025-01-29T05:00:00+01:00"
+        },
+        {
+            "total": 0.2759,
+            "startsAt": "2025-01-29T06:00:00+01:00"
+        },
+        {
+            "total": 0.3333,
+            "startsAt": "2025-01-29T07:00:00+01:00"
+        },
+        {
+            "total": 0.3347,
+            "startsAt": "2025-01-29T08:00:00+01:00"
+        },
+        {
+            "total": 0.3203,
+            "startsAt": "2025-01-29T09:00:00+01:00"
+        },
+        {
+            "total": 0.29,
+            "startsAt": "2025-01-29T10:00:00+01:00"
+        },
+        {
+            "total": 0.2712,
+            "startsAt": "2025-01-29T11:00:00+01:00"
+        },
+        {
+            "total": 0.2662,
+            "startsAt": "2025-01-29T12:00:00+01:00"
+        },
+        {
+            "total": 0.2668,
+            "startsAt": "2025-01-29T13:00:00+01:00"
+        },
+        {
+            "total": 0.2694,
+            "startsAt": "2025-01-29T14:00:00+01:00"
+        },
+        {
+            "total": 0.2873,
+            "startsAt": "2025-01-29T15:00:00+01:00"
+        },
+        {
+            "total": 0.3229,
+            "startsAt": "2025-01-29T16:00:00+01:00"
+        },
+        {
+            "total": 0.343,
+            "startsAt": "2025-01-29T17:00:00+01:00"
+        },
+        {
+            "total": 0.3436,
+            "startsAt": "2025-01-29T18:00:00+01:00"
+        },
+        {
+            "total": 0.3391,
+            "startsAt": "2025-01-29T19:00:00+01:00"
+        },
+        {
+            "total": 0.322,
+            "startsAt": "2025-01-29T20:00:00+01:00"
+        },
+        {
+            "total": 0.3074,
+            "startsAt": "2025-01-29T21:00:00+01:00"
+        },
+        {
+            "total": 0.2983,
+            "startsAt": "2025-01-29T22:00:00+01:00"
+        },
+        {
+            "total": 0.2832,
+            "startsAt": "2025-01-29T23:00:00+01:00"
         }
     ],
-    "home_battery_energy_forecast": [],
-    "grid_feedin": null,
-    "required_charge": null,
-    "charging_plan": null,
+    "home_battery_energy_forecast": [
+        {
+            "time": "2025-01-28 17:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-28 17:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-28 18:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-28 19:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-28 20:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-28 21:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-28 22:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-28 23:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-29 00:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-29 01:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-29 02:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-29 03:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-29 04:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-29 05:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-29 06:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-29 07:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-29 08:00:00+01:00",
+            "energy": 4719.048
+        },
+        {
+            "time": "2025-01-29 09:00:00+01:00",
+            "energy": 7627.848
+        },
+        {
+            "time": "2025-01-29 10:00:00+01:00",
+            "energy": 8114.4479999999985
+        },
+        {
+            "time": "2025-01-29 11:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-29 12:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-29 13:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-29 14:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-29 15:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-29 16:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-29 17:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-29 18:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-29 19:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-29 20:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-29 21:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-29 22:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-29 23:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 00:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 01:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 02:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 03:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 04:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 05:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 06:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 07:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 08:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 09:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 10:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 11:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 12:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 13:00:00+01:00",
+            "energy": 9200
+        },
+        {
+            "time": "2025-01-30 14:00:00+01:00",
+            "energy": 9200
+        }
+    ],
+    "grid_feedin": [
+        {
+            "time": "2025-01-29 11:00:00+01:00",
+            "energy": 3313.4479999999967
+        },
+        {
+            "time": "2025-01-29 12:00:00+01:00",
+            "energy": 6776.599999999997
+        },
+        {
+            "time": "2025-01-29 13:00:00+01:00",
+            "energy": 14476.8
+        },
+        {
+            "time": "2025-01-29 14:00:00+01:00",
+            "energy": 13059.400000000001
+        },
+        {
+            "time": "2025-01-29 15:00:00+01:00",
+            "energy": 6715.200000000001
+        },
+        {
+            "time": "2025-01-29 16:00:00+01:00",
+            "energy": 1631.6000000000004
+        },
+        {
+            "time": "2025-01-29 17:00:00+01:00",
+            "energy": 30.0
+        },
+        {
+            "time": "2025-01-30 08:00:00+01:00",
+            "energy": 336.7999999999993
+        },
+        {
+            "time": "2025-01-30 09:00:00+01:00",
+            "energy": 2265.3999999999996
+        },
+        {
+            "time": "2025-01-30 10:00:00+01:00",
+            "energy": 5232.0
+        },
+        {
+            "time": "2025-01-30 11:00:00+01:00",
+            "energy": 6667.799999999999
+        },
+        {
+            "time": "2025-01-30 12:00:00+01:00",
+            "energy": 7519.4000000000015
+        },
+        {
+            "time": "2025-01-30 13:00:00+01:00",
+            "energy": 6722.4
+        },
+        {
+            "time": "2025-01-30 14:00:00+01:00",
+            "energy": 2593.7999999999993
+        }
+    ],
+    "required_charge": [],
+    "charging_plan": 0.2983,
     "usable_energy_for_ev": [
         {
-            "time": "2025-01-03 10:00:00+01:00",
-            "pv_estimate": 2131.6
+            "time": "2025-01-28 14:00:00+01:00",
+            "pv_estimate": 11492.6
         },
         {
-            "time": "2025-01-03 11:00:00+01:00",
-            "pv_estimate": 13227.6
+            "time": "2025-01-28 15:00:00+01:00",
+            "pv_estimate": 4846.799999999999
         },
         {
-            "time": "2025-01-03 12:00:00+01:00",
-            "pv_estimate": 13363.0
+            "time": "2025-01-28 16:00:00+01:00",
+            "pv_estimate": 1282.0
         },
         {
-            "time": "2025-01-03 13:00:00+01:00",
-            "pv_estimate": 3924.6000000000004
-        },
-        {
-            "time": "2025-01-03 14:00:00+01:00",
-            "pv_estimate": 6746.4
-        },
-        {
-            "time": "2025-01-03 15:00:00+01:00",
-            "pv_estimate": 2272.7999999999997
-        },
-        {
-            "time": "2025-01-03 16:00:00+01:00",
+            "time": "2025-01-28 17:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 17:00:00+01:00",
+            "time": "2025-01-28 18:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 18:00:00+01:00",
+            "time": "2025-01-28 19:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 19:00:00+01:00",
+            "time": "2025-01-28 20:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 20:00:00+01:00",
+            "time": "2025-01-28 21:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 21:00:00+01:00",
+            "time": "2025-01-28 22:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 22:00:00+01:00",
+            "time": "2025-01-28 23:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 23:00:00+01:00",
+            "time": "2025-01-29 00:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 00:00:00+01:00",
+            "time": "2025-01-29 01:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 01:00:00+01:00",
+            "time": "2025-01-29 02:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 02:00:00+01:00",
+            "time": "2025-01-29 03:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 03:00:00+01:00",
+            "time": "2025-01-29 04:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 04:00:00+01:00",
+            "time": "2025-01-29 05:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 05:00:00+01:00",
+            "time": "2025-01-29 06:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 06:00:00+01:00",
+            "time": "2025-01-29 07:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 07:00:00+01:00",
+            "time": "2025-01-29 08:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 08:00:00+01:00",
+            "time": "2025-01-29 09:00:00+01:00",
+            "pv_estimate": 2908.7999999999997
+        },
+        {
+            "time": "2025-01-29 10:00:00+01:00",
+            "pv_estimate": 486.59999999999854
+        },
+        {
+            "time": "2025-01-29 11:00:00+01:00",
+            "pv_estimate": 4398.999999999998
+        },
+        {
+            "time": "2025-01-29 12:00:00+01:00",
+            "pv_estimate": 6776.599999999997
+        },
+        {
+            "time": "2025-01-29 13:00:00+01:00",
+            "pv_estimate": 14476.8
+        },
+        {
+            "time": "2025-01-29 14:00:00+01:00",
+            "pv_estimate": 13059.400000000003
+        },
+        {
+            "time": "2025-01-29 15:00:00+01:00",
+            "pv_estimate": 6715.2
+        },
+        {
+            "time": "2025-01-29 16:00:00+01:00",
+            "pv_estimate": 1631.6000000000001
+        },
+        {
+            "time": "2025-01-29 17:00:00+01:00",
+            "pv_estimate": 30.0
+        },
+        {
+            "time": "2025-01-29 18:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 09:00:00+01:00",
-            "pv_estimate": 1199.6
-        },
-        {
-            "time": "2025-01-04 10:00:00+01:00",
-            "pv_estimate": 2893.4000000000005
-        },
-        {
-            "time": "2025-01-04 11:00:00+01:00",
-            "pv_estimate": 4607.200000000001
-        },
-        {
-            "time": "2025-01-04 12:00:00+01:00",
-            "pv_estimate": 5447.2
-        },
-        {
-            "time": "2025-01-04 13:00:00+01:00",
-            "pv_estimate": 5380.999999999999
-        },
-        {
-            "time": "2025-01-04 14:00:00+01:00",
-            "pv_estimate": 3738.4
-        },
-        {
-            "time": "2025-01-04 15:00:00+01:00",
-            "pv_estimate": 1634.4
-        },
-        {
-            "time": "2025-01-04 16:00:00+01:00",
+            "time": "2025-01-29 19:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 17:00:00+01:00",
+            "time": "2025-01-29 20:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 18:00:00+01:00",
+            "time": "2025-01-29 21:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 19:00:00+01:00",
+            "time": "2025-01-29 22:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 20:00:00+01:00",
+            "time": "2025-01-29 23:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 21:00:00+01:00",
+            "time": "2025-01-30 00:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 22:00:00+01:00",
+            "time": "2025-01-30 01:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 23:00:00+01:00",
+            "time": "2025-01-30 02:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 00:00:00+01:00",
+            "time": "2025-01-30 03:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 01:00:00+01:00",
+            "time": "2025-01-30 04:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 02:00:00+01:00",
+            "time": "2025-01-30 05:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 03:00:00+01:00",
+            "time": "2025-01-30 06:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 04:00:00+01:00",
+            "time": "2025-01-30 07:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 05:00:00+01:00",
-            "pv_estimate": 0
+            "time": "2025-01-30 08:00:00+01:00",
+            "pv_estimate": 336.79999999999995
         },
         {
-            "time": "2025-01-05 06:00:00+01:00",
-            "pv_estimate": 0
+            "time": "2025-01-30 09:00:00+01:00",
+            "pv_estimate": 2265.3999999999996
         },
         {
-            "time": "2025-01-05 07:00:00+01:00",
-            "pv_estimate": 0
+            "time": "2025-01-30 10:00:00+01:00",
+            "pv_estimate": 5231.999999999999
         },
         {
-            "time": "2025-01-05 08:00:00+01:00",
-            "pv_estimate": 0
+            "time": "2025-01-30 11:00:00+01:00",
+            "pv_estimate": 6667.799999999998
         },
         {
-            "time": "2025-01-05 09:00:00+01:00",
-            "pv_estimate": 219.2
+            "time": "2025-01-30 12:00:00+01:00",
+            "pv_estimate": 7519.4000000000015
         },
         {
-            "time": "2025-01-05 10:00:00+01:00",
-            "pv_estimate": 597.6
+            "time": "2025-01-30 13:00:00+01:00",
+            "pv_estimate": 6722.4
+        },
+        {
+            "time": "2025-01-30 14:00:00+01:00",
+            "pv_estimate": 2593.8
         }
     ],
     "solar_forecast": [
         {
-            "time": "2025-01-03 10:00:00+01:00",
-            "pv_estimate": 2131.6
+            "time": "2025-01-28 14:00:00+01:00",
+            "pv_estimate": 11492.6
         },
         {
-            "time": "2025-01-03 11:00:00+01:00",
-            "pv_estimate": 13227.6
+            "time": "2025-01-28 15:00:00+01:00",
+            "pv_estimate": 4846.799999999999
         },
         {
-            "time": "2025-01-03 12:00:00+01:00",
-            "pv_estimate": 13363.0
+            "time": "2025-01-28 16:00:00+01:00",
+            "pv_estimate": 1282.0
         },
         {
-            "time": "2025-01-03 13:00:00+01:00",
-            "pv_estimate": 3924.6000000000004
-        },
-        {
-            "time": "2025-01-03 14:00:00+01:00",
-            "pv_estimate": 6746.4
-        },
-        {
-            "time": "2025-01-03 15:00:00+01:00",
-            "pv_estimate": 2272.7999999999997
-        },
-        {
-            "time": "2025-01-03 16:00:00+01:00",
+            "time": "2025-01-28 17:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 17:00:00+01:00",
+            "time": "2025-01-28 18:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 18:00:00+01:00",
+            "time": "2025-01-28 19:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 19:00:00+01:00",
+            "time": "2025-01-28 20:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 20:00:00+01:00",
+            "time": "2025-01-28 21:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 21:00:00+01:00",
+            "time": "2025-01-28 22:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 22:00:00+01:00",
+            "time": "2025-01-28 23:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-03 23:00:00+01:00",
+            "time": "2025-01-29 00:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 00:00:00+01:00",
+            "time": "2025-01-29 01:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 01:00:00+01:00",
+            "time": "2025-01-29 02:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 02:00:00+01:00",
+            "time": "2025-01-29 03:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 03:00:00+01:00",
+            "time": "2025-01-29 04:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 04:00:00+01:00",
+            "time": "2025-01-29 05:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 05:00:00+01:00",
+            "time": "2025-01-29 06:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 06:00:00+01:00",
+            "time": "2025-01-29 07:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 07:00:00+01:00",
+            "time": "2025-01-29 08:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 08:00:00+01:00",
+            "time": "2025-01-29 09:00:00+01:00",
+            "pv_estimate": 2908.7999999999997
+        },
+        {
+            "time": "2025-01-29 10:00:00+01:00",
+            "pv_estimate": 486.59999999999854
+        },
+        {
+            "time": "2025-01-29 11:00:00+01:00",
+            "pv_estimate": 4398.999999999998
+        },
+        {
+            "time": "2025-01-29 12:00:00+01:00",
+            "pv_estimate": 6776.599999999997
+        },
+        {
+            "time": "2025-01-29 13:00:00+01:00",
+            "pv_estimate": 14476.8
+        },
+        {
+            "time": "2025-01-29 14:00:00+01:00",
+            "pv_estimate": 13059.400000000003
+        },
+        {
+            "time": "2025-01-29 15:00:00+01:00",
+            "pv_estimate": 6715.2
+        },
+        {
+            "time": "2025-01-29 16:00:00+01:00",
+            "pv_estimate": 1631.6000000000001
+        },
+        {
+            "time": "2025-01-29 17:00:00+01:00",
+            "pv_estimate": 30.0
+        },
+        {
+            "time": "2025-01-29 18:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 09:00:00+01:00",
-            "pv_estimate": 1199.6
-        },
-        {
-            "time": "2025-01-04 10:00:00+01:00",
-            "pv_estimate": 2893.4000000000005
-        },
-        {
-            "time": "2025-01-04 11:00:00+01:00",
-            "pv_estimate": 4607.200000000001
-        },
-        {
-            "time": "2025-01-04 12:00:00+01:00",
-            "pv_estimate": 5447.2
-        },
-        {
-            "time": "2025-01-04 13:00:00+01:00",
-            "pv_estimate": 5380.999999999999
-        },
-        {
-            "time": "2025-01-04 14:00:00+01:00",
-            "pv_estimate": 3738.4
-        },
-        {
-            "time": "2025-01-04 15:00:00+01:00",
-            "pv_estimate": 1634.4
-        },
-        {
-            "time": "2025-01-04 16:00:00+01:00",
+            "time": "2025-01-29 19:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 17:00:00+01:00",
+            "time": "2025-01-29 20:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 18:00:00+01:00",
+            "time": "2025-01-29 21:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 19:00:00+01:00",
+            "time": "2025-01-29 22:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 20:00:00+01:00",
+            "time": "2025-01-29 23:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 21:00:00+01:00",
+            "time": "2025-01-30 00:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 22:00:00+01:00",
+            "time": "2025-01-30 01:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-04 23:00:00+01:00",
+            "time": "2025-01-30 02:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 00:00:00+01:00",
+            "time": "2025-01-30 03:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 01:00:00+01:00",
+            "time": "2025-01-30 04:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 02:00:00+01:00",
+            "time": "2025-01-30 05:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 03:00:00+01:00",
+            "time": "2025-01-30 06:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 04:00:00+01:00",
+            "time": "2025-01-30 07:00:00+01:00",
             "pv_estimate": 0
         },
         {
-            "time": "2025-01-05 05:00:00+01:00",
-            "pv_estimate": 0
+            "time": "2025-01-30 08:00:00+01:00",
+            "pv_estimate": 336.79999999999995
         },
         {
-            "time": "2025-01-05 06:00:00+01:00",
-            "pv_estimate": 0
+            "time": "2025-01-30 09:00:00+01:00",
+            "pv_estimate": 2265.3999999999996
         },
         {
-            "time": "2025-01-05 07:00:00+01:00",
-            "pv_estimate": 0
+            "time": "2025-01-30 10:00:00+01:00",
+            "pv_estimate": 5231.999999999999
         },
         {
-            "time": "2025-01-05 08:00:00+01:00",
-            "pv_estimate": 0
+            "time": "2025-01-30 11:00:00+01:00",
+            "pv_estimate": 6667.799999999998
         },
         {
-            "time": "2025-01-05 09:00:00+01:00",
-            "pv_estimate": 219.2
+            "time": "2025-01-30 12:00:00+01:00",
+            "pv_estimate": 7519.4000000000015
         },
         {
-            "time": "2025-01-05 10:00:00+01:00",
-            "pv_estimate": 597.6
+            "time": "2025-01-30 13:00:00+01:00",
+            "pv_estimate": 6722.4
+        },
+        {
+            "time": "2025-01-30 14:00:00+01:00",
+            "pv_estimate": 2593.8
         }
-    ],
-    "future_grid_feedin": null
+    ]
 }

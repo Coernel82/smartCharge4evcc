@@ -126,7 +126,7 @@ def get_loadpoint_id_for_car(car_name, evcc_state):
         if loadpoint.get('vehicleName') == car_name:
             for loadpoint in loadpoints:
                 if loadpoint.get('vehicleName') == car_name:
-                    return loadpoints.index(loadpoint)
+                    return loadpoints.index(loadpoint) + 1 # Loadpoint IDs are 1-indexed in POST but 0-indexed in /api/state
     
 def get_baseload_from_influxdb():
     INFLUX_BASE_URL = settings['InfluxDB']['INFLUX_BASE_URL']

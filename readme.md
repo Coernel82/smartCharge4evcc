@@ -67,9 +67,57 @@ There is a lot to do:
 - a fake loadpoint and charger to be able to lock the home battery with a "quick and dirty" trick: https://github.com/evcc-io/evcc/wiki/aaa-Lifehacks#entladung-eines-steuerbaren-hausspeicher-preisgesteuert-oder-manuell-sperren
 - heatpump set up with SG Ready (https://docs.evcc.io/docs/faq#heizstab--w%C3%A4rmepumpe)
   - if not set up: you will just get an error message - the program keeps operable
-  - furthermore the relays need to react to different conditions. For the Smart Grid operations 1/0 is "boost light", it must react to the evcc MQTT api publish on
-  - 0/1 for block modes
-  - TODO: [high prio] - detailed description, link to my shelly scripts
+  - furthermore the relay or relays need to react to different conditions. For Viessmann Vitocal the Smart Grid conditions are: 1/0 is "boost light", 1/1 is "boost" and 0/1 is "block" (german EVU-Sperre).
+  - in my case one shelly is controlled by evcc directly, the other shelly reacts to MQTT payloads
+  
+
+### Example Script for the Shelly relay which is *not* set up in evcc
+```javascript
+var currentMode = null;    // mode from "evcc/loadpoints/4/mode"
+var enabled = null;        // value from "evcc/loadpoints/4/enabled"
+var loadpointID = 4;      // ID of the loadpoint to control
+
+function updateRelay() {
+    var relayOn = false;
+
+    
+    // • When mode is "off": switch relay on 0/1: the other relay controlled by evcc is off. This is the block condition.
+    // • When mode is "pv" or "minpv":
+    //    - if enabled is "true": switch relay on: this enables this relay and the other one is enabled from evcc → 1/1 → "boost
+    //    - if enabled is "false": switch relay off → both relays are off → 0/0 → normal operation
+    //    - conditions 1/0 boost light is not set up. of course you can change the script to your liking
+    if (currentMode === "off") {
+        relayOn = true;
+    } else if (currentMode === "pv" || currentMode === "minpv") {
+        if (enabled === "true") {
+            relayOn = true;
+        } else if (enabled === "false") {
+            relayOn = false;
+        }
+    } else {
+        print("[DEBUG] Unknown mode:", currentMode);
+    }
+
+    Shelly.call("Switch.Set", { id: 0, on: relayOn });
+    print("[DEBUG] Relay set to", relayOn);
+}
+// Subscription for mode updates.
+MQTT.subscribe("evcc/loadpoints/" + loadpointID + "/mode", function (topic, payload) {
+    currentMode = payload;
+    print("[DEBUG] Mode updated:", currentMode);
+    updateRelay();
+});
+
+// Subscription for enabled updates.
+MQTT.subscribe("evcc/loadpoints/" + loadpointID + "/enabled", function (topic, payload) {
+    enabled = payload;
+    print("[DEBUG] Enabled updated:", enabled);
+    updateRelay();
+});
+    print("[DEBUG] Enabled updated:", enabled);
+    updateRelay();
+
+```
 
 ## 🛠️ Installation
 If these instructions say ``sudo`` do so. If not, do not!
