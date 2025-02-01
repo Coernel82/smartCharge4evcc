@@ -41,14 +41,6 @@ def get_solar_forecast(SOLCAST_API_URL1, SOLCAST_API_URL2):
     cache_file = os.path.join(CACHE_DIR, "solar_forecast_cache.json")
     current_time = datetime.datetime.now().astimezone()  # Verwende lokale Zeit mit Zeitzoneninfo
 
-    if not os.path.exists(cache_file):
-        # Create cache directory if it does not exist
-        if not os.path.exists(CACHE_DIR):
-            os.makedirs(CACHE_DIR)
-        # Create an empty cache file if it does not exist
-        with open(cache_file, "w") as f:
-            json.dump({"timestamp": current_time.isoformat()}, f)
-
     # Check if cache exists and is still valid (within 6 hours)
     if os.path.exists(cache_file):
         with open(cache_file, "r") as f:
@@ -66,6 +58,13 @@ def get_solar_forecast(SOLCAST_API_URL1, SOLCAST_API_URL2):
                     if entry['time'].tzinfo is None:
                         entry['time'] = entry['time'].astimezone()
                 return solar_forecast
+    else:
+         # Create cache directory asit does not exist
+        if not os.path.exists(CACHE_DIR):
+            os.makedirs(CACHE_DIR)
+        if not os.path.exists(cache_file):
+            with open(cache_file, "w") as f:
+                json.dump({"timestamp": current_time.isoformat()}, f)
 
     logging.debug(f"{CYAN}Abrufen der Solarprognose von Solcast{RESET}")
     try:

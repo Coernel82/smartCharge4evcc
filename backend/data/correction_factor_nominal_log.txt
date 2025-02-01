@@ -85,3 +85,15 @@
 {"timestamp": "2025-01-28T16:52:39.517126", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 14.124121820975423, "quality_of_calculation_nominal": 8.379754842344855}
 {"timestamp": "2025-01-28T16:55:19.816612", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 14.058403158094622, "quality_of_calculation_nominal": 8.379771425387927}
 {"timestamp": "2025-01-28T16:59:39.653037", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 13.994654927249675, "quality_of_calculation_nominal": 8.37979782490742}
+{"timestamp": "2025-02-01T09:39:35.711655", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 13.886651700408727, "quality_of_calculation_nominal": 9.62042852661421}
+{"timestamp": "2025-02-01T09:42:12.095083", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 13.781862697474386, "quality_of_calculation_nominal": 9.621226794580117}
+{"timestamp": "2025-02-01T09:47:21.834661", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 13.680165604479425, "quality_of_calculation_nominal": 9.622824170976084}
+{"timestamp": "2025-02-01T09:50:38.314219", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 13.581482995004702, "quality_of_calculation_nominal": 9.623948737265309}
+{"timestamp": "2025-02-01T09:52:28.637620", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 13.485745228357079, "quality_of_calculation_nominal": 9.624431482188067}
+{"timestamp": "2025-02-01T09:55:29.226953", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 13.392848404085102, "quality_of_calculation_nominal": 9.625394637746009}
+{"timestamp": "2025-02-01T09:56:20.253847", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 13.302728094081408, "quality_of_calculation_nominal": 9.625715534321444}
+{"timestamp": "2025-02-01T09:58:18.810670", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 13.215290657127188, "quality_of_calculation_nominal": 9.626356011885385}
+{"timestamp": "2025-02-01T10:05:34.681311", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 13.130299760254973, "quality_of_calculation_nominal": 9.631813561446656}
+{"timestamp": "2025-02-01T10:35:38.736234", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 13.047495779589783, "quality_of_calculation_nominal": 9.64304618347407}
+{"timestamp": "2025-02-01T10:39:23.518245", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 12.967139463259944, "quality_of_calculation_nominal": 9.644176281828598}
+{"timestamp": "2025-02-01T10:56:40.267228", "correction_factor_summer_nominal": 0, "correction_factor_winter_nominal": 12.88904182609578, "quality_of_calculation_nominal": 9.648891419632665}

@@ -45,7 +45,7 @@ import socGuard
 current_version = "v0.0.4-alpha"
 # Logging configuration with color scheme for debug information
 # DEBUG, INFO, WARNING, ERROR, CRITICAL
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 RESET = "\033[0m"
 RED = "\033[91m"
 GREEN = "\033[92m"
@@ -79,6 +79,13 @@ TIMESPAN_WEEKS = settings['InfluxDB']['TIMESPAN_WEEKS']
 
 # Hauptprogramm
 if __name__ == "__main__":
+
+    # Check if the OS is windows. If yes set the mode to debug
+    if os.name == 'nt':
+        logging.getLogger().setLevel(logging.DEBUG)
+        logging.info(f"{YELLOW}Windows detected. Setting logging level to DEBUG. Assuming you are developing and not using the program in normal mode{RESET}")
+
+
     logging.info(f"{GREEN}Starting the main program...{RESET}")
     current_hour_start = datetime.datetime.now().hour
     # we loop the main program till infinity
@@ -89,9 +96,7 @@ if __name__ == "__main__":
         else:
             # wait till the next full hour to start the program as the electricity prices, weather, etc. change exactly to the hour
             logging.info(f"{GREEN}Waiting for the next full hour to start the program...{RESET}")
-
-            # FIXME: change to True when testing is finished
-            while False:
+            while logging.getLogger().level != logging.DEBUG: # wait only on normal mode not debug
                 logging.info(f"{GREEN}... still waiting!{RESET}")
                 time.sleep(10)
                 current_hour = datetime.datetime.now().hour
@@ -163,8 +168,9 @@ if __name__ == "__main__":
             else:
                 last_update_date = ""
 
-            # TODO: delete this line after testing
-            last_update_date = "2022-01-01" # for testing
+
+            if logging.getLogger().level == logging.DEBUG:
+                last_update_date = "2022-01-01" # for testing
 
             if last_update_date != today_date:
                 utils.update_correction_factor()
@@ -300,9 +306,11 @@ if __name__ == "__main__":
                 # BOOST MODE - we can always set this mode as it does not interfere with anything else
                 post_url = f"{evcc_base_url}/api/loadpoints/{heatpump_id}/smartcostlimit/{price_limit_boostmode}"
                 response = requests.post(post_url)
+                cache_folder = 'cache'
+                cache_file = os.path.join(cache_folder, 'heatpump.log')
                 if response.status_code == 200:
                     logging.info(f"{GREEN}Successfully set smart cost limit for heat pump.{RESET}")
-                    with open("cache/heatpump.log", "a") as log_file:
+                    with open(cache_file, "a") as log_file:
                         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         log_file.write(f"{timestamp} - SG: price limit {price_limit_boostmode} \n")
                 else:
@@ -311,7 +319,7 @@ if __name__ == "__main__":
                 # NORMAL MODE - also does not interfere with anything else
                 if price_limit_boostmode <= current_price < price_limit_blocking:
                     home.switch_heatpump_to_mode(heatpump_id, "pv")
-                    with open("cache/heatpump.log", "a") as log_file:
+                    with open(cache_file, "a") as log_file:
                         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         log_file.write(f"{timestamp} - SG: pv \n")
                 
@@ -320,7 +328,7 @@ if __name__ == "__main__":
                 # TODO:[medium prio] Think about logic. Is made sure that blocking is only for x hours in y hours?
                 if current_price >= price_limit_blocking:
                     home.switch_heatpump_to_mode(heatpump_id, "off")
-                    with open("cache/heatpump.log", "a") as log_file:
+                    with open(cache_file, "a") as log_file:
                         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         log_file.write(f"{timestamp} - SG: off \n")
 
@@ -345,7 +353,7 @@ if __name__ == "__main__":
                 potential_home_battery_energy_forecast, grid_feedin, required_charge, charging_plan, grid_feedin = None, None, None, None, None
             else:
                 battery_data = home.process_battery_data(home_battery_json_data, home_battery_api_data)    
-                home_batteries_capacity = home.get_home_batteries_capacities(evcc_state) # this is the total usable capacity of all batteries (info by evcc api)
+                home_batteries_capacity = home.get_total_home_batteries_capacity() # this is the total usable capacity of all batteries
                 home_batteries_SoC = home.get_home_battery_soc() # we refresh it every 4 minutes, so evcc_state is not suitable as it is static
                 remaining_home_battery_capacity = home.calculate_remaining_home_battery_capacity(home_batteries_capacity, home_batteries_SoC)
                 

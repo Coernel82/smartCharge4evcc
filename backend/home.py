@@ -414,23 +414,28 @@ def process_battery_data(home_battery_json_data, home_battery_api_data):
     logging.debug(f"{GREY}Processed battery data: {processed_data}{RESET}")
     return processed_data
 
-def get_home_batteries_capacities(evcc_state):
+def get_total_home_batteries_capacity():
     """
     Calculates the usable and total capacity for each battery.
     """
-    # TODO: [from 2025-01-10 medium prio] we need to get the battery capacities from the evcc_state and not the api again
-    # so much simpler and some code to delete
-    # first attempt on 23.01.2025 - if working delete the todo
+
     batteryCapacity = None
     cache_folder = 'cache'
     cache_file = os.path.join(cache_folder, 'usable_capacity_cache.json')
+    
 
     def get_batteryCapacityFromAPI():
         logging.debug("Fetching battery capacity from API")
         batteryCapacity = 0
-        for key, value in evcc_state['result']['battery'].items():
-            if key.startswith('0'):
-                batteryCapacity += value['batteryCapacity']
+        try:
+            response = requests.get(f"{EVCC_API_BASE_URL}/api/state")
+            response.raise_for_status()
+            data = response.json()
+            batteryCapacity = data['result']['batteryCapacity']
+            logging.debug(f"Fetched battery capacity: {batteryCapacity}")
+        except Exception as e:
+            logging.error(f"Error fetching battery capacity from API: {e}")
+            batteryCapacity = 0
         # Save to cache
         logging.debug(f"Saving battery Capacity {batteryCapacity} to cache")
         with open(cache_file, 'w') as f:
@@ -438,39 +443,38 @@ def get_home_batteries_capacities(evcc_state):
                 'batteryCapacity': batteryCapacity,
                 'timestamp': time.time()
             }, f)
+        return batteryCapacity
 
+    
     # Check if cache file exists
     if not os.path.exists(cache_file):
         logging.debug("No cache file exists, creating new one")
-        # Create cache folder if it doesn't exist
         os.makedirs(cache_folder, exist_ok=True)
-        # Call API and store result in cache
+        batteryCapacity = get_batteryCapacityFromAPI() # it also creates the cache file
+        return batteryCapacity 
+    
+    # Check if cache is older than one week
+    cache_age = time.time() - os.path.getmtime(cache_file)
+    one_week_seconds = 7 * 24 * 60 * 60
+    if cache_age > one_week_seconds:
+        logging.debug("Cache is older than one week, updating")
+        # Cache is old, update it
         try:
-            get_batteryCapacityFromAPI()
+            batteryCapacity = get_batteryCapacityFromAPI() # it also creates the cache file
+            return batteryCapacity
         except Exception as e:
             logging.error(f"Error fetching battery Capacity from API: {e}")
             batteryCapacity = 0
+            return batteryCapacity
     else:
-        # Check if cache is older than one week
-        cache_age = time.time() - os.path.getmtime(cache_file)
-        one_week_seconds = 7 * 24 * 60 * 60
-        if cache_age > one_week_seconds:
-            logging.debug("Cache is older than one week, updating")
-            # Cache is old, update it
-            try:
-                get_batteryCapacityFromAPI()
-            except Exception as e:
-                logging.error(f"Error fetching battery Capacity from API: {e}")
-                batteryCapacity = 0
-        else:
-            logging.debug("Using existing cache file")
-            # Load from cache
-            with open(cache_file, 'r') as f:
-                cache_data = json.load(f)
-                batteryCapacity = cache_data.get('batteryCapacity')
-                logging.debug(f"Loaded battery Capacity {batteryCapacity} from cache")
-                
-    return batteryCapacity # which is the total_usable_capacity
+        logging.debug("Using existing cache file")
+        # Load from cache
+        with open(cache_file, 'r') as f:
+            cache_data = json.load(f)
+            batteryCapacity = cache_data.get('batteryCapacity')
+            logging.debug(f"Loaded battery Capacity {batteryCapacity} from cache")
+            logging.debug(f"Returning battery Capacity: {batteryCapacity}")            
+            return batteryCapacity 
 
 def calculate_average_battery_efficiency(battery_data, evcc_state):
     """
