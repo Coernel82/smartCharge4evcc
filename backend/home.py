@@ -156,69 +156,54 @@ def get_tariffFeedIn(evcc_state):
 def calculate_charging_plan(home_battery_energy_forecast, electricity_prices, purchase_threshold, battery_data, required_charge, evcc_state):
     """
     Calculate the charging plan for a home battery system based on energy forecasts, electricity prices, and required charge.
-    Parameters:
-    home_battery_energy_forecast (list of dict): A list of dictionaries containing energy forecasts for the home battery, each with a 'time' and 'energy' key.
-    electricity_prices (list of dict): A list of dictionaries containing electricity prices, each with a 'starts' and 'pricetotal' key.
-    purchase_threshold (float): The threshold price above which electricity should not be purchased.
-    battery_data (list of dict): A list of dictionaries containing battery data, each with a 'BATTERY_LOADING_ENERGY' key.
-    required_charge (float or dict): The required charge amount. If a float is provided, it will be converted to a dictionary with an 'energy' key.
-    Returns:
-    float: The maximum acceptable price for charging the battery.
-    """
+    The idea is to determine how many hours are needed to charge the required amount at the given battery charging speed.
+    Then, by sorting the hourly electricity prices from lowest to highest, we select the highest price among the best N hours
+    and add the purchase_threshold to determine the maximum acceptable price.
     
-    # if we do not need to charge we still charge if we earn money with it
-    if required_charge == 0:
+    Parameters:
+        home_battery_energy_forecast (list of dict): A list of dictionaries that forecast the battery energy (SoC).
+        electricity_prices (list of dict): A list of dictionaries with hourly electricity prices; each dictionary has at least a 'total' key.
+        purchase_threshold (float): The additional charging cost per kWh (e.g. wear/depreciation costs).
+        battery_data (list of dict): A list of dictionaries containing battery data with a 'BATTERY_LOADING_ENERGY' key.
+        required_charge (float or dict): The required amount of charge needed per hour. If a float is provided, it is used directly;
+                                         if a dict, its 'energy' key is used.
+        evcc_state (dict): The current state containing info (e.g., tariffFeedIn).
+    
+    Returns:
+        float: The maximum acceptable electricity price at which charging is still economically viable.
+    """
+    # Determine the required charge amount in kWh
+    if isinstance(required_charge, dict):
+        required_charge_energy = required_charge.get('energy', 0)
+    else:
+        required_charge_energy = required_charge
+
+    # If no charge is required, use the feed-in tariff (minus the threshold) as the acceptable limit.
+    if required_charge_energy <= 0:
         maximum_acceptable_price = get_tariffFeedIn(evcc_state) - purchase_threshold
         return maximum_acceptable_price
+
+    # Calculate the charging speed (kWh per hour) from battery data.
+    charging_speed = sum(battery['BATTERY_LOADING_ENERGY'] for battery in battery_data)
+    if charging_speed <= 0:
+        # Avoid division by zero scenario
+        return get_tariffFeedIn(evcc_state) - purchase_threshold
+
+    # Determine how many hours are required to deliver the needed charge.
+    charging_hours = math.ceil(required_charge_energy / charging_speed)
+
+    # Sort the electricity prices in ascending order by 'total' price.
+    sorted_prices = sorted(electricity_prices, key=lambda x: x['total'])
+
+    # Make sure we have enough price entries; if not, use the available number.
+    if charging_hours > len(sorted_prices):
+        charging_hours = len(sorted_prices)
     
-    # Ensure required_charge is a dictionary
-    if isinstance(required_charge, float):
-        required_charge = {'energy': required_charge}
+    # The acceptable price is the highest price among the best (lowest-priced) charging_hours,
+    # minus the additional cost for battery wear (purchase_threshold).
+    acceptable_price = sorted_prices[charging_hours - 1]['total'] - purchase_threshold
 
-    # Ensure home_battery_energy_forecast is sorted by time
-    home_battery_energy_forecast = sorted(home_battery_energy_forecast, key=lambda x: x['time'])
-
-    # Ensure electricity_prices is sorted by time
-    sorted_electricity_prices = sorted(electricity_prices, key=lambda x: x['startsAt'])
-    sorted_electricity_prices_copy = sorted_electricity_prices.copy()
-
-    # Calculate charging time
-    average_battery_efficiency = calculate_average_battery_efficiency(battery_data, evcc_state)
-    charging_speed = sum(battery['BATTERY_LOADING_ENERGY'] for battery in battery_data)    
-    
-   
- 
-
-    # iterate over each hour to fill the energy gaps (energy < 0)
-    current_price = get_current_price(sorted_electricity_prices)
-    iterations = 0
-    charge_for_next_hour = 0
-    maximum_acceptable_price = None
-
-    # Ensure we only iterate up to the shortest list length
-    min_length = min(len(home_battery_energy_forecast), len(sorted_electricity_prices))
-
-    for i in range(min_length):
-        hour = home_battery_energy_forecast[i]
-        iterations += 1
-        if hour['energy'] < 0 or charge_for_next_hour > 0:
-            if current_price > purchase_threshold + sorted_electricity_prices[0]['total']:
-                logging.info(f"{RED}Current price ({current_price * 100:.2f} Cent) is above purchase threshold ({purchase_threshold * 100:.2f} Cent).{RESET}")
-                if required_charge['energy'] > charging_speed:
-                    charge_for_next_hour = required_charge['energy'] * 1 / average_battery_efficiency - charging_speed
-                    required_charge['energy'] = charging_speed
-                    # delete first element in sorted_electricity_prices
-                    del sorted_electricity_prices[0]
-                else:
-                    charge_for_next_hour = charging_speed - required_charge['energy'] * 1 / average_battery_efficiency
-
-
-                    logging.info(f"{RED}We need to charge {charge_for_next_hour:.2f} kWh for the next hour.{RESET}")
-    # Find the maximum price
-    # the maximum price is the nth element in 'sorted_electricity_copy' where n is the number of iterations - 1
-    maximum_acceptable_price = sorted_electricity_prices_copy[iterations - 1]['total']
-
-    return maximum_acceptable_price
+    return acceptable_price
 
 
 def get_current_price(electricity_prices):

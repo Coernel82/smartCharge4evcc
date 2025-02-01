@@ -366,13 +366,16 @@ if __name__ == "__main__":
                 home_battery_efficiency = home.calculate_average_battery_efficiency(battery_data, evcc_state)
                 
                 # Here we forcast the energy of the home battery in hourly increments
+                # BUG [high prio]: check complete logic - acceptable price always is the highest price
                 home_battery_energy_forecast, grid_feedin, required_charge = home.calculate_homebattery_soc_forcast_in_Wh(home_batteries_capacity, remaining_home_battery_capacity, usable_energy, hourly_climate_energy, home_battery_efficiency)
 
                 
                 # the real charging plan is done by evcc - we just set the price
                 charging_plan = home.calculate_charging_plan(home_battery_energy_forecast, electricity_prices, purchase_threshold, battery_data, required_charge, evcc_state)
                 maximum_acceptable_price = charging_plan
-                evcc.set_upper_price_limit(maximum_acceptable_price)
+                
+                # TODO: uncomment when logic is working
+                # evcc.set_upper_price_limit(maximum_acceptable_price)
                 
                 
                 # first thought: we do not need to lock the battery when using grid energy is cheaper than battery energy as the battery
@@ -382,7 +385,8 @@ if __name__ == "__main__":
 
                 
                 # here we handley the battery lock to minimize the grid feedin                                
-                home.minimize_future_grid_feedin(settings, electricity_prices, usable_energy, home_battery_energy_forecast, evcc_state, maximum_acceptable_price, purchase_threshold)
+                # TODO: uncomment when logic is working
+                # home.minimize_future_grid_feedin(settings, electricity_prices, usable_energy, home_battery_energy_forecast, evcc_state, maximum_acceptable_price, purchase_threshold)
 
             # we guard the soc of the home battery every 4 minutes. If the current minute is 0, we exit the loop to run the main program
             # error handling in case there is no battery
@@ -393,7 +397,6 @@ if __name__ == "__main__":
             socGuard.initiate_guarding(GREEN, RESET, settings, home_battery_energy_forecast, home_battery_charging_cost_per_kWh)
                 
             # TODO: check if there is a future_grid_feedin or just grid_feedin
-            # FIXME: got outdated values from 3 weeks ago in the web UI, check if that still is the case
             # data for the WebUI, might all be correct as the battery guard stops the program till the next full hour
             utils.json_dump_all_time_series_data(weather_forecast, hourly_climate_energy, hourly_energy_surplus, electricity_prices, home_battery_energy_forecast, grid_feedin, required_charge, charging_plan, usable_energy, solar_forecast)
             logging.info(f"{GREEN}EV charging optimization program completed.{RESET}")
