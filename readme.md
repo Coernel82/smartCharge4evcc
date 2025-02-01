@@ -13,7 +13,7 @@
 - [🧐 How It Works](#-how-it-works)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
-- [Screenshots](#-screenshots)
+- [📷 Screenshots](#screenshots)
 
 ---
 
@@ -350,7 +350,7 @@ Contributions are welcome! Please fork the repository and create a pull request.
 
 MIT
 
-# Screenshots
+# 📷 Screenshots
 ![](assets/add-recurring.png)
 ![](assets/datepicker.png)
 ![](assets/web-ui.png)
