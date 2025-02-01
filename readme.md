@@ -13,14 +13,9 @@
 - [🧐 How It Works](#-how-it-works)
 - [🤝 Contributing](#-contributing)
 - [📄 License](#-license)
+- [Screenshots](#-screenshots)
 
 ---
-
-![](assets/add-recurring.png)
-![](assets/datepicker.png)
-![](assets/web-ui.png)
-![](assets/settings.png)
-
 
 # SmartCharge 🚗⚡
 
@@ -355,7 +350,12 @@ Contributions are welcome! Please fork the repository and create a pull request.
 
 MIT
 
- 
+# Screenshots
+![](assets/add-recurring.png)
+![](assets/datepicker.png)
+![](assets/web-ui.png)
+![](assets/settings.png)
+
 
 ---
 
