@@ -127,7 +127,7 @@ def calculate_homebattery_soc_forcast_in_Wh(home_batteries_capacity, remaining_h
         surplus_time = surplus['time']
         surplus_energy = surplus['pv_estimate']
         # Only consider surplus times after or equal to current_time
-        if surplus_time >= datetime.datetime.now().astimezone():
+        if surplus_time >= current_time:
             # Get corresponding home energy consumption
             home_consumption = next(
                 (he['climate_energy_corrected'] + he['baseload'] for he in home_energy if he['time'] == surplus_time),
@@ -135,10 +135,9 @@ def calculate_homebattery_soc_forcast_in_Wh(home_batteries_capacity, remaining_h
             )
             # Subtract home consumption from surplus energy
             net_energy = surplus_energy - home_consumption
-            if net_energy < 0:
-                net_energy = 0
-            # Add net energy to cumulative_capacity
-            if cumulative_capacity == None:
+            
+             # Add net energy to cumulative_capacity
+            if cumulative_capacity is None:
                 logging.info(f"{RED}No home battery. Cannot store energy.{RESET}")
                 return 0
             cumulative_capacity += net_energy
@@ -149,11 +148,11 @@ def calculate_homebattery_soc_forcast_in_Wh(home_batteries_capacity, remaining_h
                 })
                 cumulative_capacity = home_batteries_capacity
             elif cumulative_capacity < 0:
-                cumulative_capacity = 0
                 required_charge.append({
                     'time': surplus_time,
-                    'energy': (cumulative_capacity - home_batteries_capacity) * 1 / home_battery_efficiency # we need to charge more as we lose energy!
+                    'energy': abs(cumulative_capacity) / home_battery_efficiency  # we need to charge more as we lose energy
                 })
+                cumulative_capacity = 0
             # Append to forecast
             home_battery_energy_forecast.append({
                 'time': surplus_time,
@@ -225,6 +224,8 @@ def calculate_charging_plan(home_battery_energy_forecast, electricity_prices, pu
     # Process each hour within the determined horizon (expensive hours that need topping up)
     for i in range(horizon_index):
         needed_energy = required_charge[i]
+        # convert needed_energy to float
+        needed_energy = float(needed_energy['energy'])
         used_candidate_prices = []
         # Attempt to allocate the needed energy from earlier hours with lower prices.
         while needed_energy > 0:
@@ -258,6 +259,8 @@ def calculate_charging_plan(home_battery_energy_forecast, electricity_prices, pu
 
     # The final acceptable price is the worst-case (maximum) among all hours.
     final_acceptable_price = max(acceptable_prices) if acceptable_prices else 0
+    # convert final acceptable price to float
+    final_acceptable_price = final_acceptable_price['total']
     return final_acceptable_price
 
 

@@ -129,3 +129,8 @@
 {"timestamp": "2025-02-02T12:44:10.233916", "correction_factor_summer": 0.0046, "correction_factor_winter": -637.8159832779919, "quality_of_calculation": 10.027353406246908}
 {"timestamp": "2025-02-02T12:46:51.632643", "correction_factor_summer": 0.0046, "correction_factor_winter": -626.982335819493, "quality_of_calculation": 10.029506169390068}
 {"timestamp": "2025-02-02T12:51:05.305248", "correction_factor_summer": 0.0046, "correction_factor_winter": -616.473697784749, "quality_of_calculation": 10.03348032989999}
+{"timestamp": "2025-02-02T13:00:42.063779", "correction_factor_summer": 0.0046, "correction_factor_winter": -606.2803188910474, "quality_of_calculation": 10.042069509095498}
+{"timestamp": "2025-02-02T13:02:23.937914", "correction_factor_summer": 0.0046, "correction_factor_winter": -596.3927413641568, "quality_of_calculation": 10.043405267524353}
+{"timestamp": "2025-02-02T13:04:43.002608", "correction_factor_summer": 0.0046, "correction_factor_winter": -586.801791163073, "quality_of_calculation": 10.04570890309905}
+{"timestamp": "2025-02-02T13:05:26.228814", "correction_factor_summer": 0.0046, "correction_factor_winter": -577.4985694680216, "quality_of_calculation": 10.046180376665049}
+{"timestamp": "2025-02-02T13:06:10.745343", "correction_factor_summer": 0.0046, "correction_factor_winter": -568.4744444238219, "quality_of_calculation": 10.047113081859893}

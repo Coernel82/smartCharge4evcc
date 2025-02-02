@@ -374,7 +374,7 @@ if __name__ == "__main__":
                 maximum_acceptable_price = charging_plan
                 
                 # TODO: uncomment when logic is working
-                # evcc.set_upper_price_limit(maximum_acceptable_price)
+                evcc.set_upper_price_limit(maximum_acceptable_price)
                 
                 
                 # first thought: we do not need to lock the battery when using grid energy is cheaper than battery energy as the battery
@@ -385,7 +385,7 @@ if __name__ == "__main__":
                 
                 # here we handley the battery lock to minimize the grid feedin                                
                 # TODO: uncomment when logic is working
-                # home.minimize_future_grid_feedin(settings, electricity_prices, usable_energy, home_battery_energy_forecast, evcc_state, maximum_acceptable_price, purchase_threshold)
+                home.minimize_future_grid_feedin(settings, electricity_prices, usable_energy, home_battery_energy_forecast, evcc_state, maximum_acceptable_price, maximum_acceptable_price)
 
             # we guard the soc of the home battery every 4 minutes. If the current minute is 0, we exit the loop to run the main program
             # error handling in case there is no battery
