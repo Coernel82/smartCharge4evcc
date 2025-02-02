@@ -360,9 +360,8 @@ if __name__ == "__main__":
                 
 
                 # this is the additional cost due to wear of battery and inverter 
-                home_battery_charging_cost_per_kWh = home.get_home_battery_charging_cost_per_Wh(battery_data, evcc_state) * 1000
+                additional_home_battery_charging_cost_per_kWh = home.get_home_battery_charging_cost_per_Wh(battery_data, evcc_state) * 1000
                 
-                purchase_threshold = home_battery_charging_cost_per_kWh
                 home_battery_efficiency = home.calculate_average_battery_efficiency(battery_data, evcc_state)
                 
                 # Here we forcast the energy of the home battery in hourly increments
@@ -371,7 +370,7 @@ if __name__ == "__main__":
 
                 
                 # the real charging plan is done by evcc - we just set the price
-                charging_plan = home.calculate_charging_plan(home_battery_energy_forecast, electricity_prices, purchase_threshold, battery_data, required_charge, evcc_state)
+                charging_plan = home.calculate_charging_plan(home_battery_energy_forecast, electricity_prices, additional_home_battery_charging_cost_per_kWh, battery_data, required_charge, evcc_state)
                 maximum_acceptable_price = charging_plan
                 
                 # TODO: uncomment when logic is working

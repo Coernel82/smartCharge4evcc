@@ -72,21 +72,37 @@ def calculate_remaining_home_battery_capacity(home_batteries_capacity, home_batt
 
 def calculate_homebattery_soc_forcast_in_Wh(home_batteries_capacity, remaining_home_battery_capacity, usable_energy, home_energy, home_battery_efficiency):
     """
-    Calculate the SoC forecast for the home batteries in Wh.
-    This function computes the SoC forecast for the home batteries based on their total capacity, state of charge (SoC),
-    remaining capacity, and regenerative energy surplus.
+    Calculate the SoC (State of Charge) forecast for home batteries in watt-hours (Wh).
+    This function evaluates how the available capacity of home batteries changes over time,
+    considering total battery capacity, current remaining capacity, predicted surplus energy,
+    household energy consumption, and battery round-trip efficiency. Any energy exceeding
+    battery capacity is treated as grid feed-in, while any shortage below zero indicates the
+    need for additional charging.
+    
     Args:
-        home_batteries_capacity (float): The total capacity of the home batteries in kWh.
-        home_batteries_SoC (float): The state of charge of the home batteries as a percentage (0-100).
-        remaining_home_battery_capacity (float): The remaining capacity of the home batteries in kWh.
-        regenerative_energy_surplus (float): The regenerative energy surplus in kWh.
+
+        A list of dictionaries where each entry must contain:
+            'time': datetime object for the timestamp.
+            'pv_estimate': float, the estimated surplus energy in kWh.
+        A list of dictionaries where each entry must contain:
+            'time': datetime object for the timestamp.
+            'energy_consumption': float, the home’s energy usage in kWh.
+        The round-trip efficiency of the home battery (0 to 1), representing losses
+        during charging or discharging.
+    
     Returns:
-        float: The SoC forecast for the home batteries in Wh.
+
+        tuple:
+        A tuple of three elements:
+            home_battery_energy_forecast: list of dict: Battery energy forecast, each dict containing:
+               'time' (datetime) and 'energy' (float in kWh).
+            grid_feedin: list of dict: The surplus energy (kWh) fed into the grid, each dict containing
+               'time' (datetime) and 'energy' (float in kWh).
+            required_charge: list of dict: The required energy (kWh) to recharge the battery when capacity is insufficient,
+               each dict containing 'time' (datetime) and 'energy' (float in kWh).
     """
     # Ensure regenerative_energy_surplus is sorted by time
     usable_energy = sorted(usable_energy, key=lambda x: x['time'])
-
-    
 
     # round the current time to the nearest hour
     current_time = datetime.datetime.now().astimezone()
@@ -114,11 +130,13 @@ def calculate_homebattery_soc_forcast_in_Wh(home_batteries_capacity, remaining_h
         if surplus_time >= datetime.datetime.now().astimezone():
             # Get corresponding home energy consumption
             home_consumption = next(
-                (he.get('energy_consumption', 0) for he in home_energy if he['time'] == surplus_time),
+                (he['climate_energy_corrected'] + he['baseload'] for he in home_energy if he['time'] == surplus_time),
                 0
             )
             # Subtract home consumption from surplus energy
             net_energy = surplus_energy - home_consumption
+            if net_energy < 0:
+                net_energy = 0
             # Add net energy to cumulative_capacity
             if cumulative_capacity == None:
                 logging.info(f"{RED}No home battery. Cannot store energy.{RESET}")
@@ -155,55 +173,93 @@ def get_tariffFeedIn(evcc_state):
 
 def calculate_charging_plan(home_battery_energy_forecast, electricity_prices, purchase_threshold, battery_data, required_charge, evcc_state):
     """
-    Calculate the charging plan for a home battery system based on energy forecasts, electricity prices, and required charge.
-    The idea is to determine how many hours are needed to charge the required amount at the given battery charging speed.
-    Then, by sorting the hourly electricity prices from lowest to highest, we select the highest price among the best N hours
-    and add the purchase_threshold to determine the maximum acceptable price.
+    Calculates an acceptable electricity price limit for pre-charging the home battery.
     
     Parameters:
-        home_battery_energy_forecast (list of dict): A list of dictionaries that forecast the battery energy (SoC).
-        electricity_prices (list of dict): A list of dictionaries with hourly electricity prices; each dictionary has at least a 'total' key.
-        purchase_threshold (float): The additional charging cost per kWh (e.g. wear/depreciation costs).
-        battery_data (list of dict): A list of dictionaries containing battery data with a 'BATTERY_LOADING_ENERGY' key.
-        required_charge (float or dict): The required amount of charge needed per hour. If a float is provided, it is used directly;
-                                         if a dict, its 'energy' key is used.
-        evcc_state (dict): The current state containing info (e.g., tariffFeedIn).
+      - home_battery_energy_forecast: list of forecast battery state-of-charge values (in Wh) per hour.
+         (These values already include pre-calculated PV charges/discharges.)
+      - electricity_prices: list of electricity prices per hour.
+      - purchase_threshold: extra cost (e.g. wear/depreciation cost) that is effectively added to the price when charging.
+      - battery_data: dict with keys:
+            "max_capacity": maximum battery capacity (Wh),
+            "charging_speed": maximum charging speed (Wh per hour).
+      - required_charge: list of charge amounts (in Wh) per hour needed to “top up” the battery.
+      - evcc_state: additional data (not used in this implementation).
     
     Returns:
-        float: The maximum acceptable electricity price at which charging is still economically viable.
-    """
-    # Determine the required charge amount in kWh
-    if isinstance(required_charge, dict):
-        required_charge_energy = required_charge.get('energy', 0)
-    else:
-        required_charge_energy = required_charge
-
-    # If no charge is required, use the feed-in tariff (minus the threshold) as the acceptable limit.
-    if required_charge_energy <= 0:
-        maximum_acceptable_price = get_tariffFeedIn(evcc_state) - purchase_threshold
-        return maximum_acceptable_price
-
-    # Calculate the charging speed (kWh per hour) from battery data.
-    charging_speed = sum(battery['BATTERY_LOADING_ENERGY'] for battery in battery_data)
-    if charging_speed <= 0:
-        # Avoid division by zero scenario
-        return get_tariffFeedIn(evcc_state) - purchase_threshold
-
-    # Determine how many hours are required to deliver the needed charge.
-    charging_hours = math.ceil(required_charge_energy / charging_speed)
-
-    # Sort the electricity prices in ascending order by 'total' price.
-    sorted_prices = sorted(electricity_prices, key=lambda x: x['total'])
-
-    # Make sure we have enough price entries; if not, use the available number.
-    if charging_hours > len(sorted_prices):
-        charging_hours = len(sorted_prices)
+      - final_acceptable_price: a price (in the same unit as electricity_prices) indicating the highest price 
+        at which charging is financially acceptable.
     
-    # The acceptable price is the highest price among the best (lowest-priced) charging_hours,
-    # minus the additional cost for battery wear (purchase_threshold).
-    acceptable_price = sorted_prices[charging_hours - 1]['total'] - purchase_threshold
+    Logic:
+      1. For each hour, calculate the extra energy that can be stored (available capacity = max_capacity - forecast SoC).
+      2. Determine the subset (horizon) of hours with required charging until the cumulative required energy
+         reaches the minimum available capacity over the forecast.
+      3. Limit each hour's charge allocation by both the battery's maximum charging speed and its available capacity.
+      4. For each expensive hour in that horizon, try to “precharge” from earlier hours 
+         where the price is at least purchase_threshold lower.
+      5. For each expensive hour, record an acceptable price which is the worst (highest) price among those used or fallback to the expensive hour’s own price.
+      6. Return the final acceptable price as the maximum among these per-hour prices.
+    """
+    max_capacity = evcc_state['result']['batteryCapacity']
+    # Calculate how much extra energy can be stored in each hour (in Wh)
+    available_capacity = [max_capacity - soc['energy'] for soc in home_battery_energy_forecast]
 
-    return acceptable_price
+    # The minimum available capacity over the forecast defines our pre-charge limit.
+    min_available = min(available_capacity)
+
+    # Determine the horizon index: sum required_charge until it meets or exceeds min_available.
+    cumulative_required = 0
+    horizon_index = len(required_charge)  # default: use all hours if never reached
+    for i, req in enumerate(required_charge):
+        cumulative_required += req['energy']
+        if cumulative_required >= min_available:
+            horizon_index = i + 1  # include this hour
+            break
+
+    max_charge_per_hour = sum(battery["BATTERY_LOADING_ENERGY"] for battery in battery_data)
+
+    # Candidate capacity: the maximum energy we can charge each hour, limited by charging speed and available capacity.
+    candidate_capacity = [min(max_charge_per_hour, avail) for avail in available_capacity]
+
+    acceptable_prices = []
+    # Process each hour within the determined horizon (expensive hours that need topping up)
+    for i in range(horizon_index):
+        needed_energy = required_charge[i]
+        used_candidate_prices = []
+        # Attempt to allocate the needed energy from earlier hours with lower prices.
+        while needed_energy > 0:
+            # Find candidate hours before hour i with remaining capacity and with price at least purchase_threshold lower.
+            candidate_indices = [
+                j for j in range(i)
+                if candidate_capacity[j] > 0 and electricity_prices[j] <= (electricity_prices[i] - purchase_threshold)
+            ]
+            # If none are available, break out (cannot precharge further for hour i)
+            if not candidate_indices:
+                break
+
+            # Pick the cheapest candidates first.
+            candidate_indices.sort(key=lambda j: electricity_prices[j])
+            for j in candidate_indices:
+                if needed_energy <= 0:
+                    break
+                allocation = min(candidate_capacity[j], needed_energy)
+                candidate_capacity[j] -= allocation
+                needed_energy -= allocation
+                used_candidate_prices.append(electricity_prices[j])
+            # If no candidate could fully cover the leftover needed_energy, break out.
+            if needed_energy > 0:
+                break
+
+        # Determine acceptable price for hour i:
+        # - Use the highest (worst) candidate price used if any allocation was made
+        # - Otherwise, revert to the expensive hour's own price.
+        acceptable_for_hour = max(used_candidate_prices) if used_candidate_prices else electricity_prices[i]
+        acceptable_prices.append(acceptable_for_hour)
+
+    # The final acceptable price is the worst-case (maximum) among all hours.
+    final_acceptable_price = max(acceptable_prices) if acceptable_prices else 0
+    return final_acceptable_price
+
 
 
 def get_current_price(electricity_prices):
@@ -215,7 +271,7 @@ def get_current_price(electricity_prices):
                                    das unter anderem den Schlüssel 'total' enthält.
 
     Returns:
-        float: Der aktuelle Strompreis oder None, wenn die Liste leer ist.
+        float: Der aktuelle Strompreis oder 0, wenn die Liste leer ist.
     """
     if not electricity_prices:
         logging.warning("Die Liste der Strompreise ist leer.")

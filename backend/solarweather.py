@@ -84,7 +84,7 @@ def get_solar_forecast(SOLCAST_API_URL1, SOLCAST_API_URL2):
 
             # Process forecasts from the current API URL
             for forecast in data['forecasts']:
-                pv_estimate = forecast['pv_estimate'] * 1000
+                pv_estimate = forecast['pv_estimate'] * 1000 / 2 # Convert kW to W and divide by 2 for 30-minute intervals
                 period_end = datetime.datetime.fromisoformat(forecast['period_end'].replace('Z', '+00:00'))
                 period_end = period_end.astimezone() - datetime.timedelta(hours=1)
                 hour_key = (period_end + datetime.timedelta(minutes=30)).replace(minute=0, second=0, microsecond=0)
