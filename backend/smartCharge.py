@@ -8,12 +8,14 @@
 
     
 # Important
+# TODO: are grid_feedin and future_grid_feedin the same?
+# TODO: check API post to block heatpump - multiple commands necessary due to possible evcc bug?
 
 # Good to have
 # TODO: unify cache folder to /backend cache and not /cache
+
 # TODO: Unimportant / Nice to have
 # add MQTT temperature source (via external script and cache)
-# add multiple sources for energy prices (Awattar, Fraunhofer)
 # implement finer resolutions for the api data - finest resolution determined by the worst resolution of all data sources. solcast hobbyist minimum and maximum is 30 minutes
 # add barchart into each trip with the energy compsotion (solar, grid)
 # add savings information for each trip (in the index.html) compared to average price
@@ -327,7 +329,9 @@ if __name__ == "__main__":
                 # blocking is more tricky - when the current price is in the blocking range --> block
                 # TODO:[medium prio] Think about logic. Is made sure that blocking is only for x hours in y hours?
                 if current_price >= price_limit_blocking:
-                    home.switch_heatpump_to_mode(heatpump_id, "off")
+                    for _ in range(8): # there seems to be a bug in evcc - we have to send the command multiple times
+                        home.switch_heatpump_to_mode(heatpump_id, "off")
+                        time.sleep(0.2)
                     with open(cache_file, "a") as log_file:
                         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                         log_file.write(f"{timestamp} - SG: off \n")
